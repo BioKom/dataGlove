@@ -1,0 +1,44 @@
+
+build order:
+	- cDataGloveMapper
+	- cMouseDevice
+
+
+
+* startDataGlove
+	* contains main
+	* later (class?) method for searching for data gloves
+
+* cDataGloveDGTechVHand
+	* abstraction layer vor comunicating/messages for the data glove (VHand 3.0)
+	* static methods to create and evalue the communication messages
+	** normal method for sending each of this wich are using the statig methods
+	* static boolean checkDevice( instream & strDevice )
+	** boolean checkDevice()
+
+
+- cDataGloveMapper: public iDataGloveNewData
+	- mapps betwean a hand gesture and it's action
+
+- eHandGestureEvent?
+	
+- cMouseDevice
+	- methods to call which change the mouse device
+
+
+
+
+
+
+==use without root rights==
+
+Yes, you may write an udev rule.
+
+In /etc/udev/rules.d make a file 30-mydevice.rules (number has to be from 0 to 99 and decides only about the script running order; name doesn't really matter, it has just to be descriptive; .rules extension is required, though)
+
+In this example I'm assuming your device is USB based and you know it's vendor and product id (can be checked using lsusb -v), and you're using mydevice group your user has to be in to use the device. This should be file contents in that case:
+
+SUBSYSTEM=="usb", SYSFS{idVendor}=="0123", SYSFS{idProduct}=="4567", ACTION=="add", GROUP="mydevice", MODE="0664"
+
+MODE equal to 0664 allows device to be written to by it's owner (probably root) and the defined group.
+
