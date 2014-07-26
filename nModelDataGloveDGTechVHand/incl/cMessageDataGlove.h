@@ -142,28 +142,40 @@ public:
 	 * @return the type character of this message
 	 * 	@see cType
 	 */
-	char getType() const;
+	inline char getType() const {
+		
+		return cType;
+	}
 	
 	/**
 	 * @return a pointer to the message/package buffer, with the message,
 	 * 	or NULL if non exists.
 	 * 	@see szMessage
 	 */
-	char * getMessage();
+	inline unsigned char  * getMessage() {
+		
+		return szMessage;
+	}
 	
 	/**
 	 * @return a pointer to the message/package buffer, with the message,
 	 * 	or NULL if non exists.
 	 * 	@see szMessage
 	 */
-	const char * getMessage() const;
+	inline const unsigned char  * getMessage() const {
+		
+		return szMessage;
+	}
 
 	/**
 	 * @return the number of bytes/characters in the message szMessage
 	 * 	@see uiMessageSize
 	 * 	@see szMessage
 	 */
-	unsigned int getMessageSize() const;
+	inline unsigned int getMessageSize() const {
+		
+		return uiMessageSize;
+	}
 	
 	
 	/**
@@ -181,6 +193,116 @@ public:
 	 * @return the CRC for the given data (sum of the bytes modulo 256)
 	 */
 	static char evalueCRC( const char * pData, const int iDataLength );
+	
+	/**
+	 * Reads a integer number from the szMessage at the given offset.
+	 *
+	 * @see szMessage
+	 * @param uiOffset the offset, where the number begins in the szMessage
+	 * 	data (counting starts with 0)
+	 * @return the readed number
+	 */
+	inline int read2ByteInt( const unsigned int uiOffset ) const {
+		
+		if ( ( szMessage == NULL ) || ( uiMessageSize <= uiOffset + 2 ) ) {
+			return 0;
+		}
+		if ( ( szMessage[ uiOffset ] & 0x80 ) == 0 ) {
+			//highest bit not set -> positive number
+			int iReaded = static_cast<int>( szMessage[ uiOffset ] );
+			iReaded = iReaded << 8;
+			iReaded |= static_cast<int>( szMessage[ uiOffset + 1 ] );
+			iReaded = iReaded << 8;
+			return iReaded;
+		}// else highest bit set -> negative number
+		int iReaded = -1;
+		iReaded &= static_cast<int>( szMessage[ uiOffset ] );
+		iReaded = iReaded << 8;
+		iReaded &= static_cast<int>( szMessage[ uiOffset + 1 ] );
+		iReaded = iReaded << 8;
+		return iReaded;
+	}
+
+	/**
+	 * Reads a unsigned int number from the szMessage at the given offset.
+	 *
+	 * @see szMessage
+	 * @param uiOffset the offset, where the number begins in the szMessage
+	 * 	data (counting starts with 0)
+	 * @return the readed number
+	 */
+	inline int read2ByteUInt( const unsigned int uiOffset ) const {
+		
+		if ( ( szMessage == NULL ) || ( uiMessageSize <= uiOffset + 2 ) ) {
+			return 0;
+		}
+		int iReaded = static_cast<int>( szMessage[ uiOffset ] );
+		iReaded = iReaded << 8;
+		iReaded |= static_cast<int>( szMessage[ uiOffset + 1 ] );
+		
+		return iReaded;
+	}
+	
+	/**
+	 * Reads a long number from the szMessage at the given offset.
+	 *
+	 * @see szMessage
+	 * @param uiOffset the offset, where the number begins in the szMessage
+	 * 	data (counting starts with 0)
+	 * @return the readed number
+	 */
+	inline long read4ByteLong( const unsigned int uiOffset ) const {
+		
+		if ( ( szMessage == NULL ) || ( uiMessageSize <= uiOffset + 4 ) ) {
+			return 0;
+		}
+		if ( ( szMessage[ uiOffset ] & 0x80 ) == 0 ) {
+			//highest bit not set -> positive number
+			long lReaded = static_cast<int>( szMessage[ uiOffset ] );
+			lReaded = lReaded << 8;
+			lReaded |= static_cast<int>( szMessage[ uiOffset + 1 ] );
+			lReaded = lReaded << 8;
+			lReaded |= static_cast<int>( szMessage[ uiOffset + 2 ] );
+			lReaded = lReaded << 8;
+			lReaded |= static_cast<int>( szMessage[ uiOffset + 3 ] );
+			return lReaded;
+		}// else highest bit set -> negative number
+		long lReaded = -1;
+		lReaded &= static_cast<int>( szMessage[ uiOffset ] );
+		lReaded = lReaded << 8;
+		lReaded &= static_cast<int>( szMessage[ uiOffset + 1 ] );
+		lReaded = lReaded << 8;
+		lReaded &= static_cast<int>( szMessage[ uiOffset + 2 ] );
+		lReaded = lReaded << 8;
+		lReaded &= static_cast<int>( szMessage[ uiOffset + 3 ] );
+		
+		return lReaded;
+	}
+
+	/**
+	 * Reads a unsigned long number from the szMessage at the given offset.
+	 *
+	 * @see szMessage
+	 * @param uiOffset the offset, where the number begins in the szMessage
+	 * 	data (counting starts with 0)
+	 * @return the readed number
+	 */
+	inline unsigned long read4ByteULong( const unsigned int uiOffset ) const {
+		
+		if ( ( szMessage == NULL ) || ( uiMessageSize <= uiOffset + 4 ) ) {
+			return 0;
+		}
+		unsigned long ulReaded = static_cast<int>( szMessage[ uiOffset ] );
+		ulReaded = ulReaded << 8;
+		ulReaded |= static_cast<int>( szMessage[ uiOffset + 1 ] );
+		ulReaded = ulReaded << 8;
+		ulReaded |= static_cast<int>( szMessage[ uiOffset + 2 ] );
+		ulReaded = ulReaded << 8;
+		ulReaded |= static_cast<int>( szMessage[ uiOffset + 3 ] );
+		
+		return ulReaded;
+	}
+	
 	
 protected:
 	
@@ -212,7 +334,7 @@ protected:
 	 * @see www.dg-tech.it
 	 * @see www.dg-tech.it/vhand3/
 	 */
-	char * szMessage;
+	unsigned char * szMessage;
 	
 	/**
 	 * Number of bytes/characters in the message szMessage.

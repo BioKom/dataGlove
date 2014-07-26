@@ -2,16 +2,16 @@
 //TODO check
 
 /**
- * @file cMessageToDataGlove
- * file name: cMessageToDataGlove.h
+ * @file cMessageStopSamplingToDataGlove
+ * file name: cMessageStopSamplingToDataGlove.h
  * @author Betti Oesterholz
  * @date 11.07.2014
  * @mail webmaster@BioKom.info
  *
  * System: C++
  *
- * This file specifies the parent class for all DGTech VHand data glove
- * messages, which are send to the data glove.
+ * This file specifies the class for the DGTech VHand data glove
+ * messages, to stop sampling the hand data.
  *
  *
  * Copyright (C) @c GPL3 2014 Betti Oesterholz
@@ -30,10 +30,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This file specifies the parent class for all DGTech VHand data glove
- * messages, which are send to the data glove.
- * All Messages which the  DGTech VHand data glove can receive should
- * inherit this class.
+ * This file specifies the class for the DGTech VHand data glove
+ * messages, to stop sampling the hand data.
  * See DG5 VHand 3.0 OEM Technical Datasheet.
  * @see www.dg-tech.it
  * @see www.dg-tech.it/vhand3/
@@ -41,6 +39,8 @@
  * Tested with:
  * 	*  DGTech VHand data glove 3.0 left handed
  *
+ * @see cMessageStartSamplingToDataGlove
+ * @see cMessageSamplingDataFromDataGlove
  */
 /*
 History:
@@ -48,49 +48,51 @@ History:
 */
 
 
-#ifndef ___N_DATA_GLOVE__N_MODEL_DATA_GLOVE_D_G_TECH_V_HAND__C_MESSAGE_TO_DATA_GLOVE_H__
-#define ___N_DATA_GLOVE__N_MODEL_DATA_GLOVE_D_G_TECH_V_HAND__C_MESSAGE_TO_DATA_GLOVE_H__
+#ifndef ___N_DATA_GLOVE__N_MODEL_DATA_GLOVE_D_G_TECH_V_HAND__C_MESSAGE_STOP_SAMPLING_TO_DATA_GLOVE_H__
+#define ___N_DATA_GLOVE__N_MODEL_DATA_GLOVE_D_G_TECH_V_HAND__C_MESSAGE_STOP_SAMPLING_TO_DATA_GLOVE_H__
 
 
 #include "version.h"
 
 #include <string>
 
-#include "cMessageDataGlove.h"
+#include "cMessageToDataGlove.h"
 
 
 namespace nDataGlove{
 
 namespace nModelDataGloveDGTechVHand{
 
-class cMessageToDataGlove : public cMessageDataGlove {
+class cMessageStopSamplingToDataGlove : public cMessageToDataGlove {
 public:
 
 	/**
 	 * The standard constructor for the DGTech VHand data glove message.
+	 *
+	 * @param bCreateMessage if true the message will be created, else
+	 * 	this message will just contain an empty message
 	 */
-	cMessageToDataGlove();
-	
-	
+	explicit cMessageStopSamplingToDataGlove( const bool bCreateMessage = true );
+
 	/**
 	 * The destructor.
 	 */
-	virtual ~cMessageToDataGlove();
+	virtual ~cMessageStopSamplingToDataGlove();
 	
 	
 	/**
-	 * @return the name of this class "cMessageToDataGlove"
+	 * @return the name of this class "cMessageStopSamplingToDataGlove"
 	 */
 	virtual std::string getName() const;
 	
 	
-};//end class cMessageToDataGlove
+};//end class cMessageStopSamplingToDataGlove
 
 
 };//end namespace nDataGlove
 };//end namespace nModelDataGloveDGTechVHand
 
-#endif //___N_DATA_GLOVE__N_MODEL_DATA_GLOVE_D_G_TECH_V_HAND__C_MESSAGE_TO_DATA_GLOVE_H__
+#endif //___N_DATA_GLOVE__N_MODEL_DATA_GLOVE_D_G_TECH_V_HAND__C_MESSAGE_STOP_SAMPLING_TO_DATA_GLOVE_H__
 
 
 

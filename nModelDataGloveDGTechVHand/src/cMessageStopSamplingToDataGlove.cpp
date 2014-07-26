@@ -2,16 +2,16 @@
 //TODO check
 
 /**
- * @file cMessageGetIdToDataGlove
- * file name: cMessageGetIdToDataGlove.cpp
+ * @file cMessageStopSamplingToDataGlove
+ * file name: cMessageStopSamplingToDataGlove.cpp
  * @author Betti Oesterholz
- * @date 11.07.2014
+ * @date 19.07.2014
  * @mail webmaster@BioKom.info
  *
  * System: C++
  *
- * This file implements the parent class for all DGTech VHand data glove
- * messages, which are send to the data glove.
+ * This file implements the class for the DGTech VHand data glove
+ * messages, to start sampling the hand data.
  *
  *
  * Copyright (C) @c GPL3 2014 Betti Oesterholz
@@ -30,8 +30,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This file implements the parent class for all DGTech VHand data glove
- * messages, which are send to the data glove.
+ * This file implements the class for the DGTech VHand data glove
+ * messages, to start sampling the hand data.
  * All Messages which the  DGTech VHand data glove can receive should
  * inherit this class.
  * See DG5 VHand 3.0 OEM Technical Datasheet.
@@ -41,15 +41,16 @@
  * Tested with:
  * 	*  DGTech VHand data glove 3.0 left handed
  *
- * @see cMessageGetIdFromDataGlove
+ * @see cMessageStartSamplingToDataGlove
+ * @see cMessageSamplingDataFromDataGlove
  */
 /*
 History:
-11.07.2014  Oesterholz  created
+19.07.2014  Oesterholz  created
 */
 
 
-#include "cMessageGetIdToDataGlove.h"
+#include "cMessageStopSamplingToDataGlove.h"
 
 #include <cstdlib>
 
@@ -65,38 +66,40 @@ using namespace std;
  * @param bCreateMessage if true the message will be created, else
  * 	this message will just contain an empty message
  */
-cMessageGetIdToDataGlove::cMessageGetIdToDataGlove(
+cMessageStopSamplingToDataGlove::cMessageStopSamplingToDataGlove(
 		const bool bCreateMessage ) {
 	
-	cType = DATA_GLOVE_D_G_TECH_V_HAND__CMD_GET_ID;
+	cType = DATA_GLOVE_D_G_TECH_V_HAND__CMD_STOP_SAMPLING;
 	if ( bCreateMessage ) {
 		uiMessageSize = 5;
 		szMessage = static_cast<unsigned char  *>(malloc( uiMessageSize + 2 ));
 		szMessage[ 0 ] = '$'; //0x24
-		szMessage[ 1 ] = DATA_GLOVE_D_G_TECH_V_HAND__CMD_GET_ID;
+		szMessage[ 1 ] = 0x0B;  //DATA_GLOVE_D_G_TECH_V_HAND__CMD_STOP_SAMPLING
 		szMessage[ 2 ] = 0x02;  //num bytes
-		szMessage[ 3 ] = 0x50;  //CRC
+		szMessage[ 3 ] = 0x31;  //CRC
+		
+		const unsigned char CRC = evalueCRC( szMessage, 3 );  //CRC
+		
 		szMessage[ 4 ] = '#';
 		szMessage[ 5 ] = 0x0;
 	}
 }
 
-
 /**
  * The destructor.
  */
-cMessageGetIdToDataGlove::~cMessageGetIdToDataGlove() {
+cMessageStopSamplingToDataGlove::~cMessageStopSamplingToDataGlove() {
 	
 	//nothing to do
 }
 
 
 /**
- * @return the name of this class "cMessageGetIdToDataGlove"
+ * @return the name of this class "cMessageStopSamplingToDataGlove"
  */
-std::string cMessageGetIdToDataGlove::getName() const {
+std::string cMessageStopSamplingToDataGlove::getName() const {
 	
-	return string( "cMessageGetIdToDataGlove" );
+	return string( "cMessageStopSamplingToDataGlove" );
 }
 
 

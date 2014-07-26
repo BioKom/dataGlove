@@ -56,25 +56,11 @@ History:
 
 namespace nDataGlove{
 
-/**
- * The structure with the data glove identifier data.
- */
-struct TDataGloveID{
-	
-	
-	/**
-	 * The divice type of the data glove.
-	 */
-	enum TDeviceType {
-		NONE, ///no valid data glove device found
-		USB,  ///the data glove is a Usb device
-		WIFI  ///the data glove is a Wifi device
-	} deviceType;
-	
-	//TODO more info
-	
-}; //end TDataGloveID
 
+namespace nModelDataGloveDGTechVHand{
+	//forward declarations
+	class cMessageGetIdFromDataGlove;
+};  //end nModelDataGloveDGTechVHand
 
 class cDataGloveDGTechVHand{
 public:
@@ -113,11 +99,37 @@ public:
 	/**
 	 * This method closes a file to communicate with the data glove.
 	 *
-	 * @see closeDataGloveFile()
-	 * @param iDataGloveStreamFileDescriptor the data glove file identifer
+	 * @see openDataGloveFile()
+	 * @param iDataGloveFileDescriptor the data glove file identifer
 	 * @return true if the data glove file could be closed, else false
 	 */
-	static bool closeDataGloveFile( const int iDataGloveStreamFileDescriptor );
+	static bool closeDataGloveFile( const int iDataGloveFileDescriptor );
+	
+	/**
+	 * This method clears the (file to communicate with) the data glove.
+	 * This includes:
+	 * 	* if running the sampling is stoped
+	 * 	* all to read Data is readed
+	 *
+	 * @see iDataGloveStreamFileDescriptor
+	 * @see openDataGloveFile()
+	 * @see closeDataGloveFile()
+	 * @return true if the data glove file could be cleard, else false
+	 */
+	bool clearDataGlove();
+
+	/**
+	 * This method clears the (file to communicate with) the data glove.
+	 * This includes:
+	 * 	* if running the sampling is stoped
+	 * 	* all to read Data is readed
+	 *
+	 * @see openDataGloveFile()
+	 * @see closeDataGloveFile()
+	 * @param iDataGloveFileDescriptor the data glove file identifer
+	 * @return true if the data glove file could be cleard, else false
+	 */
+	static bool clearDataGloveStatic( const int iDataGloveFileDescriptor );
 	
 	
 	/**
@@ -137,20 +149,85 @@ public:
 	 * This method tries to get the identifier data from the data glove.
 	 *
 	 * @see TDataGloveID
-	 * @param inPDataGloveStraem the pointer to the stream for the
-	 * 	communication with the data glove
-	 * @return the identifier data from the data glove
+	 * @param iDataGloveFileDescriptor the data glove file identifer for
+	 * 	the communication with the data glove
+	 * @return the identifier data message from the data glove (please delete it),
+	 * 	or NULL if non could be loaded
 	 */
-	static TDataGloveID getDataGloveIDStatic( std::iostream * inPDataGloveStraem );
+	static nModelDataGloveDGTechVHand::cMessageGetIdFromDataGlove *
+		getDataGloveIDStatic( const int iDataGloveFileDescriptor );
 	
 	/**
 	 * This method tries to get the identifier data from the data glove.
 	 *
-	 * @see TDataGloveID
-	 * @see pDataGloveStraem
-	 * @return the identifier data from the data glove
+	 * @see iDataGloveStreamFileDescriptor
+	 * @return the identifier data message from the data glove (please delete it),
+	 * 	or NULL if non could be loaded
 	 */
-	TDataGloveID getDataGloveID();
+	nModelDataGloveDGTechVHand::cMessageGetIdFromDataGlove * getDataGloveID();
+	
+	
+	/**
+	 * This method tries to start the sampling of data from the data glove.
+	 *
+	 * @see iDataGloveStreamFileDescriptor
+	 * @param iSamplingType a number for the Sampling package format
+	 * 	possible values are:
+	 * 		0: stop comunicating
+	 * 		1: send quaternion orientation and finger sensors values
+	 * 		2: send only quaternion values
+	 * 		3: send raw gyroscope data, raw accelerometer data,
+	 * 			raw magnetometer data and finger sensor values
+	 * 		4: send only raw data
+	 * 		5: send only finger data
+	 * @return true if the start sampling was successful, else false
+	 */
+	bool startSampling( const int iSamplingType = 1 );
+	
+	/**
+	 * This method tries to start the sampling of data from the data glove.
+	 *
+	 * @param iDataGloveFileDescriptor the data glove file identifer for
+	 * 	the communication with the data glove
+	 * @param iSamplingType a number for the Sampling package format
+	 * 	possible values are:
+	 * 		0: stop comunicating
+	 * 		1: send quaternion orientation and finger sensors values
+	 * 		2: send only quaternion values
+	 * 		3: send raw gyroscope data, raw accelerometer data,
+	 * 			raw magnetometer data and finger sensor values
+	 * 		4: send only raw data
+	 * 		5: send only finger data
+	 * @return true if the start sampling was successful, else false
+	 */
+	static bool startSamplingStatic( const int iDataGloveFileDescriptor,
+		 const int iSamplingType = 1 );
+	
+	/**
+	 * This method tries to stop the sampling of data from the data glove.
+	 * Use clearDataGloveStatic() if all send messages from the data glove
+	 * should also be read.
+	 *
+	 * @see iDataGloveStreamFileDescriptor
+	 * @see clearDataGlove()
+	 * @return true if the stop sampling was successful, else false
+	 */
+	bool stopSampling();
+	
+	/**
+	 * This method tries to stop the sampling of data from the data glove.
+	 * Use clearDataGloveStatic() if all send messages from the data glove
+	 * should also be read.
+	 *
+	 * @see clearDataGloveStatic()
+	 * @param iDataGloveFileDescriptor the data glove file identifer for
+	 * 	the communication with the data glove
+	 * @return true if the stop sampling was successful, else false
+	 */
+	static bool stopSamplingStatic( const int iDataGloveFileDescriptor );
+	
+	
+	
 	
 	/**
 	 * @param pData the data, for which the CRC is to evaluate
@@ -167,6 +244,27 @@ public:
 	 * @return the CRC for the given data (sum of the bytes modulo 256)
 	 */
 	static char evalueCRC( const char * pData, const int iDataLength );
+	
+	
+	/**
+	 * Reads the data form the data glove and writes it to standard output
+	 * (printf) for debugging purpose.
+	 *
+	 * @param iSeconds the seconds input data should be read
+	 */
+	void debugReadData( const int iSeconds = 3 );
+
+	/**
+	 * Reads the data and writes it to standard output (printf) for debugging
+	 * purpose.
+	 *
+	 * @param inDataGloveFile the pointer to the file name for the
+	 * 	communication with the data glove
+	 * @param iSeconds the seconds input data should be read
+	 */
+	static void debugReadDataStatic(
+		const int inDataGloveFile, const int iSeconds = 3 );
+	
 	
 protected:
 	

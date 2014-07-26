@@ -93,8 +93,7 @@ CC:=gcc
 #optimize compile flags
 
 # TODO revert
-# CFLAG:=-O -O2
-CFLAG:=-g -pg -Wall -DTEST
+CFLAG:=-O -O2
 
 CFLAG_TEST:=-g -pg -Wall -DTEST
 INCL:=-I$(BASE_DIR) -I$(DIR_INCL)
@@ -172,7 +171,7 @@ $(foreach SUBFOLDER, $(NAMESPACES), $(eval $(call generat_test_files,$(SUBFOLDER
 OBJ_TEST_FILES:=$(subst .cpp,.o,$(subst $(DIR_TEST),$(DIR_OBJ_TEST),$(TEST_FILES) ))
 
 
-#TEST_PROGRAMS:=
+# TEST_PROGRAMS:=startDataGlove
 
 
 ##########################################################################
@@ -194,9 +193,13 @@ OBJ_TEST_FILES:=$(subst .cpp,.o,$(subst $(DIR_SRC),$(DIR_OBJ_TEST),$(SRC_FILES) 
 ##########################################################################
 
 # the to create executebels
-EXE_FILES:=startDataGlove
+EXE_FILES:=startDataGlove printDataGloveInfo
 
 SRC_EXE_FILES:=$(addprefix $(DIR_SRC), $(addsuffix .cpp, $(EXE_FILES) ) )
+
+
+OBJ_DATA_GLOVE := $(filter-out $(addprefix %, $(addsuffix .o, $(EXE_FILES) ) ),$(OBJ_DATA_GLOVE))
+
 
 
 ##########################################################################
@@ -250,7 +253,7 @@ win_test: LIBS_TEST:=$(LIBS_WIN_TEST)
 #
 define generat_test_bin
 $(DIR_TESTCASE)$(1): $(DIR_OBJ_TEST)$(1).o $(TEST_TOOLS)
-	$(CC) $$(CFLAG_TEST) $$(LDFLAGS) -o $$@ $(OBJ_DATA_GLOVE).o $(TEST_TOOLS) $$(LIBS_TEST)
+	$(CC) $$(CFLAG_TEST) $$(LDFLAGS) -o $$@ $(DIR_OBJ_TEST)$(1).o $(OBJ_DATA_GLOVE).o $(TEST_TOOLS) $$(LIBS_TEST)
 endef
 
 $(foreach TESTPROGRAM, $(TEST_PROGRAMS), $(eval $(call generat_test_bin,$(TESTPROGRAM)) ) )
@@ -266,8 +269,8 @@ $(TEST_TOOLS):
 # @param Programname (file-)name of the program to generate
 #
 define generat_bins
-$(DIR_BIN)$(1):$(OBJ_DATA_GLOVE)
-	$(CC) $$(CFLAG) $(LDFLAGS) -o $$@ $$(OBJ_DATA_GLOVE) $$(LIBS)
+$(DIR_BIN)$(1): $(DIR_OBJ)/$(1).o $(OBJ_DATA_GLOVE)
+	$(CC) $$(CFLAG) $(LDFLAGS) -o $$@ $(DIR_OBJ)/$(1).o $$(OBJ_DATA_GLOVE) $$(LIBS)
 endef
 
 $(foreach PROGRAM, $(EXE_FILES), $(eval $(call generat_bins,$(PROGRAM)) ) )
@@ -277,9 +280,8 @@ $(foreach PROGRAM, $(EXE_FILES), $(eval $(call generat_bins,$(PROGRAM)) ) )
 # @param Programname (file-)name of the program to generate
 #
 define generat_test_bins
-$(DIR_BIN)test_$(1):$(DIR_OBJ_TEST)$(1).o $(OBJ_DATA_GLOVE)
-	$(CC) $$(CFLAG_TEST) $(LDFLAGS) -o  $$(OBJ_DATA_GLOVE) $$(LIBS_TEST)
-#	$(CC) $$(CFLAG_TEST) $(LDFLAGS) -o $$@ $(DIR_OBJ_TEST)$(1).o  $$(OBJ_DATA_GLOVE) $$(LIBS_TEST)
+$(DIR_BIN)test_$(1): $(DIR_OBJ_TEST)/$(1).o $(OBJ_DATA_GLOVE)
+	$(CC) $$(CFLAG_TEST) $(LDFLAGS) -o $$@ $(DIR_OBJ_TEST)/$(1).o $$(OBJ_DATA_GLOVE) $$(LIBS_TEST)
 endef
 
 $(foreach TESTPROGRAM, $(EXE_FILES), $(eval $(call generat_test_bins,$(TESTPROGRAM)) ) )
@@ -354,7 +356,7 @@ endif
 ##########################################################################
 
 clean:
-	rm -rf $(DIR_OBJ) $(DIR_LIB) $(DIR_OBJ_TEST) $(DIR_BIN) $(DIR_TESTCASE)
+	rm -rf $(DIRS_TO_DELETE)
 	rm -f dependencies.dep dependencies.dep_tmp
 
 

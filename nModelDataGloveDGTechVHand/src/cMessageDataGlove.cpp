@@ -46,6 +46,10 @@ History:
 */
 
 
+//switches for test proposes
+#define DEBUG
+
+
 #include "cMessageDataGlove.h"
 
 #include <cstdlib>
@@ -53,6 +57,7 @@ History:
 
 
 #include "cMessageFromDataGlove.h"
+#include "cMessageGetIdFromDataGlove.h"
 
 
 
@@ -67,7 +72,6 @@ using namespace std;
 cMessageDataGlove::cMessageDataGlove():
 		cType( DATA_GLOVE_D_G_TECH_V_HAND__UNKNOWN ), szMessage( NULL ),
 		uiMessageSize( 0 ) {
-	
 	//nothing to do
 }
 
@@ -108,15 +112,17 @@ cMessageFromDataGlove * cMessageDataGlove::readMessage(
 		const unsigned int uiMsTimeout,
 		const bool bHeaderRead ) {
 	
+	DEBUG_OUT_L2(<<"cMessageDataGlove::readMessage( iDataGloveFileDescriptor="<<iDataGloveFileDescriptor<<", uiMsTimeout="<<uiMsTimeout<<", bHeaderRead="<<(bHeaderRead?"yes":"no")<<" ) called"<<endl<<flush);
 	if ( iDataGloveFileDescriptor == -1 ) {
 		//no valid file -> can't read the message
+		DEBUG_OUT_L2(<<"   not a valid file descriptor"<<endl<<flush);
 		return NULL;
 	}
 	//TODO change to milli secounds
 	const time_t tmEndTime = time( NULL ) + (
 		( uiMsTimeout == 0 ) ? 0 : (uiMsTimeout / 1000) );
 	
-	char charReaded = 0;
+	unsigned char charReaded = 0;
 	
 	int iReadStatus = 0;
 	if ( ! bHeaderRead ) {
@@ -125,16 +131,19 @@ cMessageFromDataGlove * cMessageDataGlove::readMessage(
 			iReadStatus = read( iDataGloveFileDescriptor, &charReaded, 1 );
 			if ( iReadStatus == - 1 ) {
 				//Error occured while reading
+				DEBUG_OUT_L2(<<"   Error occured while reading"<<endl<<flush);
 				return NULL;
 			}//else
 			if ( 0 < iReadStatus ) {
-				if ( charReaded != DATA_GLOVE_D_G_TECH_V_HAND__HEADER ) {
-					//no valid header
-					return NULL;
-				}
 				break;
 			}
 		} while ( time( NULL ) < tmEndTime );
+		
+		if ( charReaded != DATA_GLOVE_D_G_TECH_V_HAND__HEADER ) {
+			//no valid header
+			DEBUG_OUT_L2(<<"   no valid header"<<endl<<flush);
+			return NULL;
+		}
 	}
 #define FEATURE_FAST_DATA_GLOVE_MESSAGE_READ
 #ifdef FEATURE_FAST_DATA_GLOVE_MESSAGE_READ
@@ -146,42 +155,50 @@ cMessageFromDataGlove * cMessageDataGlove::readMessage(
 		iReadStatus = read( iDataGloveFileDescriptor, &cCommandChar, 1 );
 		if ( iReadStatus == - 1 ) {
 			//Error occured while reading
+			DEBUG_OUT_L2(<<"   Error occured while reading"<<endl<<flush);
 			return NULL;
 		}//else
 		if ( 0 < iReadStatus ) {
 			break;
 		}
 	} while ( time( NULL ) < tmEndTime );
-	//TODO check if cCommandChar is valid
-	//if ( cCommandChar != )
+	//check if cCommandChar is valid
+	if ( ( cCommandChar != DATA_GLOVE_D_G_TECH_V_HAND__CMD_GET_ID ) ) {
+		//TODO more cCommandChar types
+		//no valid from message
+		DEBUG_OUT_L2(<<"   no valid from message"<<endl<<flush);
+		return NULL;
+	}
 	
 	//read size char
 	do {// if new data is available on the serial port, read it
 		iReadStatus = read( iDataGloveFileDescriptor, &charReaded, 1 );
 		if ( iReadStatus == - 1 ) {
 			//Error occured while reading
+			DEBUG_OUT_L2(<<"   Error occured while reading"<<endl<<flush);
 			return NULL;
 		}//else
 		if ( 0 < iReadStatus ) {
 			break;
 		}
 	} while ( time( NULL ) < tmEndTime );
-	unsigned int uiBytesToRead = static_cast<unsigned int>((unsigned char)(
-		charReaded));
+	unsigned int uiBytesToRead = static_cast<unsigned int>(charReaded);
 	if ( uiBytesToRead < 2 ) {
 		//CRC and endchar should be still to read
 		//-> one or more are missing -> no valid message
 		return NULL;
 	}
 	unsigned int uiReadedMessageSize = uiBytesToRead + 2;
-	char * szReadedMessage = static_cast<char *>(
+	unsigned char * szReadedMessage = static_cast<unsigned char *>(
 		malloc( uiReadedMessageSize + 2 ) );
 	szReadedMessage[ 0 ] = DATA_GLOVE_D_G_TECH_V_HAND__HEADER;
 	szReadedMessage[ 1 ] = cCommandChar;
 	szReadedMessage[ 2 ] = charReaded;
 	szReadedMessage[ uiReadedMessageSize ] = 0x0;  //add Null character behind message
 	unsigned int uiByte = 3;
-	uiBytesToRead -= 1;
+	//uiBytesToRead -= 1;
+	
+	DEBUG_OUT_L2(<<"   Reading remaining "<<uiBytesToRead<<" byte of message od size "<<uiReadedMessageSize<<endl<<flush);
 	
 	do {// if new data is available on the serial port, read it
 		if ( uiBytesToRead == 0 ) {
@@ -191,6 +208,7 @@ cMessageFromDataGlove * cMessageDataGlove::readMessage(
 			uiBytesToRead );
 		if ( iReadStatus == - 1 ) {
 			//Error occured while reading
+			DEBUG_OUT_L2(<<"   Error occured while reading"<<endl<<flush);
 			return NULL;
 		}//else
 		/*if ( uiBytesToRead < iReadStatus ) {
@@ -200,6 +218,13 @@ cMessageFromDataGlove * cMessageDataGlove::readMessage(
 		if ( 0 < iReadStatus ) {
 			uiByte += iReadStatus;
 			uiBytesToRead -= iReadStatus;
+			
+/*TODO weg integers read could be look like endchar
+			if ( szReadedMessage[ uiByte ] == DATA_GLOVE_D_G_TECH_V_HAND__ENDCHAR ) {
+				//end char read -> entire message read
+				break;
+			}
+*/
 			continue;
 		}
 	} while ( time( NULL ) < tmEndTime );
@@ -210,7 +235,7 @@ cMessageFromDataGlove * cMessageDataGlove::readMessage(
 	//allocate memory for the message buffer
 	unsigned int uiByte = 0;
 	unsigned int uiMaxSize = 64;
-	unsigned int szReadedMessage = malloc( uiMaxSize );
+	unsigned char szReadedMessage = malloc( uiMaxSize );
 	szReadedMessage[ uiByte ] = DATA_GLOVE_D_G_TECH_V_HAND__HEADER;
 	uiByte++;
 	
@@ -241,37 +266,47 @@ cMessageFromDataGlove * cMessageDataGlove::readMessage(
 			break;  //done;
 		}
 	};
-	const char cCommandChar = szReadedMessage[ 1 ];
+	const unsigned char  cCommandChar = szReadedMessage[ 1 ];
 	unsigned int uiReadedMessageSize = uiByte;
 #endif //FEATURE_FAST_DATA_GLOVE_MESSAGE_READ
 	
 	if ( ( uiByte < 5 ) ||
 			( szReadedMessage[ uiByte - 1 ] != DATA_GLOVE_D_G_TECH_V_HAND__ENDCHAR ) ||
-			( szReadedMessage[ uiByte - 2 ] != evalueCRC( szReadedMessage, uiReadedMessageSize ) ) ) {
+			( szReadedMessage[ uiByte - 2 ] != evalueCRC( szReadedMessage, uiReadedMessageSize - 2 ) ) ) {
 		//no valid message readed
+		DEBUG_OUT_L2(<<"   no valid message readed ("<<uiByte<<" byte read, end char '"<<szReadedMessage[ uiByte - 1 ]<<"', CRC read "<<((int)(szReadedMessage[ uiByte - 2 ]))<<" CRC correct "<<((int)(evalueCRC( szReadedMessage, uiReadedMessageSize - 2 ) ))<<" )"<<endl<<flush);
+		
 		delete szReadedMessage;
 		szReadedMessage = NULL;
 		uiReadedMessageSize = 0;
 		return NULL;
 	}
-	//TODO create the correct message
-	
+	//create the correct message
 	cMessageFromDataGlove * pReadedMessageFromDataGlove = NULL;
-	
-	//TODO
+	switch ( cCommandChar ) {
+		case DATA_GLOVE_D_G_TECH_V_HAND__CMD_GET_ID:{
+			pReadedMessageFromDataGlove = new cMessageGetIdFromDataGlove();
+		};
+		//TODO more message types
+		
+	};  //end switch ( cCommandChar )
 	
 	if ( pReadedMessageFromDataGlove != NULL ) {
 		//set data for created message
 		pReadedMessageFromDataGlove->uiMessageSize = uiReadedMessageSize;
+		if ( pReadedMessageFromDataGlove->szMessage != NULL ) {
+			//delete the old message
+			delete (pReadedMessageFromDataGlove->szMessage);
+		}
 		pReadedMessageFromDataGlove->szMessage = szReadedMessage;
 		pReadedMessageFromDataGlove->cType = cCommandChar;
 	} else {  //no correct message could be created
+		DEBUG_OUT_L2(<<"   no correct message could be created"<<endl<<flush);
 		delete szReadedMessage;
 		szReadedMessage = NULL;
 		uiReadedMessageSize = 0;
 		return NULL;
 	}
-	
 	
 	return pReadedMessageFromDataGlove;
 }
@@ -299,50 +334,6 @@ bool cMessageDataGlove::writeMessage( const int iDataGloveFileDescriptor ) {
 	}
 	
 	return true;
-}
-
-
-
-/**
- * @return the type character of this message
- * 	@see cType
- */
-char cMessageDataGlove::getType() const {
-	
-	return cType;
-}
-
-
-/**
- * @return a pointer to the message/package buffer, with the message,
- * 	or NULL if non exists.
- * 	@see szMessage
- */
-char * cMessageDataGlove::getMessage() {
-	
-	return szMessage;
-}
-
-
-/**
- * @return a pointer to the message/package buffer, with the message,
- * 	or NULL if non exists.
- * 	@see szMessage
- */
-const char * cMessageDataGlove::getMessage() const {
-	
-	return szMessage;
-}
-
-
-/**
- * @return the number of bytes/characters in the message szMessage
- * 	@see uiMessageSize
- * 	@see szMessage
- */
-unsigned int cMessageDataGlove::getMessageSize() const {
-	
-	return uiMessageSize;
 }
 
 

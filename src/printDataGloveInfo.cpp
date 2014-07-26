@@ -2,17 +2,17 @@
 //TODO check
 
 /**
- * @file startDataGlove
- * file name: startDataGlove.cpp
+ * @file printDataGloveInfo
+ * file name: printDataGloveInfo.cpp
  * @author Betti Oesterholz
- * @date 02.12.2012
+ * @date 14.07.2014
  * @mail webmaster@BioKom.info
  *
  * System: C++
  *
  * This programm runs the data glove programm.
  *
- * Copyright (C) @c GPL3 2010 Betti Oesterholz
+ * Copyright (C) @c GPL3 2014 Betti Oesterholz
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@
  * actions.
  *
  *
- * call: startDataGlove [DATA_GLOVE_PORT]
+ * call: printDataGloveInfo [DATA_GLOVE_PORT]
  * 	(Note: You will need root right for using the USB port.)
  *
  * parameters:
@@ -43,7 +43,7 @@
  */
 /*
 History:
-02.12.2012  Oesterholz  created
+14.07.2014  Oesterholz  created
 */
 
 //TODO rework
@@ -73,7 +73,7 @@ int main(int argc, char* argv[]){
 	string szDataGlovePath( "/dev/ttyUSB0" );
 	
 	/*if ( argc < 2 ){
-		cout<<" call: startDataGlove [DATA_GLOVE_PORT}"<<endl;
+		cout<<" call: printDataGloveInfo [DATA_GLOVE_PORT}"<<endl;
 		cout<<""<<endl;
 		cout<<"  parameters:"<<endl;
 		cout<<"  	DATA_GLOVE_PORT"<<endl;
@@ -85,6 +85,15 @@ int main(int argc, char* argv[]){
 	if ( 1 < argc ){
 		szDataGlovePath = string( argv[1] );
 	}
+	
+//TODO debug
+/*
+	int iDataGloveFile = cDataGloveDGTechVHand::openDataGloveFile( szDataGlovePath.c_str() );
+	cDataGloveDGTechVHand::stopSamplingStatic( iDataGloveFile );
+	cDataGloveDGTechVHand::debugReadDataStatic( iDataGloveFile, 3 );
+	cDataGloveDGTechVHand::closeDataGloveFile( iDataGloveFile );
+*/
+	
 	
 	const bool isValid =
 		cDataGloveDGTechVHand::isLiveDataGlove( szDataGlovePath.c_str() );
@@ -105,49 +114,18 @@ int main(int argc, char* argv[]){
 				"  mask: "<<pMessageGetIdFromDataGlove->getMaskString()<<
 				"  gateway: "<<pMessageGetIdFromDataGlove->getGatewayString()<<endl;
 		}
+		cout<<endl<<endl<<"Reading Data:"<<endl;
+		//read some dataglove hand gesture data
+		dataGloveDGTechVHand.startSampling( 1 );
 		
+		dataGloveDGTechVHand.debugReadData( 3 );
+		
+		dataGloveDGTechVHand.stopSampling();
 		
 	} else {
 		cout<<"The device \""<<szDataGlovePath<<"\" is not a valid data glove DGTech VHand."<<endl;
 	}
 	
-	/*
-	filebuf fbDataGlove;
-	
-	fbDataGlove.open(szDataGlovePath.c_str(), ios_base::binary );
-	
-	iostream streamDataGlove( &fbDataGlove );
-	//open( szDataGlovePath.c_str(), O_RDWR | O_NOCTTY | O_NDELAY );
-	
-	cDataGloveDGTechVHand::isLiveDataGloveStraem( &streamDataGlove );
-	
-	fbDataGlove.close();
-	*/
-	/*TODO old
-	//create object for data glove port
-	cDataGloveSerialPort dataGlovePortReader( szDataGlovePath, 8 );
-	
-	//create object for data glove output
-	cOutputDataGloveData dataGloveOutput;
-	dataGlovePortReader.registerHandGestureListener( &dataGloveOutput );
-	
-	//init data glove port reader
-	if ( ! dataGlovePortReader.init() ){
-		cerr<<"Error: data glove port reader could not be init"<<endl;
-		return 1;
-	}
-	//start data glove port reader
-	if ( ! dataGlovePortReader.run() ){
-		cerr<<"Error: data glove port reader has not run correctly"<<endl;
-		return 2;
-	}
-	
-	//destroy data glove port reader
-	if ( ! dataGlovePortReader.destroy() ){
-		cerr<<"Error: data glove port reader could not be destroyed"<<endl;
-		return 3;
-	}
-	*/
 	
 	return 0;
 }

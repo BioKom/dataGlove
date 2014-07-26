@@ -2,16 +2,16 @@
 //TODO check
 
 /**
- * @file cMessageGetIdToDataGlove
- * file name: cMessageGetIdToDataGlove.h
+ * @file cMessageStartSamplingToDataGlove
+ * file name: cMessageStartSamplingToDataGlove.h
  * @author Betti Oesterholz
- * @date 11.07.2014
+ * @date 19.07.2014
  * @mail webmaster@BioKom.info
  *
  * System: C++
  *
  * This file specifies the class for the DGTech VHand data glove
- * messages, to get the Id message.
+ * messages, to start sampling the hand data.
  *
  *
  * Copyright (C) @c GPL3 2014 Betti Oesterholz
@@ -31,7 +31,7 @@
  *
  *
  * This file specifies the class for the DGTech VHand data glove
- * messages, to get the Id message.
+ * messages, to start sampling the hand data.
  * See DG5 VHand 3.0 OEM Technical Datasheet.
  * @see www.dg-tech.it
  * @see www.dg-tech.it/vhand3/
@@ -39,16 +39,17 @@
  * Tested with:
  * 	*  DGTech VHand data glove 3.0 left handed
  *
- * @see cMessageGetIdFromDataGlove
+ * @see cMessageSamplingDataFromDataGlove
+ * @see cMessageStopSamplingToDataGlove
  */
 /*
 History:
-11.07.2014  Oesterholz  created
+19.07.2014  Oesterholz  created
 */
 
 
-#ifndef ___N_DATA_GLOVE__N_MODEL_DATA_GLOVE_D_G_TECH_V_HAND__C_MESSAGE_GET_ID_TO_DATA_GLOVE_H__
-#define ___N_DATA_GLOVE__N_MODEL_DATA_GLOVE_D_G_TECH_V_HAND__C_MESSAGE_GET_ID_TO_DATA_GLOVE_H__
+#ifndef ___N_DATA_GLOVE__N_MODEL_DATA_GLOVE_D_G_TECH_V_HAND__C_MESSAGE_START_SAMPLING_TO_DATA_GLOVE_H__
+#define ___N_DATA_GLOVE__N_MODEL_DATA_GLOVE_D_G_TECH_V_HAND__C_MESSAGE_START_SAMPLING_TO_DATA_GLOVE_H__
 
 
 #include "version.h"
@@ -62,7 +63,7 @@ namespace nDataGlove{
 
 namespace nModelDataGloveDGTechVHand{
 
-class cMessageGetIdToDataGlove : public cMessageToDataGlove {
+class cMessageStartSamplingToDataGlove : public cMessageToDataGlove {
 public:
 
 	/**
@@ -71,27 +72,42 @@ public:
 	 * @param bCreateMessage if true the message will be created, else
 	 * 	this message will just contain an empty message
 	 */
-	explicit cMessageGetIdToDataGlove( const bool bCreateMessage = true );
+	explicit cMessageStartSamplingToDataGlove( const bool bCreateMessage );
 	
+	/**
+	 * The standard constructor for the DGTech VHand data glove message.
+	 *
+	 * @param iSamplingType a number for the Sampling package format
+	 * 	possible values are:
+	 * 		0: stop comunicating
+	 * 		1: send quaternion orientation and finger sensors values
+	 * 		2: send only quaternion values
+	 * 		3: send raw gyroscope data, raw accelerometer data,
+	 * 			raw magnetometer data and finger sensor values
+	 * 		4: send only raw data
+	 * 		5: send only finger data
+	 */
+	explicit cMessageStartSamplingToDataGlove( const int iSamplingType = 1 );
+
 	/**
 	 * The destructor.
 	 */
-	virtual ~cMessageGetIdToDataGlove();
+	virtual ~cMessageStartSamplingToDataGlove();
 	
 	
 	/**
-	 * @return the name of this class "cMessageGetIdToDataGlove"
+	 * @return the name of this class "cMessageStartSamplingToDataGlove"
 	 */
 	virtual std::string getName() const;
 	
 	
-};//end class cMessageGetIdToDataGlove
+};//end class cMessageStartSamplingToDataGlove
 
 
 };//end namespace nDataGlove
 };//end namespace nModelDataGloveDGTechVHand
 
-#endif //___N_DATA_GLOVE__N_MODEL_DATA_GLOVE_D_G_TECH_V_HAND__C_MESSAGE_GET_ID_TO_DATA_GLOVE_H__
+#endif //___N_DATA_GLOVE__N_MODEL_DATA_GLOVE_D_G_TECH_V_HAND__C_MESSAGE_START_SAMPLING_TO_DATA_GLOVE_H__
 
 
 

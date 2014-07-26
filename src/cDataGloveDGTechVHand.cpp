@@ -52,7 +52,11 @@ History:
 
 
 #include "cMessageDataGlove.h"
+#include "cMessageFromDataGlove.h"
 #include "cMessageGetIdToDataGlove.h"
+#include "cMessageGetIdFromDataGlove.h"
+#include "cMessageStartSamplingToDataGlove.h"
+#include "cMessageStopSamplingToDataGlove.h"
 
 //TODO rework
 
@@ -74,6 +78,7 @@ cDataGloveDGTechVHand::cDataGloveDGTechVHand( const char * inPDataGloveFile ) :
 		iDataGloveStreamFileDescriptor( -1 ) {
 	
 	iDataGloveStreamFileDescriptor = openDataGloveFile( inPDataGloveFile );
+	clearDataGloveStatic( iDataGloveStreamFileDescriptor );
 }
 
 
@@ -131,19 +136,81 @@ int cDataGloveDGTechVHand::openDataGloveFile( const char * inPDataGloveFile ) {
  * This method closes a file to communicate with the data glove.
  *
  * @see closeDataGloveFile()
- * @param iDataGloveStreamFileDescriptor the data glove file identifer
+ * @param iDataGloveFileDescriptor the data glove file identifer
  * @return true if the data glove file could be closed, else false
  */
-bool cDataGloveDGTechVHand::closeDataGloveFile( const int iDataGloveStreamFileDescriptor ) {
+bool cDataGloveDGTechVHand::closeDataGloveFile( const int iDataGloveFileDescriptor ) {
 	
-	if ( iDataGloveStreamFileDescriptor != -1 ) {
+	if ( iDataGloveFileDescriptor != -1 ) {
 		//close file
-		close( iDataGloveStreamFileDescriptor );
+		clearDataGloveStatic( iDataGloveFileDescriptor );
+		close( iDataGloveFileDescriptor );
 		return true;
 	}//else no valid file descriptor
 	return false;
 }
 
+
+/**
+ * This method clears the (file to communicate with) the data glove.
+ * This includes:
+ * 	* if running the sampling is stoped
+ * 	* all to read Data is readed
+ *
+ * @see iDataGloveStreamFileDescriptor
+ * @see openDataGloveFile()
+ * @see closeDataGloveFile()
+ * @return true if the data glove file could be cleard, else false
+ */
+bool cDataGloveDGTechVHand::clearDataGlove()  {
+	
+	return clearDataGloveStatic( iDataGloveStreamFileDescriptor );
+}
+
+
+/**
+ * This method clears the (file to communicate with) the data glove.
+ * This includes:
+ * 	* if running the sampling is stoped
+ * 	* all to read Data is readed
+ *
+ * @see openDataGloveFile()
+ * @see closeDataGloveFile()
+ * @param iDataGloveFileDescriptor the data glove file identifer
+ * @return true if the data glove file could be cleard, else false
+ */
+bool cDataGloveDGTechVHand::clearDataGloveStatic(
+		const int iDataGloveFileDescriptor ) {
+	
+	if ( iDataGloveFileDescriptor <= 0 ) {
+		return false;
+	}
+	unsigned char cReaded = 0;
+	if ( 0 < read( iDataGloveFileDescriptor, &cReaded, 1 ) ) {
+		//data to read -> stop sampling + try read all data
+		//write the stop sampling message
+		cMessageStopSamplingToDataGlove messageStopSamplingToDataGlove;
+		const bool bMessageWritten =
+			messageStopSamplingToDataGlove.writeMessage( iDataGloveFileDescriptor );
+		
+		if ( ! bMessageWritten ) {
+			return false;
+		}
+		
+		time_t tmEndTime = time( NULL ) + 3;  //read maximal 3 seconds
+		
+		while ( time( NULL ) < tmEndTime ) {
+			// if new data is available on the serial port, print it out
+			if ( read( iDataGloveFileDescriptor, &cReaded, 1 ) == 0 ) {
+				//all data read
+				return true;
+			}
+		}
+		return false;  //not all data read
+	}
+	//no data to read -> data glove file cleared
+	return true;
+}
 
 
 /**
@@ -158,10 +225,12 @@ bool cDataGloveDGTechVHand::closeDataGloveFile( const int iDataGloveStreamFileDe
 bool cDataGloveDGTechVHand::isLiveDataGlove( const char * inPDataGloveFile ) {
 	
 	int iDataGloveFileDescriptor = openDataGloveFile( inPDataGloveFile );
-	if ( iDataGloveFileDescriptor == -1 ) {
+	if ( iDataGloveFileDescriptor <= 0 ) {
 		return false;
 	}
-	
+	if ( ! clearDataGloveStatic( iDataGloveFileDescriptor ) ) {
+		return false;  //data glove can not be cleared
+	}
 	
 	//write the get ID message
 	cMessageGetIdToDataGlove messageGetIdToDataGlove;
@@ -172,35 +241,20 @@ bool cDataGloveDGTechVHand::isLiveDataGlove( const char * inPDataGloveFile ) {
 		return false;
 	}
 	
-/*	
-	char getIDRequest[ 8 ];
-
-	getIDRequest[ 0 ] = '$'; //0x24
-	getIDRequest[ 1 ] = 0x0C;
-	getIDRequest[ 2 ] = 0x02;   //num bytes
-	getIDRequest[ 3 ] = 0x50;  //CRC
-	getIDRequest[ 4 ] = '#';
-	getIDRequest[ 5 ] = 0x0;
+	//read the result message
+	const cMessageFromDataGlove * pResultMessage =
+		cMessageDataGlove::readMessage( iDataGloveFileDescriptor, 3000, false );
 	
-	write( iDataGloveFileDescriptor, &getIDRequest, 5 );
-*/
-
-	time_t tmEndTime = time( NULL ) + 3;
-	
-	unsigned int uiByte = 1;
-	unsigned char cReaded = 0;
-	unsigned int uiConvertedNumber = 0;
-	printf( "Reading:\n" );
-	while ( time( NULL ) < tmEndTime ) {
-		// if new data is available on the serial port, print it out
-		if ( read( iDataGloveFileDescriptor, &cReaded, 1 ) > 0 ) {
-			uiConvertedNumber = cReaded;
-			printf( "Byte %ud: '%1c'  0x%02X  %3u\n", uiByte, cReaded,
-				uiConvertedNumber, uiConvertedNumber );
-			uiByte++;
-		}
+	if ( pResultMessage == 0 ) {
+		//no result could be read -> invalid data glove file
+		return false;
 	}
-	printf( "done reading\n" );
+	if ( pResultMessage->getType() != DATA_GLOVE_D_G_TECH_V_HAND__CMD_GET_ID ) {
+		//wrong message read -> invalid data glove file
+		delete pResultMessage;
+		return false;
+	}
+	delete pResultMessage;
 
 	return closeDataGloveFile( iDataGloveFileDescriptor );
 }
@@ -211,47 +265,203 @@ bool cDataGloveDGTechVHand::isLiveDataGlove( const char * inPDataGloveFile ) {
  * This method tries to get the identifier data from the data glove.
  *
  * @see TDataGloveID
- * @param inPDataGloveStraem the pointer to the stream for the
- * 	communication with the data glove
- * @return the identifier data from the data glove
+ * @param iDataGloveFileDescriptor the data glove file identifer for
+ * 	the communication with the data glove
+ * @return the identifier data message from the data glove (please delete it),
+ * 	or NULL if non could be loaded
  */
-TDataGloveID cDataGloveDGTechVHand::getDataGloveIDStatic(
-		iostream * inPDataGloveStraem ) {
-	//TODO
+cMessageGetIdFromDataGlove * cDataGloveDGTechVHand::getDataGloveIDStatic(
+		const int iDataGloveFileDescriptor ) {
 	
-	TDataGloveID dataGloveID;
-	dataGloveID.deviceType = TDataGloveID::NONE;
-	if ( ( inPDataGloveStraem == NULL ) ||
-			( ! inPDataGloveStraem->good() ) ) {
-		//no good data stream -> can't send data
-		return dataGloveID;
+	if ( iDataGloveFileDescriptor <= 0 ) {
+		return NULL;
+	}
+	if ( ! clearDataGloveStatic( iDataGloveFileDescriptor ) ) {
+		return NULL;  //data glove can not be cleared
 	}
 	
-	char getIDRequest[ 8 ];
-	getIDRequest[ 0 ] = '$';
-	getIDRequest[ 1 ] = 0x0C;
-	getIDRequest[ 2 ] = 0x02;
-	getIDRequest[ 3 ] = cMessageDataGlove::evalueCRC( getIDRequest, 2 );
-	getIDRequest[ 4 ] = '#';
-	getIDRequest[ 5 ] = 0x0;
+	//write the get ID message
+	cMessageGetIdToDataGlove messageGetIdToDataGlove;
+	const bool bMessageWritten =
+		messageGetIdToDataGlove.writeMessage( iDataGloveFileDescriptor );
 	
-	inPDataGloveStraem->write( getIDRequest, 5 );
-	//inPDataGloveStraem->flush();
-	shortSleep();
-	if ( ! inPDataGloveStraem->good() ){
-		perror( "write() of 'GET ID' request faild failed! - " );
-		printf( "   %s%s%s\n", (inPDataGloveStraem->fail()?"":"fail bit set, "),
-			(inPDataGloveStraem->bad()?"":"bad bit set, "),
-			(inPDataGloveStraem->eof()?"":"eof bit set ")
-		);
-		return dataGloveID;
+	if ( ! bMessageWritten ) {
+		return NULL;
 	}
-	//TODO
-	//get the returned message
 	
-	//
-	return dataGloveID;
+	//read the result message
+	const cMessageFromDataGlove * pResultMessage =
+		cMessageDataGlove::readMessage( iDataGloveFileDescriptor, 3000, false );
+	
+	if ( pResultMessage == 0 ) {
+		//no result could be read -> invalid data glove file
+		return NULL;
+	}
+	if ( ( pResultMessage->getType() != DATA_GLOVE_D_G_TECH_V_HAND__CMD_GET_ID ) ||
+			( pResultMessage->getName() != "cMessageGetIdFromDataGlove" ) ) {
+		//wrong message read -> invalid data glove file
+		delete pResultMessage;
+		return NULL;
+	}
+	return ((cMessageGetIdFromDataGlove*)(pResultMessage));
 }
+
+
+/**
+ * This method tries to get the identifier data from the data glove.
+ *
+ * @see iDataGloveStreamFileDescriptor
+ * @return the identifier data message from the data glove (please delete it),
+ * 	or NULL if non could be loaded
+ */
+cMessageGetIdFromDataGlove * cDataGloveDGTechVHand::getDataGloveID() {
+	
+	return getDataGloveIDStatic( iDataGloveStreamFileDescriptor );
+}
+
+
+/**
+ * This method tries to start the sampling of data from the data glove.
+ *
+ * @see iDataGloveStreamFileDescriptor
+ * @param iSamplingType a number for the Sampling package format
+ * 	possible values are:
+ * 		0: stop comunicating
+ * 		1: send quaternion orientation and finger sensors values
+ * 		2: send only quaternion values
+ * 		3: send raw gyroscope data, raw accelerometer data,
+ * 			raw magnetometer data and finger sensor values
+ * 		4: send only raw data
+ * 		5: send only finger data
+ * @return true if the start sampling was successful, else false
+ */
+bool cDataGloveDGTechVHand::startSampling( const int iSamplingType ) {
+	
+	return startSamplingStatic( iDataGloveStreamFileDescriptor, iSamplingType );
+}
+
+
+/**
+ * This method tries to start the sampling of data from the data glove.
+ *
+ * @param iDataGloveFileDescriptor the data glove file identifer for
+ * 	the communication with the data glove
+ * @param iSamplingType a number for the Sampling package format
+ * 	possible values are:
+ * 		0: stop comunicating
+ * 		1: send quaternion orientation and finger sensors values
+ * 		2: send only quaternion values
+ * 		3: send raw gyroscope data, raw accelerometer data,
+ * 			raw magnetometer data and finger sensor values
+ * 		4: send only raw data
+ * 		5: send only finger data
+ * @return true if the start sampling was successful, else false
+ */
+bool cDataGloveDGTechVHand::startSamplingStatic(
+		const int iDataGloveFileDescriptor,
+		const int iSamplingType ) {
+	
+	if ( iDataGloveFileDescriptor <= 0 ) {
+		return NULL;
+	}
+	
+	//write the start sampling message
+	cMessageStartSamplingToDataGlove messageStartSamplingToDataGlove( iSamplingType );
+	const bool bMessageWritten =
+		messageStartSamplingToDataGlove.writeMessage( iDataGloveFileDescriptor );
+	
+	if ( ! bMessageWritten ) {
+		return false;
+	}
+	
+	return true;
+}
+
+
+/**
+ * This method tries to stop the sampling of data from the data glove.
+ *
+ * @see iDataGloveStreamFileDescriptor
+ * @return true if the stop sampling was successful, else false
+ */
+bool cDataGloveDGTechVHand::stopSampling() {
+	
+	return stopSamplingStatic( iDataGloveStreamFileDescriptor );
+}
+
+
+/**
+ * This method tries to stop the sampling of data from the data glove.
+ *
+ * @param iDataGloveFileDescriptor the data glove file identifer for
+ * 	the communication with the data glove
+ * @return true if the stop sampling was successful, else false
+ */
+bool cDataGloveDGTechVHand::stopSamplingStatic(
+		const int iDataGloveFileDescriptor ) {
+	
+	if ( iDataGloveFileDescriptor <= 0 ) {
+		return NULL;
+	}
+	
+	//write the start sampling message
+	cMessageStopSamplingToDataGlove messageStopSamplingToDataGlove;
+	const bool bMessageWritten =
+		messageStopSamplingToDataGlove.writeMessage( iDataGloveFileDescriptor );
+	
+	if ( ! bMessageWritten ) {
+		return false;
+	}
+	
+	return true;
+}
+
+
+
+/**
+ * Reads the data form the data glove and writes it to standard output
+ * (printf) for debugging purpose.
+ *
+ * @param iSeconds the seconds input data should be read
+ */
+void cDataGloveDGTechVHand::debugReadData( const int iSeconds ) {
+	
+	debugReadDataStatic( iDataGloveStreamFileDescriptor, iSeconds );
+}
+
+
+/**
+ * Reads the data and writes it to standard output (printf) for debugging
+ * purpose.
+ *
+ * @param inDataGloveFile the pointer to the file name for the
+ * 	communication with the data glove
+ * @param iSeconds the seconds input data should be read
+ */
+void cDataGloveDGTechVHand::debugReadDataStatic(
+		const int inDataGloveFile, const int iSeconds ) {
+	
+	if ( inDataGloveFile <= 0 ) {
+		return;
+	}
+	time_t tmEndTime = time( NULL ) + iSeconds;
+	
+	unsigned int uiByte = 1;
+	unsigned char cReaded = 0;
+	unsigned int uiConvertedNumber = 0;
+	printf( "Reading:\n" );
+	while ( time( NULL ) < tmEndTime ) {
+		// if new data is available on the serial port, print it out
+		if ( read( inDataGloveFile, &cReaded, 1 ) > 0 ) {
+			uiConvertedNumber = cReaded;
+			printf( "Byte %u: '%1c'  0x%02X  %3u\n", uiByte, cReaded,
+				uiConvertedNumber, uiConvertedNumber );
+			uiByte++;
+		}
+	}
+	printf( "done reading\n" );
+}
+
 
 
 
