@@ -101,7 +101,7 @@ int main(int argc, char* argv[]){
 	if ( isValid ) {
 		cout<<"The device \""<<szDataGlovePath<<"\" is a valid data glove DGTech VHand."<<endl;
 		
-		cDataGloveDGTechVHand dataGloveDGTechVHand(  szDataGlovePath.c_str()  );
+		cDataGloveDGTechVHand dataGloveDGTechVHand( szDataGlovePath.c_str() );
 		
 		cMessageGetIdFromDataGlove * pMessageGetIdFromDataGlove =
 			dataGloveDGTechVHand.getDataGloveID();

@@ -50,8 +50,7 @@ History:
 #include <iostream>
 #include <string>
 
-//TODO rework
-
+#include "cMessageFromDataGlove.h"
 
 
 namespace nDataGlove{
@@ -104,6 +103,11 @@ public:
 	 * @return true if the data glove file could be closed, else false
 	 */
 	static bool closeDataGloveFile( const int iDataGloveFileDescriptor );
+	
+	/**
+	 * @return true if this is a valid data glove device, else false
+	 */
+	bool isValid();
 	
 	/**
 	 * This method clears the (file to communicate with) the data glove.
@@ -227,6 +231,30 @@ public:
 	static bool stopSamplingStatic( const int iDataGloveFileDescriptor );
 	
 	
+	/**
+	 * This method reads a message from the data glove.
+	 *
+	 * @param uiMsTimeout milli seconds to wait for a new message
+	 * @param bHeaderRead if true the header was read from the stream, else not
+	 * @param bReadTillNextHeader if the first character in the file is not
+	 * 	a header character, try to read till the next header
+	 * 	just works with ( bHeaderRead = false )
+	 * @return the data glove message read (please delete after usage),
+	 * 	or NULL, if non could be read
+	 */
+	inline nModelDataGloveDGTechVHand::cMessageFromDataGlove * readMessage(
+			const unsigned int uiMsTimeout = 3000,
+			const bool bHeaderRead = false,
+			const bool bReadTillNextHeader = false) {
+	
+		if ( iDataGloveStreamFileDescriptor <= 0 ) {
+			return NULL;
+		}
+		
+		return nModelDataGloveDGTechVHand::cMessageDataGlove::readMessage(
+			iDataGloveStreamFileDescriptor,
+			uiMsTimeout, bHeaderRead, bReadTillNextHeader );
+	}
 	
 	
 	/**

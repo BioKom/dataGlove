@@ -69,7 +69,8 @@ using namespace std;
 cMessageStartSamplingToDataGlove::cMessageStartSamplingToDataGlove(
 		const bool bCreateMessage ) {
 	
-	cType = DATA_GLOVE_D_G_TECH_V_HAND__CMD_GET_ID;
+	type = START_SAMPLINT;
+	cCommand = DATA_GLOVE_D_G_TECH_V_HAND__CMD_GET_ID;
 	if ( bCreateMessage ) {
 		uiMessageSize = 6;
 		szMessage = static_cast<unsigned char  *>(malloc( uiMessageSize + 2 ));
@@ -99,7 +100,8 @@ cMessageStartSamplingToDataGlove::cMessageStartSamplingToDataGlove(
 cMessageStartSamplingToDataGlove::cMessageStartSamplingToDataGlove(
 		const int iSamplingType ) {
 
-	cType = DATA_GLOVE_D_G_TECH_V_HAND__CMD_START_SAMPLING;
+	type = START_SAMPLINT;
+	cCommand = DATA_GLOVE_D_G_TECH_V_HAND__CMD_START_SAMPLING;
 	uiMessageSize = 6;
 	szMessage = static_cast<unsigned char  *>(malloc( uiMessageSize + 2 ));
 	szMessage[ 0 ] = '$'; //0x24

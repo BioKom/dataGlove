@@ -152,6 +152,19 @@ bool cDataGloveDGTechVHand::closeDataGloveFile( const int iDataGloveFileDescript
 
 
 /**
+ * @return true if this is a valid data glove device, else false
+ */
+bool cDataGloveDGTechVHand::isValid() {
+	
+	if ( iDataGloveStreamFileDescriptor <= 0 ) {
+		//not a valid device
+		return false;
+	}  //else
+	return true;
+}
+
+
+/**
  * This method clears the (file to communicate with) the data glove.
  * This includes:
  * 	* if running the sampling is stoped
@@ -249,7 +262,8 @@ bool cDataGloveDGTechVHand::isLiveDataGlove( const char * inPDataGloveFile ) {
 		//no result could be read -> invalid data glove file
 		return false;
 	}
-	if ( pResultMessage->getType() != DATA_GLOVE_D_G_TECH_V_HAND__CMD_GET_ID ) {
+	if ( pResultMessage->getType() !=
+			cMessageDataGlove::GET_ID_RESULT ) {
 		//wrong message read -> invalid data glove file
 		delete pResultMessage;
 		return false;
@@ -297,7 +311,8 @@ cMessageGetIdFromDataGlove * cDataGloveDGTechVHand::getDataGloveIDStatic(
 		//no result could be read -> invalid data glove file
 		return NULL;
 	}
-	if ( ( pResultMessage->getType() != DATA_GLOVE_D_G_TECH_V_HAND__CMD_GET_ID ) ||
+	if ( ( pResultMessage->getType() !=
+				cMessageDataGlove::GET_ID_RESULT ) ||
 			( pResultMessage->getName() != "cMessageGetIdFromDataGlove" ) ) {
 		//wrong message read -> invalid data glove file
 		delete pResultMessage;
@@ -415,7 +430,6 @@ bool cDataGloveDGTechVHand::stopSamplingStatic(
 	
 	return true;
 }
-
 
 
 /**

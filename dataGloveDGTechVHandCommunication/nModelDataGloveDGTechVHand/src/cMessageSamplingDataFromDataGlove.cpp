@@ -57,12 +57,152 @@ using namespace nDataGlove::nModelDataGloveDGTechVHand;
 using namespace std;
 
 
+cMessageSamplingDataFromDataGlove::tTypeSamplingValue const
+	cMessageSamplingDataFromDataGlove::mapByteToElementType[ 6 ][ 64 ] = {
+		//sampling message type 0
+		{ BEGIN, TYPE_MSG, LENGTH, TYPE, ID, ID, CLOCK, CLOCK, CLOCK, CLOCK,
+			STATUS, STATUS, CRC, END
+		},
+		//sampling message type 1
+		{ BEGIN, TYPE_MSG, LENGTH, TYPE, ID, ID, CLOCK, CLOCK, CLOCK, CLOCK,
+			QUATERNION_1, QUATERNION_1, QUATERNION_1, QUATERNION_1,
+			QUATERNION_2, QUATERNION_2, QUATERNION_2, QUATERNION_2,
+			QUATERNION_3, QUATERNION_3, QUATERNION_3, QUATERNION_3,
+			QUATERNION_4, QUATERNION_4, QUATERNION_4, QUATERNION_4,
+			FINGER_1, FINGER_1,
+			FINGER_2, FINGER_2,
+			FINGER_3, FINGER_3,
+			FINGER_4, FINGER_4,
+			FINGER_5, FINGER_5,
+			STATUS, STATUS, CRC, END
+		},
+		//sampling message type 2
+		{ BEGIN, TYPE_MSG, LENGTH, TYPE, ID, ID, CLOCK, CLOCK, CLOCK, CLOCK,
+			QUATERNION_1, QUATERNION_1, QUATERNION_1, QUATERNION_1,
+			QUATERNION_2, QUATERNION_2, QUATERNION_2, QUATERNION_2,
+			QUATERNION_3, QUATERNION_3, QUATERNION_3, QUATERNION_3,
+			QUATERNION_4, QUATERNION_4, QUATERNION_4, QUATERNION_4,
+			STATUS, STATUS, CRC, END
+		},
+		//sampling message type 3
+		{ BEGIN, TYPE_MSG, LENGTH, TYPE, ID, ID, CLOCK, CLOCK, CLOCK, CLOCK,
+			GYROSCOPE_X, GYROSCOPE_X,
+			GYROSCOPE_Y, GYROSCOPE_Y,
+			GYROSCOPE_Z, GYROSCOPE_Z,
+			MAGNETOMETER_X, MAGNETOMETER_X,
+			MAGNETOMETER_Y, MAGNETOMETER_Y,
+			MAGNETOMETER_Z, MAGNETOMETER_Z,
+			ACCELEROMETER_X, ACCELEROMETER_X,
+			ACCELEROMETER_Y, ACCELEROMETER_Y,
+			ACCELEROMETER_Z, ACCELEROMETER_Z,
+			FINGER_1, FINGER_1,
+			FINGER_2, FINGER_2,
+			FINGER_3, FINGER_3,
+			FINGER_4, FINGER_4,
+			FINGER_5, FINGER_5,
+			STATUS, STATUS, CRC, END
+		},
+		//sampling message type 4
+		{ BEGIN, TYPE_MSG, LENGTH, TYPE, ID, ID, CLOCK, CLOCK, CLOCK, CLOCK,
+			GYROSCOPE_X, GYROSCOPE_X,
+			GYROSCOPE_Y, GYROSCOPE_Y,
+			GYROSCOPE_Z, GYROSCOPE_Z,
+			MAGNETOMETER_X, MAGNETOMETER_X,
+			MAGNETOMETER_Y, MAGNETOMETER_Y,
+			MAGNETOMETER_Z, MAGNETOMETER_Z,
+			ACCELEROMETER_X, ACCELEROMETER_X,
+			ACCELEROMETER_Y, ACCELEROMETER_Y,
+			ACCELEROMETER_Z, ACCELEROMETER_Z,
+			STATUS, STATUS, CRC, END
+		},
+		//sampling message type 4
+		{ BEGIN, TYPE_MSG, LENGTH, TYPE, ID, ID, CLOCK, CLOCK, CLOCK, CLOCK,
+			FINGER_1, FINGER_1,
+			FINGER_2, FINGER_2,
+			FINGER_3, FINGER_3,
+			FINGER_4, FINGER_4,
+			FINGER_5, FINGER_5,
+			STATUS, STATUS, CRC, END
+		}
+	};  //end mapByteToElementType
+	
+	
+int const cMessageSamplingDataFromDataGlove::mapByteToNextElementByte[ 6 ][ 64 ] =
+	{
+		//sampling message type 0
+		{ 1, 2, 3, 4, 6, 6, 10, 10, 10, 10,
+			12, 12, 13 },
+		//sampling message type 1
+		{ 1, 2, 3, 4, 6, 6, 10, 10, 10, 10,
+			14, 14, 14, 14,  //QUATERNION_1
+			18, 18, 18, 18,  //QUATERNION_2
+			22, 22, 22, 22,  //QUATERNION_3
+			26, 26, 26, 26,  //QUATERNION_4
+			28, 28,  //FINGER_1
+			30, 30,  //FINGER_2
+			32, 32,  //FINGER_3
+			34, 34,  //FINGER_4
+			36, 36,  //FINGER_5
+			38, 38, 39
+		},
+		//sampling message type 2
+		{ 1, 2, 3, 4, 6, 6, 10, 10, 10, 10,
+			14, 14, 14, 14,  //QUATERNION_1
+			18, 18, 18, 18,  //QUATERNION_2
+			22, 22, 22, 22,  //QUATERNION_3
+			26, 26, 26, 26,  //QUATERNION_4
+			28, 28, 29
+		},
+		//sampling message type 3
+		{ 1, 2, 3, 4, 6, 6, 10, 10, 10, 10,
+			12, 12,  //GYROSCOPE_X
+			14, 14,  //GYROSCOPE_Y
+			16, 16,  //GYROSCOPE_Z
+			18, 18,  //MAGNETOMETER_X
+			20, 20,  //MAGNETOMETER_Y
+			22, 22,  //MAGNETOMETER_Z
+			24, 24,  //ACCELEROMETER_X
+			26, 26,  //ACCELEROMETER_Y
+			28, 28,  //ACCELEROMETER_Z
+			30, 30,  //FINGER_1
+			32, 32,  //FINGER_2
+			34, 34,  //FINGER_3
+			36, 36,  //FINGER_4
+			38, 38,  //FINGER_5
+			40, 40, 41
+		},
+		//sampling message type 4
+		{ 1, 2, 3, 4, 6, 6, 10, 10, 10, 10,
+			12, 12,  //GYROSCOPE_X
+			14, 14,  //GYROSCOPE_Y
+			16, 16,  //GYROSCOPE_Z
+			18, 18,  //MAGNETOMETER_X
+			20, 20,  //MAGNETOMETER_Y
+			22, 22,  //MAGNETOMETER_Z
+			24, 24,  //ACCELEROMETER_X
+			26, 26,  //ACCELEROMETER_Y
+			28, 28,  //ACCELEROMETER_Z
+			30, 30, 31
+		},
+		//sampling message type 5
+		{ 1, 2, 3, 4, 6, 6, 10, 10, 10, 10,
+			12, 12,  //FINGER_1
+			14, 14,  //FINGER_2
+			16, 16,  //FINGER_3
+			18, 18,  //FINGER_4
+			20, 20,  //FINGER_5
+			22, 22, 23
+		}
+	};  //end mapByteToNextElementByte
+
+
 /**
  * The standard constructor for the DGTech VHand data glove message.
  */
 cMessageSamplingDataFromDataGlove::cMessageSamplingDataFromDataGlove() {
 	
-	cType = DATA_GLOVE_D_G_TECH_V_HAND__CMD_START_SAMPLING;
+	type = SAMPLING_DATA;
+	cCommand = DATA_GLOVE_D_G_TECH_V_HAND__CMD_START_SAMPLING;
 }
 
 

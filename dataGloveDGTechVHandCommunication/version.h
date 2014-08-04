@@ -46,8 +46,8 @@ History:
 **************************************/
 
 //versions information for the data glove program system
-#define DATA_GLOV_VERSION          1
-#define DATA_GLOV_VERSION_NAME     V0.0.1
+#define DATA_GLOVE_VERSION          1
+#define DATA_GLOVE_VERSION_NAME     V0.0.1
 
 
 /*****************************************

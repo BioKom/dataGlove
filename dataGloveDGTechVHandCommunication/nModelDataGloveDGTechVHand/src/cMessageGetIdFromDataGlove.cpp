@@ -67,7 +67,8 @@ using namespace std;
  */
 cMessageGetIdFromDataGlove::cMessageGetIdFromDataGlove() {
 	
-	cType = DATA_GLOVE_D_G_TECH_V_HAND__CMD_GET_ID;
+	type = GET_ID_RESULT;
+	cCommand = DATA_GLOVE_D_G_TECH_V_HAND__CMD_GET_ID;
 }
 
 

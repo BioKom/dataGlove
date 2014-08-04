@@ -69,7 +69,8 @@ using namespace std;
 cMessageStopSamplingToDataGlove::cMessageStopSamplingToDataGlove(
 		const bool bCreateMessage ) {
 	
-	cType = DATA_GLOVE_D_G_TECH_V_HAND__CMD_STOP_SAMPLING;
+	type = STOP_SAMPLING;
+	cCommand = DATA_GLOVE_D_G_TECH_V_HAND__CMD_STOP_SAMPLING;
 	if ( bCreateMessage ) {
 		uiMessageSize = 5;
 		szMessage = static_cast<unsigned char  *>(malloc( uiMessageSize + 2 ));
@@ -77,9 +78,6 @@ cMessageStopSamplingToDataGlove::cMessageStopSamplingToDataGlove(
 		szMessage[ 1 ] = 0x0B;  //DATA_GLOVE_D_G_TECH_V_HAND__CMD_STOP_SAMPLING
 		szMessage[ 2 ] = 0x02;  //num bytes
 		szMessage[ 3 ] = 0x31;  //CRC
-		
-		const unsigned char CRC = evalueCRC( szMessage, 3 );  //CRC
-		
 		szMessage[ 4 ] = '#';
 		szMessage[ 5 ] = 0x0;
 	}

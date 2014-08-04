@@ -168,9 +168,6 @@ endef
 $(foreach SUBFOLDER, $(NAMESPACES), $(eval $(call generat_test_files,$(SUBFOLDER)) ) )
 
 
-OBJ_TEST_FILES:=$(subst .cpp,.o,$(subst $(DIR_TEST),$(DIR_OBJ_TEST),$(TEST_FILES) ))
-
-
 # TEST_PROGRAMS:=startDataGlove
 
 
@@ -182,7 +179,7 @@ OBJ_TEST_FILES:=$(subst .cpp,.o,$(subst $(DIR_TEST),$(DIR_OBJ_TEST),$(TEST_FILES
 
 OBJ_DATA_GLOVE:=$(subst .cpp,.o,$(subst $(DIR_SRC),$(DIR_OBJ),$(SRC_FILES) ))
 
-OBJ_TEST_FILES:=$(subst .cpp,.o,$(subst $(DIR_SRC),$(DIR_OBJ_TEST),$(SRC_FILES) ))
+OBJ_TEST_DATA_GLOVE:=$(subst .cpp,.o,$(subst $(DIR_SRC),$(DIR_OBJ_TEST),$(SRC_FILES) ))
 
 
 
@@ -200,6 +197,7 @@ SRC_EXE_FILES:=$(addprefix $(DIR_SRC), $(addsuffix .cpp, $(EXE_FILES) ) )
 
 OBJ_DATA_GLOVE := $(filter-out $(addprefix %, $(addsuffix .o, $(EXE_FILES) ) ),$(OBJ_DATA_GLOVE))
 
+OBJ_TEST_DATA_GLOVE := $(filter-out $(addprefix %, $(addsuffix .o, $(EXE_FILES) ) ),$(OBJ_TEST_DATA_GLOVE))
 
 
 ##########################################################################
@@ -213,10 +211,10 @@ OBJ_DATA_GLOVE := $(filter-out $(addprefix %, $(addsuffix .o, $(EXE_FILES) ) ),$
 MAKEFILE_FLAG:=
 
 
-all:create_dirs dependencies.dep\
+all:create_dirs dependencies.dep $(DIR_LIB)libDataGloveCom.a\
 	$(addprefix $(DIR_BIN), $(EXE_FILES) )
 
-test: create_dirs dependencies.dep\
+test: create_dirs dependencies.dep $(DIR_LIB)libDataGloveCom_test.a\
 	$(addprefix $(DIR_BIN)test_, $(EXE_FILES) )
 
 test: CFLAG:=$(CFLAG_TEST)
@@ -252,8 +250,8 @@ win_test: LIBS_TEST:=$(LIBS_WIN_TEST)
 # @param Testprogramname (file-)name of the testprogram to generate
 #
 define generat_test_bin
-$(DIR_TESTCASE)$(1): $(DIR_OBJ_TEST)$(1).o $(TEST_TOOLS)
-	$(CC) $$(CFLAG_TEST) $$(LDFLAGS) -o $$@ $(DIR_OBJ_TEST)$(1).o $(OBJ_DATA_GLOVE).o $(TEST_TOOLS) $$(LIBS_TEST)
+$(DIR_TESTCASE)$(1): $(DIR_OBJ_TEST)$(1).o $(TEST_TOOLS) $(OBJ_TEST_DATA_GLOVE)
+	$(CC) $$(CFLAG_TEST) $$(LDFLAGS) -o $$@ $(DIR_OBJ_TEST)$(1).o $(OBJ_TEST_DATA_GLOVE) $(TEST_TOOLS) $$(LIBS_TEST)
 endef
 
 $(foreach TESTPROGRAM, $(TEST_PROGRAMS), $(eval $(call generat_test_bin,$(TESTPROGRAM)) ) )
@@ -280,11 +278,34 @@ $(foreach PROGRAM, $(EXE_FILES), $(eval $(call generat_bins,$(PROGRAM)) ) )
 # @param Programname (file-)name of the program to generate
 #
 define generat_test_bins
-$(DIR_BIN)test_$(1): $(DIR_OBJ_TEST)/$(1).o $(OBJ_DATA_GLOVE)
-	$(CC) $$(CFLAG_TEST) $(LDFLAGS) -o $$@ $(DIR_OBJ_TEST)/$(1).o $$(OBJ_DATA_GLOVE) $$(LIBS_TEST)
+$(DIR_BIN)test_$(1): $(DIR_OBJ_TEST)/$(1).o $(OBJ_TEST_DATA_GLOVE)
+	$(CC) $$(CFLAG_TEST) $(LDFLAGS) -o $$@ $(DIR_OBJ_TEST)/$(1).o $$(OBJ_TEST_DATA_GLOVE) $$(LIBS_TEST)
 endef
 
 $(foreach TESTPROGRAM, $(EXE_FILES), $(eval $(call generat_test_bins,$(TESTPROGRAM)) ) )
+
+
+
+##########################################################################
+#
+# libaries to produce
+#
+##########################################################################
+
+$(DIR_LIB)libDataGloveCom.a: $(OBJ_DATA_GLOVE)
+	$(AR) $(ARFLAGS) $@ $?
+
+
+##########################################################################
+#
+# testlibaries to produce
+#
+##########################################################################
+
+$(DIR_LIB)libDataGloveCom_test.a: $(OBJ_TEST_DATA_GLOVE)
+	$(AR) $(ARFLAGS) $@ $?
+
+
 
 
 ##########################################################################
@@ -310,6 +331,9 @@ $(1)/$$(DIR_OBJ_TEST):
 
 $(1)/$$(DIR_TESTCASE):
 	mkdir -p $(1)/$$(DIR_TESTCASE)
+
+$(1)/$$(DIR_TEST):
+	mkdir -p $(1)/$$(DIR_TEST)
 
 DIRS_TO_DELETE:=$(DIRS_TO_DELETE) $(1)/$$(DIR_OBJ) $(1)/$$(DIR_OBJ_TEST) $(1)/$$(DIR_TESTCASE)
 endef

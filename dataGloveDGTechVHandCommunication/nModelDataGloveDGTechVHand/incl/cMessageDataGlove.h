@@ -65,6 +65,10 @@ class cMessageFromDataGlove;
 #define DATA_GLOVE_D_G_TECH_V_HAND__HEADER '$'
 #define DATA_GLOVE_D_G_TECH_V_HAND__ENDCHAR '#'
 
+/**
+ * Data glove commands.
+ * @see cMessageDataGlove::cCommand
+ */
 #define DATA_GLOVE_D_G_TECH_V_HAND__UNKNOWN  0x00
 #define DATA_GLOVE_D_G_TECH_V_HAND__CMD_START_SAMPLING 0x0A
 #define DATA_GLOVE_D_G_TECH_V_HAND__CMD_STOP_SAMPLING  0x0B
@@ -85,9 +89,52 @@ class cMessageFromDataGlove;
 
 
 
+
 class cMessageDataGlove{
 public:
-
+	
+	/**
+	 * The type for the type of the data glove message.
+	 */
+	enum typeMessageDataGlove{
+		UNKNOWN,
+		///requests:
+		START_SAMPLINT,
+		STOP_SAMPLING,
+		GET_ID,
+		SET_ID,
+		GET_LABEL,
+		SET_LABEL,
+		GET_FIRMWARE_VERSION,
+		START_CALIBRATION,
+		SET_WIFI_INFORMATION,
+		GET_WIFI_INFORMATION,
+		GET_MAC_ADRESS,
+		SET_ACCESS_POINT_SSID,
+		GET_ACCESS_POINT_SSID,
+		SET_ACCESS_POINT_PASSWORD,
+		GET_ACCESS_POINT_PASSWORD,
+		STORE_WIFI_SETTINGS,
+		
+		///results:
+		SAMPLING_DATA,
+		GET_ID_RESULT,
+		SET_ID_RESULT,
+		GET_LABEL_RESULT,
+		SET_LABEL_RESULT,
+		GET_FIRMWARE_VERSION_RESULT,
+		START_CALIBRATION_RESULT,
+		SET_WIFI_INFORMATION_RESULT,
+		GET_WIFI_INFORMATION_RESULT,
+		GET_MAC_ADRESS_RESULT,
+		SET_ACCESS_POINT_SSID_RESULT,
+		GET_ACCESS_POINT_SSID_RESULT,
+		SET_ACCESS_POINT_PASSWORD_RESULT,
+		GET_ACCESS_POINT_PASSWORD_RESULT,
+		STORE_WIFI_SETTINGS_RESULT,
+		
+	};  //end typeMessageDataGlove
+	
 	/**
 	 * The standard constructor for the DGTech VHand data glove message.
 	 */
@@ -119,13 +166,17 @@ public:
 	 * @param iDataGloveFileDescriptor the data glove file identifer
 	 * @param uiMsTimeout milli seconds to wait for a new message
 	 * @param bHeaderRead if true the header was read from the stream, else not
+	 * @param bReadTillNextHeader if the first character in the file is not
+	 * 	a header character, try to read till the next header
+	 * 	just works with ( bHeaderRead = false )
 	 * @return the data glove message read (please delete after usage),
-	 * 	or Null, if non could be read
+	 * 	or NULL, if non could be read
 	 */
 	static cMessageFromDataGlove * readMessage(
 		const int iDataGloveFileDescriptor,
 			const unsigned int uiMsTimeout = 3000,
-			const bool bHeaderRead = false );
+			const bool bHeaderRead = false,
+			const bool bReadTillNextHeader = false);
 	
 	/**
 	 * This method writes this message to the file/port with the given data
@@ -137,14 +188,22 @@ public:
 	 */
 	virtual bool writeMessage( const int iDataGloveFileDescriptor );
 	
+	/**
+	 * @return the type of the message
+	 * 	@see typeMessageDataGlove
+	 */
+	inline typeMessageDataGlove getType() const {
+		
+		return type;
+	}
 	
 	/**
 	 * @return the type character of this message
-	 * 	@see cType
+	 * 	@see cCommand
 	 */
-	inline char getType() const {
+	inline char getCommand() const {
 		
-		return cType;
+		return cCommand;
 	}
 	
 	/**
@@ -184,7 +243,18 @@ public:
 	 * 	CRC is to evaluate
 	 * @return the CRC for the given data (sum of the bytes modulo 256)
 	 */
-	static char evalueCRC( const unsigned char * pData, const int iDataLength );
+	inline static unsigned char evalueCRC( const unsigned char * pData,
+			const int iDataLength ) {
+		
+		unsigned char CRC = 0;
+		for ( int iActualByte = 0; iActualByte < iDataLength;
+				iActualByte++ ) {
+			
+			CRC += pData[ iActualByte ];
+		}
+		
+		return CRC;
+	}
 	
 	/**
 	 * @param pData the data, for which the CRC is to evaluate
@@ -192,7 +262,19 @@ public:
 	 * 	CRC is to evaluate
 	 * @return the CRC for the given data (sum of the bytes modulo 256)
 	 */
-	static char evalueCRC( const char * pData, const int iDataLength );
+	inline static unsigned char evalueCRC( const char * pData,
+			const int iDataLength ) {
+		
+		unsigned char CRC = 0;
+		const unsigned char * pUcData = (unsigned char *)(pData);
+		for ( int iActualByte = 0; iActualByte < iDataLength;
+				iActualByte++ ) {
+			
+			CRC += pUcData[ iActualByte ];
+		}
+		
+		return CRC;
+	}
 	
 	/**
 	 * Reads a integer number from the szMessage at the given offset.
@@ -304,12 +386,43 @@ public:
 	}
 	
 	
+	/**
+	 * Prints the given message.
+	 *
+	 * @param szMessage a pointer to the message to print
+	 * @param uiNumberOfByte the number of bytes to print from te message
+	 */
+	static void printMessage( const unsigned char * szMessage,
+		unsigned int uiNumberOfByte );
+	
 protected:
+	
+	/**
+	 * Sleeps a smaal time. (If you want to wait for more data.)
+	 */
+	static inline void shortSleep() {
+		
+#ifdef WINDOWS
+		Sleep( 10 ); //= 10 ms
+#else//WINDOWS
+		static struct timespec timeToWait;
+		timeToWait.tv_sec  = 0;
+		timeToWait.tv_nsec = 10000000L; //= 10 ms
+		static struct timespec remainingTime;
+		nanosleep( &timeToWait, &remainingTime );
+#endif//WINDOWS
+	}
+	
+	/**
+	 * The type of the message.
+	 * @see typeMessageDataGlove
+	 */
+	typeMessageDataGlove type;
 	
 	/**
 	 * The type character of this message.
 	 */
-	char cType;
+	char cCommand;
 	
 	/**
 	 * A pointer to the message/package buffer, with the message,
@@ -322,7 +435,7 @@ protected:
 	 * where:
 	 * 	* HEADER = '$'; signals start of package
 	 * 	* CMD = command character for the command to be executed
-	 * 	  @see cType
+	 * 	  @see cCommand
 	 * 	* PKGLEN: the number of byte in the package (without CRC and
 	 * 	  ENDCAR; byte in "HEADER CMD PKGLEN PACKAGE_DATA")
 	 * 	* PACKAGE_DATA: the (additional) data of the package
