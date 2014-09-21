@@ -1,4 +1,3 @@
-
 =Data glove=
 
 This project is for handling a data glove.
@@ -25,3 +24,13 @@ It handles the messages from and to the data glove.
 ==Data glove manager==
 
 folder: dataGloveManager
+
+
+==Data glove mapper==
+
+folder: dataGloveMapper
+
+This program maps data glove input (gestures) into functionality (like type
+a key or mouse move left).
+
+

@@ -1,0 +1,17 @@
+Next steps:
+* one keyboard char "e"
+** cCallKeybordFunction
+** cEvalueDataGloveState.getCallFunction()
+* modus 0 (basis mode) and modus 10 (keyboard; print "e")
+** create cThreadRepeater
+* find n (30 < n) possible finger states
+* create map modus 10
+* create virtual keybord
+
+
+
+
+
+
+
+

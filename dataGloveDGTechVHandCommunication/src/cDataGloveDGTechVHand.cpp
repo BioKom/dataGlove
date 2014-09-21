@@ -209,14 +209,19 @@ bool cDataGloveDGTechVHand::clearDataGloveStatic(
 		if ( ! bMessageWritten ) {
 			return false;
 		}
-		
 		time_t tmEndTime = time( NULL ) + 3;  //read maximal 3 seconds
+		cMessageDataGlove::shortSleep();
 		
 		while ( time( NULL ) < tmEndTime ) {
-			// if new data is available on the serial port, print it out
-			if ( read( iDataGloveFileDescriptor, &cReaded, 1 ) == 0 ) {
-				//all data read
-				return true;
+			for ( unsigned int i = 0; i < 1024; ++i ) {
+				// if new data is available on the serial port, print it out
+				if ( read( iDataGloveFileDescriptor, &cReaded, 1 ) == 0 ) {
+					cMessageDataGlove::shortSleep();
+					if ( read( iDataGloveFileDescriptor, &cReaded, 1 ) == 0 ) {
+						//all data read
+						return true;
+					}
+				}
 			}
 		}
 		return false;  //not all data read
@@ -258,7 +263,7 @@ bool cDataGloveDGTechVHand::isLiveDataGlove( const char * inPDataGloveFile ) {
 	const cMessageFromDataGlove * pResultMessage =
 		cMessageDataGlove::readMessage( iDataGloveFileDescriptor, 3000, false );
 	
-	if ( pResultMessage == 0 ) {
+	if ( pResultMessage == NULL ) {
 		//no result could be read -> invalid data glove file
 		return false;
 	}
@@ -477,23 +482,6 @@ void cDataGloveDGTechVHand::debugReadDataStatic(
 }
 
 
-
-
-/**
- * Sleeps a smaal time. (If you want to wait for more data.)
- */
-void cDataGloveDGTechVHand::shortSleep() {
-	
-#ifdef WINDOWS
-	Sleep( 10 ); //= 10 ms
-#else//WINDOWS
-	static struct timespec timeToWait;
-	timeToWait.tv_sec  = 0;
-	timeToWait.tv_nsec = 10000000L; //= 10 ms
-	static struct timespec remainingTime;
-	nanosleep( &timeToWait, &remainingTime );
-#endif//WINDOWS
-}
 
 
 

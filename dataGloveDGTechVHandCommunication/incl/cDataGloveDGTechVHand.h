@@ -295,11 +295,6 @@ public:
 	
 	
 protected:
-	
-	/**
-	 * Sleeps a smaal time. (If you want to wait for more data.)
-	 */
-	static void shortSleep();
 
 //members
 	

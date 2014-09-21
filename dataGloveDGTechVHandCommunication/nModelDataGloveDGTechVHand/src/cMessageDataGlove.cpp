@@ -47,7 +47,7 @@ History:
 
 
 //switches for test proposes
-#define DEBUG
+//#define DEBUG
 
 //TODO for debugging:
 //#define DEBUG_PRINT_MESSAGE( MSG, NUM_BYTE ) printMessage( MSG, NUM_BYTE )
@@ -88,7 +88,7 @@ cMessageDataGlove::cMessageDataGlove():
 cMessageDataGlove::~cMessageDataGlove() {
 	
 	if ( szMessage != NULL ) {
-		delete szMessage;
+		delete [] szMessage;
 	}
 }
 
@@ -211,8 +211,7 @@ cMessageFromDataGlove * cMessageDataGlove::readMessage(
 		return NULL;
 	}
 	unsigned int uiReadedMessageSize = uiBytesToRead + 3;
-	unsigned char * szReadedMessage = static_cast<unsigned char *>(
-		malloc( uiReadedMessageSize + 2 ) );
+	unsigned char * szReadedMessage = new unsigned char[ uiReadedMessageSize + 2 ];
 	szReadedMessage[ 0 ] = DATA_GLOVE_D_G_TECH_V_HAND__HEADER;
 	szReadedMessage[ 1 ] = cCommandChar;
 	szReadedMessage[ 2 ] = charReaded;
@@ -262,7 +261,7 @@ cMessageFromDataGlove * cMessageDataGlove::readMessage(
 	//allocate memory for the message buffer
 	unsigned int uiByte = 0;
 	unsigned int uiMaxSize = 64;
-	unsigned char szReadedMessage = malloc( uiMaxSize );
+	unsigned char szReadedMessage = new unsigned char[ uiMaxSize ];
 	szReadedMessage[ uiByte ] = DATA_GLOVE_D_G_TECH_V_HAND__HEADER;
 	uiByte++;
 	
@@ -305,7 +304,7 @@ cMessageFromDataGlove * cMessageDataGlove::readMessage(
 		
 		DEBUG_PRINT_MESSAGE( szReadedMessage, uiReadedMessageSize );
 		
-		delete szReadedMessage;
+		delete [] szReadedMessage;
 		szReadedMessage = NULL;
 		uiReadedMessageSize = 0;
 		return NULL;
@@ -335,7 +334,7 @@ cMessageFromDataGlove * cMessageDataGlove::readMessage(
 		pReadedMessageFromDataGlove->szMessage = szReadedMessage;
 	} else {  //no correct message could be created
 		DEBUG_OUT_L2(<<"   no correct message could be created"<<endl<<flush);
-		delete szReadedMessage;
+		delete [] szReadedMessage;
 		szReadedMessage = NULL;
 		uiReadedMessageSize = 0;
 		return NULL;

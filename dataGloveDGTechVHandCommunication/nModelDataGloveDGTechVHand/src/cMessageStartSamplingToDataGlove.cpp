@@ -52,8 +52,6 @@ History:
 
 #include "cMessageStartSamplingToDataGlove.h"
 
-#include <cstdlib>
-
 
 
 using namespace nDataGlove::nModelDataGloveDGTechVHand;
@@ -73,7 +71,7 @@ cMessageStartSamplingToDataGlove::cMessageStartSamplingToDataGlove(
 	cCommand = DATA_GLOVE_D_G_TECH_V_HAND__CMD_GET_ID;
 	if ( bCreateMessage ) {
 		uiMessageSize = 6;
-		szMessage = static_cast<unsigned char  *>(malloc( uiMessageSize + 2 ));
+		szMessage = new unsigned char[ uiMessageSize + 2 ];
 		szMessage[ 0 ] = '$'; //0x24
 		szMessage[ 1 ] = DATA_GLOVE_D_G_TECH_V_HAND__CMD_START_SAMPLING;
 		szMessage[ 2 ] = 0x03;  //num bytes
@@ -103,7 +101,7 @@ cMessageStartSamplingToDataGlove::cMessageStartSamplingToDataGlove(
 	type = START_SAMPLINT;
 	cCommand = DATA_GLOVE_D_G_TECH_V_HAND__CMD_START_SAMPLING;
 	uiMessageSize = 6;
-	szMessage = static_cast<unsigned char  *>(malloc( uiMessageSize + 2 ));
+	szMessage = new unsigned char[ uiMessageSize + 2 ];
 	szMessage[ 0 ] = '$'; //0x24
 	szMessage[ 1 ] = DATA_GLOVE_D_G_TECH_V_HAND__CMD_START_SAMPLING; //0x0A
 	szMessage[ 2 ] = 0x03;  //num bytes

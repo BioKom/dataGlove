@@ -395,8 +395,6 @@ public:
 	static void printMessage( const unsigned char * szMessage,
 		unsigned int uiNumberOfByte );
 	
-protected:
-	
 	/**
 	 * Sleeps a smaal time. (If you want to wait for more data.)
 	 */
@@ -412,6 +410,8 @@ protected:
 		nanosleep( &timeToWait, &remainingTime );
 #endif//WINDOWS
 	}
+	
+protected:
 	
 	/**
 	 * The type of the message.

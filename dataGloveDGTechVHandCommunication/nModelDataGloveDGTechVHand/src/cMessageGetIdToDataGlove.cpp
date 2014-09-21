@@ -51,8 +51,6 @@ History:
 
 #include "cMessageGetIdToDataGlove.h"
 
-#include <cstdlib>
-
 
 
 using namespace nDataGlove::nModelDataGloveDGTechVHand;
@@ -72,7 +70,7 @@ cMessageGetIdToDataGlove::cMessageGetIdToDataGlove(
 	cCommand = DATA_GLOVE_D_G_TECH_V_HAND__CMD_GET_ID;
 	if ( bCreateMessage ) {
 		uiMessageSize = 5;
-		szMessage = static_cast<unsigned char  *>(malloc( uiMessageSize + 2 ));
+		szMessage = new unsigned char[ uiMessageSize + 2 ];
 		szMessage[ 0 ] = '$'; //0x24
 		szMessage[ 1 ] = DATA_GLOVE_D_G_TECH_V_HAND__CMD_GET_ID;
 		szMessage[ 2 ] = 0x02;  //num bytes

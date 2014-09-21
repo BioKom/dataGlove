@@ -52,8 +52,6 @@ History:
 
 #include "cMessageStopSamplingToDataGlove.h"
 
-#include <cstdlib>
-
 
 
 using namespace nDataGlove::nModelDataGloveDGTechVHand;
@@ -73,7 +71,7 @@ cMessageStopSamplingToDataGlove::cMessageStopSamplingToDataGlove(
 	cCommand = DATA_GLOVE_D_G_TECH_V_HAND__CMD_STOP_SAMPLING;
 	if ( bCreateMessage ) {
 		uiMessageSize = 5;
-		szMessage = static_cast<unsigned char  *>(malloc( uiMessageSize + 2 ));
+		szMessage = new unsigned char[ uiMessageSize + 2 ];
 		szMessage[ 0 ] = '$'; //0x24
 		szMessage[ 1 ] = 0x0B;  //DATA_GLOVE_D_G_TECH_V_HAND__CMD_STOP_SAMPLING
 		szMessage[ 2 ] = 0x02;  //num bytes
