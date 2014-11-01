@@ -164,6 +164,12 @@ public:
 	 */
 	virtual void end();
 	
+	/**
+	 * Unprepares this keybord function.
+	 * (After the call, no keybord function will be prepared.)
+	 */
+	static void unprepare();
+	
 
 	/**
 	 * @return The actual prepared keyboard function, which

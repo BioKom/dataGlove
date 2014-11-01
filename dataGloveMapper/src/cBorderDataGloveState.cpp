@@ -79,7 +79,7 @@ using namespace nDataGlove::nMapper;
  */
 cBorderDataGloveState::cBorderDataGloveState( const nDataGlove::nModelDataGloveDGTechVHand::
 		cMessageSamplingDataFromDataGlove::tTypeSamplingValue inTypeSamplingValue,
-		const long lInBorderValue ) :
+		const long lInBorderValue ) : pParent( NULL ),
 		typeSamplingValue( inTypeSamplingValue ), lBorderValue( lInBorderValue ),
 		pLowerBorder( NULL ), pHigherBorder( NULL ) {
 	//nothing to do
@@ -197,6 +197,26 @@ nDataGlove::nModelDataGloveDGTechVHand::cMessageSamplingDataFromDataGlove::
 
 
 /**
+ * @return The parent border of this border, which contains this border.
+ * 	@see pParent
+ */
+cBorderDataGloveState * cBorderDataGloveState::getParent() {
+	
+	return pParent;
+}
+
+
+/**
+ * @return The parent border of this border, which contains this border.
+ * 	@see pParent
+ */
+const cBorderDataGloveState * cBorderDataGloveState::getParent() const {
+	
+	return pParent;
+}
+
+
+/**
  * @return The value of the border.
  * 	All data glove sampling values below inTypeSamplingValue are
  * 	in the lower set of data glove states, all values above or equal
@@ -255,7 +275,14 @@ const cBorderDataGloveState * cBorderDataGloveState::getLowerBorder() const {
 void cBorderDataGloveState::setLowerBorder(
 		cBorderDataGloveState * pNewLowerBorder ) {
 	
+	if ( pLowerBorder != NULL ) {
+		pLowerBorder->pParent = NULL;
+	}
 	pLowerBorder = pNewLowerBorder;
+	
+	if ( pLowerBorder != NULL ) {
+		pLowerBorder->pParent = this;
+	}
 }
 
 
@@ -345,7 +372,14 @@ const cBorderDataGloveState * cBorderDataGloveState::getHigherBorder() const {
 void cBorderDataGloveState::setHigherBorder(
 		cBorderDataGloveState * pNewHigherBorder ) {
 	
+	if ( pHigherBorder != NULL ) {
+		pHigherBorder->pParent = NULL;
+	}
 	pHigherBorder = pNewHigherBorder;
+	
+	if ( pHigherBorder != NULL ) {
+		pHigherBorder->pParent = this;
+	}
 }
 
 
@@ -395,6 +429,59 @@ void cBorderDataGloveState::setHigherStates(
 	
 	higherStates = setInHigherStates;
 }
+
+
+/**
+ * This method evalues if the given value of the given type is inside
+ * the give border side.
+ * A value can not be inside, if it is a border value @see lBorderValue .
+ * Parents will also be checked.
+ *
+ * @see lBorderValue
+ * @see pParent
+ * @see filterStates()
+ * @param typeValue the type of the value
+ * @param lValue the value, for which should be checked, on which side it is
+ * @param bIsLower the side on which the value should be
+ * @return true if the value of the given type is inside the given border
+ * 	side else false
+ */
+bool cBorderDataGloveState::isValueInsideSide( const nDataGlove::nModelDataGloveDGTechVHand::
+		cMessageSamplingDataFromDataGlove::tTypeSamplingValue typeValue,
+		const long lValue, const bool bIsLower ) const {
+	
+	if ( typeSamplingValue == typeValue ) {
+		//value for this border type -> check the given value
+		if ( bIsLower ) {
+			if ( lBorderValue <= lValue ) {
+				//the given value is not lower as this border
+				return false;
+			}
+		} else {  // is higher?
+			if ( lValue <= lBorderValue ) {
+				//the given value is not higher as this border
+				return false;
+			}
+		}
+	}  //(else value not sorted by this border)
+	if ( pParent != NULL ) {
+		//check value for parent
+		return pParent->isValueInsideSide( typeValue, lValue,
+			( pParent->getLowerBorder() == this ) );
+	}  //else value is inside given side of this border
+	return true;
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 

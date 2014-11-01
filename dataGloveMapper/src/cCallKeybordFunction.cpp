@@ -236,6 +236,8 @@ bool cCallKeybordFunction::operator()() {
 			( cCallPrepareKeybordFunction::getPreparedFunction()->
 				IsPrepared( this ) ) ) {
 		//to modus to set was not prepared, but should be
+		//call parent operator
+		iCallFunction::operator()();
 		return false;
 	}
 	//call keybord function
@@ -261,10 +263,12 @@ bool cCallKeybordFunction::operator()() {
 		default: break;  //do nothing
 	};  //end switch keybordFunctionForOperator
 	
+	//call parent operator
+	iCallFunction::operator()();
 #ifdef DEBUG_CALL_FUNCTION
 	cout<<"calling keyboard function: "<<keybordFunction<<" ("<<cChar<<")"<<endl;
-	return true;
 #endif  //DEBUG_CALL_FUNCTION
+	return true;
 }
 
 

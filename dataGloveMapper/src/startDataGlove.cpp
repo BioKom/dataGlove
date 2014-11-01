@@ -90,16 +90,17 @@ int main(int argc, char* argv[]){
 	if ( 1 < argc ){
 		szDataGlovePath = string( argv[1] );
 	}
+	//load data glove states
+	cout<<"load data glove states."<<endl;
+	cEvaluateDataGloveState evaluateDataGloveState;
+	const bool bStatesLoaded = evaluateDataGloveState.loadDataGloveStates(
+		szDataGloveStatesPath );
 	
 	const bool isValid =
 		cDataGloveDGTechVHand::isLiveDataGlove( szDataGlovePath.c_str() );
 	
 	if ( isValid ) {
-		//load data glove states
-		cEvaluateDataGloveState evaluateDataGloveState;
-		const bool bStatesLoaded = evaluateDataGloveState.loadDataGloveStates(
-			szDataGloveStatesPath );
-		
+		cout<<"Data glove device \""<<szDataGlovePath<<"\" is valid."<<endl;
 		if ( ! bStatesLoaded ) {
 			//Error: data glove states could not be loaded
 			return -1;
@@ -112,11 +113,16 @@ int main(int argc, char* argv[]){
 		threadMessageHandler.setEvaluateDataGloveState( &evaluateDataGloveState );
 		
 		dataGloveDGTechVHand.startSampling( 1 );
+		cout<<"Sampling started on device \""<<szDataGlovePath<<"\" ."<<endl;
 		
 		//start the data glove message handler thread
 		threadMessageHandler.start();
-		//wait till the thread is done
-		cThread::msleep( 10000 );
+		
+		for ( unsigned int second = 10; 0 < second; ++second ) {
+			//wait till the thread is done
+			cThread::msleep( 1000 );
+			cout<<"remaining: "<<second<<" seconds"<<endl;
+		}
 		
 		
 		dataGloveDGTechVHand.stopSampling();

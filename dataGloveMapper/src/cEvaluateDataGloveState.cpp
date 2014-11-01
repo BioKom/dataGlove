@@ -52,6 +52,8 @@ History:
 #define DEBUG_CALL_FUNCTION
 ///just simulate the call to the functions
 #define SIMULATE_CALL_FUNCTION
+///prints information about the created border states
+#define DEBUG_BORDER_STATES
 
 
 #include "cEvaluateDataGloveState.h"
@@ -770,6 +772,7 @@ bool cEvaluateDataGloveState::loadDataGloveStates(
 		if ( readedEntry.second ) {
 			//new line read -> start columns with first column
 			itrColumnType = liTableColumnType.begin();
+			pActualDataGloveState->orderIntervals();
 			if ( pActualDataGloveState->isValid() ) {
 				setAllStates.insert( pActualDataGloveState );
 			} else {  //not a valid state -> delete it
@@ -781,6 +784,7 @@ bool cEvaluateDataGloveState::loadDataGloveStates(
 			szFunctionParameter = "";
 		}
 	}
+	pActualDataGloveState->orderIntervals();
 	if ( pActualDataGloveState->isValid() ) {
 		setAllStates.insert( pActualDataGloveState );
 	} else {  //not a valid state -> delete it
@@ -859,6 +863,37 @@ bool compareBiggestCalls(const  cDataGloveState * firstState,
 }
 
 
+
+
+
+
+/**
+ * This function creates a good border for the given list of data glove
+ * states.
+ * It is a helper function of createDataGloveStateBorderTrees() .
+ * Note: No states should have 0 calls.
+ *
+ * @see createDataGloveStateBorderTrees()
+ * @param pBorderDataGlove the border for which to evaluate a next lower border
+ * @param bForLower for which side of the border to evaluate the next lower
+ * 	border
+ * @return a pointer to the the created border (please care that deleted),
+ * 	or NULL, if non could be created
+ */
+cBorderDataGloveState * cEvaluateDataGloveState::createGoodBorder(
+		cBorderDataGloveState * pBorderDataGlove,
+		const bool bForLower ) const {
+		
+	//evaluate the states for which to evaluate the border
+	set< cDataGloveState * > & setDataGloveStates = bForLower ?
+		pBorderDataGlove->getLowerStates() :
+		pBorderDataGlove->getHigherStates();
+
+	return createGoodBorder( setDataGloveStates, pBorderDataGlove, bForLower );
+}
+
+
+
 /**
  * This function creates a good border for the given list of data glove
  * states.
@@ -868,14 +903,20 @@ bool compareBiggestCalls(const  cDataGloveState * firstState,
  * @see createDataGloveStateBorderTrees()
  * @param setDataGloveStates the data glove states, for which a good border
  * 	should be created
+ * @param pBorderDataGlove the border for which to evaluate a next lower border
+ * @param bForLower for which side of the border to evaluate the next lower
+ * 	border
  * @return a pointer to the the created border (please care that deleted),
  * 	or NULL, if non could be created
  */
 cBorderDataGloveState * cEvaluateDataGloveState::createGoodBorder(
-		set< cDataGloveState * > & setDataGloveStates ) {
-	
+		set< cDataGloveState * > & setDataGloveStates,
+		cBorderDataGloveState * pBorderDataGlove,
+		const bool bForLower ) const {
+		
 	typedef cMessageSamplingDataFromDataGlove::tTypeSamplingValue
 		typeDataGloveSamplingData;
+	
 	if ( setDataGloveStates.size() < 2 ) {
 		
 		if ( setDataGloveStates.size() == 1 ) {
@@ -894,28 +935,52 @@ cBorderDataGloveState * cEvaluateDataGloveState::createGoodBorder(
 			std::map< typeDataGloveSamplingData, cInterval * >::const_iterator
 				itrSamplingInterval = mapActualIntervalMap.begin();
 				
+			//search for possible border values in the states
+			cBorderDataGloveState * pNewBorder = NULL;
 			for ( ; itrSamplingInterval != mapActualIntervalMap.end();
 					++itrSamplingInterval ) {
 				if ( itrSamplingInterval->second != NULL ) {
 					//interval found
-					break;
+					if ( pBorderDataGlove != NULL ) {
+						//use just valid values
+						if ( pBorderDataGlove->isValueInsideSide(
+								itrSamplingInterval->first,
+								itrSamplingInterval->second->getMinimum(),
+								bForLower ) ) {
+							//minimum interval value is valid value -> use it
+							pNewBorder = new cBorderDataGloveState(
+								itrSamplingInterval->first,
+								itrSamplingInterval->second->getMinimum() );
+							break;  //valid border (value) found -> done
+						}
+						if ( pBorderDataGlove->isValueInsideSide(
+								itrSamplingInterval->first,
+								itrSamplingInterval->second->getMaximum() + 1,
+								bForLower ) ) {
+							//maximum interval value is valid value -> use it
+							pNewBorder = new cBorderDataGloveState(
+								itrSamplingInterval->first,
+								itrSamplingInterval->second->getMaximum() + 1 );
+							break;  //valid border (value) found -> done
+						}
+						
+					} else {  //no parent border to check (create the first border)
+						pNewBorder = new cBorderDataGloveState(
+								itrSamplingInterval->first,
+								itrSamplingInterval->second->getMinimum() );
+						break;  //valid border (value) found -> done
+					}
 				}
 			}
-			if ( ( itrSamplingInterval == mapActualIntervalMap.end() ) ||
-					( itrSamplingInterval->second == NULL ) ) {
-				//Error: state has no interval -> can't use it for border
-				return NULL;
+			
+			if ( pNewBorder != NULL ) {
+				pNewBorder->filterStates( setDataGloveStates );
 			}
-			
-			cBorderDataGloveState * pNewBorder =
-				new cBorderDataGloveState( itrSamplingInterval->first,
-					itrSamplingInterval->second->getMinimum() );
-			
-			pNewBorder->filterStates( setDataGloveStates );
 			
 			return pNewBorder;
 		}  // setDataGloveStates.size() == 0
 		//not enough states -> no border to create
+		return NULL;
 	}
 	//evalue all interval (sampling data) types
 	//a list with all states sorted for the number of calls (biggest first)
@@ -951,7 +1016,7 @@ cBorderDataGloveState * cEvaluateDataGloveState::createGoodBorder(
 	
 	//for each sampling type
 	cInterval * pInterval;
-	list< long > liPossibleBorderValues;
+	set< long > setPossibleBorderValues;
 	unsigned long ulMaxNumberOfCalls = 0;
 	unsigned long ulCalls;
 	bool bIsLower, bIsHigher;
@@ -963,7 +1028,7 @@ cBorderDataGloveState * cEvaluateDataGloveState::createGoodBorder(
 			++itrSamplingType ) {
 		//get all possible border values (possible values are the minimum and
 		//maximum values of the intervals for the sampling type)
-		liPossibleBorderValues.clear();
+		setPossibleBorderValues.clear();
 		liStatesWithInterval.clear();
 		ulMaxNumberOfCalls = 0;
 		for ( list< cDataGloveState * >::const_iterator
@@ -976,18 +1041,44 @@ cBorderDataGloveState * cEvaluateDataGloveState::createGoodBorder(
 				continue;
 			}
 			//the passible value should seperate the state
-			//if the border has the interval minimum value the state is higher
-			//than the border
-			liPossibleBorderValues.push_back(
-				pInterval->getMinimum() );
-			//the border has the has the interval maximum plus 1 value the
-			//state is lower than the border
-			liPossibleBorderValues.push_back(
-				pInterval->getMaximum() + 1 );
+			if ( pBorderDataGlove != NULL ) {
+				//use just valid values (values not excluded or used by other borders)
+				if ( pBorderDataGlove->isValueInsideSide(
+						*itrSamplingType, pInterval->getMinimum(), bForLower ) ) {
+					//if the border has the interval minimum value the state is higher
+					//than the border
+					setPossibleBorderValues.insert( pInterval->getMinimum() );
+				}
+				if ( pBorderDataGlove->isValueInsideSide(
+						*itrSamplingType, pInterval->getMaximum() + 1, bForLower ) ) {
+					//the border has the has the interval maximum plus 1 value the
+					//state is lower than the border
+					setPossibleBorderValues.insert(
+						pInterval->getMaximum() + 1 );
+				}
+			} else {  //no parent border to check (create the first border)
+				//if the border has the interval minimum value the state is higher
+				//than the border
+				setPossibleBorderValues.insert( pInterval->getMinimum() );
+				//the border has the has the interval maximum plus 1 value the
+				//state is lower than the border
+				setPossibleBorderValues.insert(
+					pInterval->getMaximum() + 1 );
+			}
 		
 			liStatesWithInterval.push_back( *itrState );
 			ulMaxNumberOfCalls += (*itrState)->getCalls();
 		}  //end search for possible border values
+		
+		if ( ( ! setPossibleBorderValues.empty() ) &&
+				( paBestBorderValue.first == typeDataGloveSamplingData::UNKNOWN ) ) {
+			//possible values found and no valid border found jet
+			//use possible values as border values
+			paBestBorderValue.first  = (*itrSamplingType);
+			paBestBorderValue.second = (*(setPossibleBorderValues.begin()));
+		}
+		
+		
 		if ( ( ulMaxNumberOfCalls <= ulBestCallsSumEachSide ) &&
 				( ulMaxNumberOfCalls <= ulBestCallsLower ) &&
 				( ulMaxNumberOfCalls <= ulBestCallsHigher ) ) {
@@ -998,29 +1089,45 @@ cBorderDataGloveState * cEvaluateDataGloveState::createGoodBorder(
 		//Search for value, which has maximum number of calls sum and most
 		//similar sum of calls on both sides, for states just one one side of
 		//the border.
-		for ( list< long >::const_iterator
-				itrPossibleValue = liPossibleBorderValues.begin();
-				itrPossibleValue != liPossibleBorderValues.end();
+		bool bHasLowerInterval  = false;
+		bool bHasHigherInterval = false;
+		bool bValueSeperatesIntervalsNotFound = true;
+		bool bPartIntervalLower  = false;
+		bool bPartIntervalHigher = false;
+		for ( set< long >::const_iterator
+				itrPossibleValue = setPossibleBorderValues.begin();
+				itrPossibleValue != setPossibleBorderValues.end();
 				++itrPossibleValue ) {
 			ulPossibleCallsLower  = ulMaxNumberOfCalls;
 			ulPossibleCallsHigher = ulMaxNumberOfCalls;
+			//dos the border has intervals lower and higher?
+			bHasLowerInterval  = false;
+			bHasHigherInterval = false;
+			bPartIntervalLower  = false;
+			bPartIntervalHigher = false;
+			
 			for ( list< cDataGloveState * >::const_iterator
 					itrState = liStatesWithInterval.begin();
 					itrState != liStatesWithInterval.end(); ++itrState ) {
 				
 				pInterval = (*itrState)->getIntervalForType( *itrSamplingType );
 				//check if state interval lower or/and higher border value
-				bIsLower  = ( pInterval->getMinimum() < (*itrPossibleValue) );
-				bIsHigher = ( (*itrPossibleValue) <= pInterval->getMaximum() );
+				bIsLower  = ( pInterval->getMaximum() < (*itrPossibleValue) );
+				bIsHigher = ( (*itrPossibleValue) <= pInterval->getMinimum() );
+				//is a part of the interval lower or higher
+				bPartIntervalLower  |= ( pInterval->getMinimum() < (*itrPossibleValue) );
+				bPartIntervalHigher |= ( (*itrPossibleValue) <= pInterval->getMaximum() );
 				
 				ulCalls = (*itrState)->getCalls();
 				if ( bIsHigher ) {
 					//not on lower border or on both sides
 					ulPossibleCallsLower -= ulCalls;
+					bHasHigherInterval = true;
 				}
 				if ( bIsLower ) {
 					//not on higher border or on both sides
 					ulPossibleCallsHigher -= ulCalls;
+					bHasLowerInterval = true;
 				}
 				if ( ( ulPossibleCallsLower <= ulBestCallsLower ) &&
 						( ulPossibleCallsHigher <= ulBestCallsHigher ) ) {
@@ -1029,13 +1136,33 @@ cBorderDataGloveState * cEvaluateDataGloveState::createGoodBorder(
 				}
 			}  //end for all states with a interval for the sampling type
 			
-			if ( 0 < ( ulPossibleCallsLower + ulPossibleCallsHigher -
+			if ( //just use borders with lower and higher intervals
+					bHasHigherInterval && bHasLowerInterval &&
+				//a value that seperates two intervalls is allways better than one that dos not
+					( bValueSeperatesIntervalsNotFound ||
+				//evalue how good / fit the border is
+					( 0 < ( ulPossibleCallsLower + ulPossibleCallsHigher -
 						ulBestCallsSumEachSide ) +
 					//the factor 256 is choosen, because it is much better to
 					//classify states than just having the border work on them
 					256 * ( abs( ulPossibleCallsLower - ulPossibleCallsHigher ) -
-						abs( ulBestCallsLower - ulBestCallsHigher ) ) ) {
+						abs( ulBestCallsLower - ulBestCallsHigher ) ) ) ) ) {
 				//better than actual best border -> new best border
+				paBestBorderValue.first  = (*itrSamplingType);
+				paBestBorderValue.second = (*itrPossibleValue);
+				ulBestCallsSumEachSide = ulPossibleCallsLower + ulPossibleCallsHigher;
+				bValueSeperatesIntervalsNotFound = false;
+			} else if ( bValueSeperatesIntervalsNotFound &&
+					( ( bHasHigherInterval && bPartIntervalLower ) ||
+						( bHasLowerInterval && bPartIntervalHigher ) ) &&
+				//evalue how good / fit the border is
+					( 0 < ( ulPossibleCallsLower + ulPossibleCallsHigher -
+						ulBestCallsSumEachSide ) +
+					//the factor 256 is choosen, because it is much better to
+					//classify states than just having the border work on them
+					256 * ( abs( ulPossibleCallsLower - ulPossibleCallsHigher ) -
+						abs( ulBestCallsLower - ulBestCallsHigher ) ) ) ) {
+				
 				paBestBorderValue.first  = (*itrSamplingType);
 				paBestBorderValue.second = (*itrPossibleValue);
 				ulBestCallsSumEachSide = ulPossibleCallsLower + ulPossibleCallsHigher;
@@ -1063,6 +1190,119 @@ cBorderDataGloveState * cEvaluateDataGloveState::createGoodBorder(
 	return pNewBorder;
 }
 
+#ifdef DEBUG_BORDER_STATES
+
+/**
+ * Prints indention.
+ *
+ * @param uiIndention the actual indention
+ */
+void printIndention( const unsigned int uiIndention = 0 ) {
+	
+	for ( unsigned int uiActualIndention = 0;
+			uiActualIndention < uiIndention; ++uiActualIndention  ) {
+		cout<<"	";
+	}
+}
+
+/**
+ * Prints the given state.
+ *
+ * @param pStateDataGloveState the state to print
+ * @param uiIndention the actual indention
+ */
+void printState( const cDataGloveState * pStateDataGloveState,
+		const unsigned int uiIndention = 0 ) {
+	
+	printIndention( uiIndention );
+	if ( pStateDataGloveState == NULL ) {
+		//no border given
+		cout<<"NULL state"<<endl;
+		return;
+	}
+	//print call function
+	iCallFunction * pCallFunction = pStateDataGloveState->getCallFunction();
+	if ( pCallFunction ) {
+		cout<<"call function: \""<<pCallFunction->getName()<<"\";";
+	} else {
+		cout<<"no call function; ";
+	}
+	//print intervalls
+	cout<<" Intervals:";
+	typedef cMessageSamplingDataFromDataGlove::tTypeSamplingValue
+		typeDataGloveSamplingData;
+	const map< typeDataGloveSamplingData, cInterval * > &
+		mapIntervals = pStateDataGloveState->getMapForInterval();
+	
+	for ( map< typeDataGloveSamplingData, cInterval * >::const_iterator
+			itrInterval = mapIntervals.begin();
+			itrInterval != mapIntervals.end(); ++itrInterval ) {
+		
+		cout<<" "<<itrInterval->first<<":["<<
+			itrInterval->second->getMinimum()<<".."<<
+			itrInterval->second->getTarget()<<".."<<
+			itrInterval->second->getMaximum()<<"];";
+	}
+	cout<<endl;
+}
+
+
+/**
+ * Prints the tree of the given borders.
+ *
+ * @param pBorderDataGloveState the start border of the borders to print
+ * @param uiIndention the actual indention
+ */
+void printBorderTree( const cBorderDataGloveState * pBorderDataGloveState,
+		const unsigned int uiIndention = 0 ) {
+	
+	printIndention( uiIndention );
+	if ( pBorderDataGloveState == NULL ) {
+		//no border given
+		cout<<"NULL"<<endl;
+		return;
+	}
+	cout<<"type "<<pBorderDataGloveState->getTypeSamplingValue()<<
+		" value "<<pBorderDataGloveState->getBorderValue()<<
+		" : "<<pBorderDataGloveState->getLowerStates().size()<<" low "<<
+		" | "<<pBorderDataGloveState->getHigherStates().size()<<" high"<<endl;
+		
+	const unsigned int uiNextIndention = uiIndention + 1;
+	//print lower states
+	printIndention( uiNextIndention );
+	cout<<"Lower States:"<<endl;
+	const std::set< cDataGloveState * > & setLowerStates =
+		pBorderDataGloveState->getLowerStates();
+	for ( std::set< cDataGloveState * >::const_iterator
+			itrState = setLowerStates.begin();
+			itrState != setLowerStates.end(); ++itrState ) {
+		
+		printState( (*itrState), uiNextIndention + 1 );
+	}
+	//print higher states
+	printIndention( uiNextIndention );
+	cout<<"Higher States:"<<endl;
+	const std::set< cDataGloveState * > & setHigherStates =
+		pBorderDataGloveState->getHigherStates();
+	for ( std::set< cDataGloveState * >::const_iterator
+			itrState = setHigherStates.begin();
+			itrState != setHigherStates.end(); ++itrState ) {
+		
+		printState( (*itrState), uiNextIndention + 1 );
+	}
+	
+	//print the next borders
+	cout<<endl;
+	printIndention( uiNextIndention );
+	cout<<"Lower border:"<<endl;
+	printBorderTree( pBorderDataGloveState->getLowerBorder(), uiNextIndention );
+	printIndention( uiNextIndention );
+	cout<<"Higher border:"<<endl;
+	printBorderTree( pBorderDataGloveState->getHigherBorder(), uiNextIndention );
+	
+}
+
+#endif  //DEBUG_BORDER_STATES
 
 
 /**
@@ -1133,27 +1373,41 @@ bool cEvaluateDataGloveState::createDataGloveStateBorderTrees() {
 			if ( 1 < pActualBorder->getLowerStates().size() ) {
 				//if the lower side contains more than 1 states
 				//-> create new border for the contained states
-				pCreatedBorder = createGoodBorder( pActualBorder->getLowerStates() );
+				pCreatedBorder = createGoodBorder(
+					pActualBorder, true );
 				
 				if ( pCreatedBorder != NULL ) {
 					setAllBorders.insert( pCreatedBorder );
-					mapStartBordersForModus[ itrModiStates->first ] = pCreatedBorder;
+					pActualBorder->setLowerBorder( pCreatedBorder );
 					stackOpenBorders.push( pCreatedBorder );
 				}
 			}
 			if ( 1 < pActualBorder->getHigherStates().size() ) {
 				//if the higher side contains more than 1 states
 				//-> create new border for the contained states
-				pCreatedBorder = createGoodBorder( pActualBorder->getHigherStates() );
+				pCreatedBorder = createGoodBorder(
+					pActualBorder, false );
 				
 				if ( pCreatedBorder != NULL ) {
 					setAllBorders.insert( pCreatedBorder );
-					mapStartBordersForModus[ itrModiStates->first ] = pCreatedBorder;
+					pActualBorder->setHigherBorder( pCreatedBorder );
 					stackOpenBorders.push( pCreatedBorder );
 				}
 			}
 		}  //while there are open borders to check
 	}  //end for all modi
+#ifdef DEBUG_BORDER_STATES
+	cout<<"Created "<< mapStartBordersForModus.size() <<" Modi"<<endl;
+	cout<<"==============="<<endl;
+	for ( map< int, cBorderDataGloveState * >::iterator
+			itrStartBordersForModus = mapStartBordersForModus.begin();
+			itrStartBordersForModus != mapStartBordersForModus.end();
+			++itrStartBordersForModus ) {
+		
+		cout<<"Modus "<< itrStartBordersForModus->first <<" :"<<endl;
+		printBorderTree( itrStartBordersForModus->second, 1 );
+	}
+#endif  //DEBUG_BORDER_STATES
 	//set the border for the actual modi
 	std::map< int, cBorderDataGloveState * >::iterator
 		itrNewStartBorder = mapStartBordersForModus.find( iActualModus );
@@ -1164,6 +1418,7 @@ bool cEvaluateDataGloveState::createDataGloveStateBorderTrees() {
 	
 	return true;
 }
+
 
 
 /**

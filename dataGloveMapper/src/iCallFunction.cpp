@@ -5,12 +5,12 @@
  * @file iCallFunction
  * file name: iCallFunction.h
  * @author Betti Oesterholz
- * @date 06.08.2014
+ * @date 18.10.2014
  * @mail webmaster@BioKom.info
  *
  * System: C++
  *
- * This file specifies the interface for a function, which should be called.
+ * This file implements the interface for a function, which should be called.
  *
  *
  * Copyright (C) @c GPL3 2014 Betti Oesterholz
@@ -29,7 +29,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This file specifies the interface for a function, which should be called.
+ * This file implements the interface for a function, which should be called.
  * It is a functor.
  *
  * @pattern functor
@@ -39,56 +39,56 @@
  */
 /*
 History:
-06.08.2014  Oesterholz  created
+18.10.2014  Oesterholz  created
 */
 
 
-#ifndef ___N_DATA_GLOVE__N_MAPPER__I_CALL_FUNCTION__
-#define ___N_DATA_GLOVE__N_MAPPER__I_CALL_FUNCTION__
+
+#include "iCallFunction.h"
+
+#include "cCallPrepareKeybordFunction.h"
+#include "cCallPrepareChangeModus.h"
 
 
-#include "version.h"
-
-#include <string>
+using namespace nDataGlove::nMapper;
 
 
-namespace nDataGlove{
-namespace nMapper{
+
+iCallFunction::~iCallFunction() {
+	//nothing to do
+}
 
 
-class iCallFunction{
-public:
-
-	virtual ~iCallFunction();
+/**
+ * @return the name of this class "iCallFunction"
+ */
+std::string iCallFunction::getName() const {
 	
-	/**
-	 * @return the name of this class "iCallFunction"
-	 */
-	virtual std::string getName() const;
-	
-	/**
-	 * This functor operator is called the execute the function implemented
-	 * by this object.
-	 *
-	 * @return true if the call to the function was sucessfull, else false
-	 */
-	virtual bool operator()();
-	
-	/**
-	 * This method ends the operation.
-	 * (Call if the state changes.)
-	 */
-	virtual void end();
-	
-	
-};//end class iCallFunction
+	return std::string("iCallFunction");
+}
 
 
-};//end namespace nMapper
-};//end namespace nDataGlove
+/**
+ * This functor operator is called the execute the function implemented
+ * by this object.
+ *
+ * @return true if the call to the function was sucessfull, else false
+ */
+bool iCallFunction::operator()() {
+	
+	//call unprepare
+	cCallPrepareKeybordFunction::unprepare();
+	cCallPrepareChangeModus::unprepare();
+}
 
-#endif //___N_DATA_GLOVE__N_MAPPER__I_CALL_FUNCTION__
 
+/**
+ * This method ends the operation.
+ * (Call if the state changes.)
+ */
+void iCallFunction::end() {
+	//default -> do nothing
+}
 
 
 

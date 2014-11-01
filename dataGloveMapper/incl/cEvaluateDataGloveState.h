@@ -205,13 +205,36 @@ protected:
 	 * Note: No states should have 0 calls.
 	 *
 	 * @see createDataGloveStateBorderTrees()
-	 * @param setDataGloveStates the data glove states, for which a good border
-	 * 	should be created
+	 * @param pBorderDataGlove the border for which to evaluate a next lower border
+	 * @param bForLower for which side of the border to evaluate the next lower
+	 * 	border
 	 * @return a pointer to the the created border (please care that deleted),
 	 * 	or NULL, if non could be created
 	 */
 	cBorderDataGloveState * createGoodBorder(
-			std::set< cDataGloveState * > & setDataGloveStates );
+		cBorderDataGloveState * pBorderDataGlove,
+		const bool bForLower ) const;
+	
+	
+	/**
+	 * This function creates a good border for the given list of data glove
+	 * states.
+	 * It is a helper function of createDataGloveStateBorderTrees() .
+	 * Note: No states should have 0 calls.
+	 *
+	 * @see createDataGloveStateBorderTrees()
+	 * @param setDataGloveStates the data glove states, for which a good border
+	 * 	should be created
+	 * @param pBorderDataGlove the border for which to evaluate a next lower border
+	 * @param bForLower for which side of the border to evaluate the next lower
+	 * 	border
+	 * @return a pointer to the the created border (please care that deleted),
+	 * 	or NULL, if non could be created
+	 */
+	cBorderDataGloveState * createGoodBorder(
+		std::set< cDataGloveState * > & setDataGloveStates,
+		cBorderDataGloveState * pBorderDataGlove = NULL,
+		const bool bForLower = true ) const;
 	
 	/**
 	 * This method creats for each modus a tree of borders to fast find a

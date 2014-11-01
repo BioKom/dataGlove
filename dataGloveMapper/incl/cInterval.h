@@ -106,6 +106,11 @@ public:
 	 */
 	void setTarget( const long lNewTarget );
 	
+	/**
+	 * Orders the maximum and minimum values
+	 */
+	void order();
+	
 protected:
 	
 //members

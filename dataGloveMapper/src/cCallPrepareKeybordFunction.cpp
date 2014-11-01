@@ -187,10 +187,12 @@ std::string cCallPrepareKeybordFunction::getName() const {
 bool cCallPrepareKeybordFunction::operator()() {
 	
 	pKeybordFunctionPrepared = this;
+	//call parent operator
+	iCallFunction::operator()();
 #ifdef DEBUG_CALL_FUNCTION
 	cout<<"preparing keyboard function: "<<keybordFunction<<" ("<<cChar<<")"<<endl;
-	return true;
 #endif  //DEBUG_CALL_FUNCTION
+	return true;
 }
 
 
@@ -200,15 +202,23 @@ bool cCallPrepareKeybordFunction::operator()() {
  */
 void cCallPrepareKeybordFunction::end() {
 	
-	if ( pKeybordFunctionPrepared == this ) {
-		
-		pKeybordFunctionPrepared = NULL;
-	}
 #ifdef DEBUG_CALL_FUNCTION
-	cout<<"unpreparing keyboard function: "<<getKeybordFunction()<<" ("<<getChar()<<")"<<endl;
+	cout<<"end keyboard function: "<<getKeybordFunction()<<" ("<<getChar()<<")"<<endl;
 #endif  //DEBUG_CALL_FUNCTION
 }
 
+
+/**
+ * Unprepares this keybord function.
+ * (After the call, no keybord function will be prepared.)
+ */
+void cCallPrepareKeybordFunction::unprepare() {
+	
+	pKeybordFunctionPrepared = NULL;
+#ifdef DEBUG_CALL_FUNCTION
+	cout<<"unpreparing keyboard function"<<endl;
+#endif  //DEBUG_CALL_FUNCTION
+}
 
 
 /**

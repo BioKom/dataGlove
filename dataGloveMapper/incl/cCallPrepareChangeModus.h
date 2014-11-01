@@ -98,6 +98,12 @@ public:
 	virtual void end();
 	
 	/**
+	 * Unprepares this change modus function.
+	 * (After the call, a change modus function will not be prepared.)
+	 */
+	static void unprepare();
+	
+	/**
 	 * @return The modus, which will be prepared with this operator.
 	 * 	@see iModus
 	 */

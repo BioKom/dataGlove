@@ -150,6 +150,19 @@ public:
 
 	
 	/**
+	 * @return The parent border of this border, which contains this border.
+	 * 	@see pParent
+	 */
+	cBorderDataGloveState * getParent();
+	
+	/**
+	 * @return The parent border of this border, which contains this border.
+	 * 	@see pParent
+	 */
+	const cBorderDataGloveState * getParent() const;
+
+	
+	/**
 	 * @return The value of the border.
 	 * 	All data glove sampling values below inTypeSamplingValue are
 	 * 	in the lower set of data glove states, all values above or equal
@@ -304,6 +317,11 @@ public:
 protected:
 	
 //members
+	
+	/**
+	 * The parent border of this border, which contains this border.
+	 */
+	cBorderDataGloveState * pParent;
 	
 	/**
 	 * The type of the data glove sampling value, for which the border is.
@@ -463,6 +481,25 @@ public:  //inline
 		}  // else the message state is higher or equal then this border
 		return pHigherBorder;
 	}
+	
+	/**
+	 * This method evalues if the given value of the given type is inside
+	 * the give border side.
+	 * A value can not be inside, if it is a border value @see lBorderValue .
+	 * Parents will also be checked.
+	 *
+	 * @see lBorderValue
+	 * @see pParent
+	 * @see filterStates()
+	 * @param typeValue the type of the value
+	 * @param lValue the value, for which should be checked, on which side it is
+	 * @param bIsLower the side on which the value should be
+	 * @return true if the value of the given type is inside the given border
+	 * 	side else false
+	 */
+	bool isValueInsideSide( const nDataGlove::nModelDataGloveDGTechVHand::
+		cMessageSamplingDataFromDataGlove::tTypeSamplingValue typeValue,
+			const long lValue, const bool bIsLower ) const;
 	
 };//end class cBorderDataGloveState
 

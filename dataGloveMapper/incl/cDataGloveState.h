@@ -402,6 +402,11 @@ public:
 	void setRepeatAllMilliSeconds(
 			const unsigned int uiNewRepeatAllMilliSeconds );
 	
+	/**
+	 * Orders all interval values.
+	 * @see cInterval:order()
+	 */
+	void orderIntervals();
 	
 	/**
 	 * @return true if this a a valid data glove state, else false

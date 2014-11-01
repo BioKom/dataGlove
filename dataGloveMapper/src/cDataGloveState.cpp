@@ -237,6 +237,23 @@ void cDataGloveState::setRepeatAllMilliSeconds(
 
 
 /**
+ * Orders all interval values.
+ * @see cInterval:order()
+ */
+void cDataGloveState::orderIntervals() {
+	
+	for ( std::map< nDataGlove::nModelDataGloveDGTechVHand::
+			cMessageSamplingDataFromDataGlove::tTypeSamplingValue,
+			cInterval * >::const_iterator
+			itrValueArea = mapStateArea.begin();
+			itrValueArea != mapStateArea.end(); ++itrValueArea ) {
+		
+		itrValueArea->second->order();
+	}
+}
+
+
+/**
  * @return true if this a a valid data glove state, else false
  */
 bool cDataGloveState::isValid() const {

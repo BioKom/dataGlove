@@ -1,6 +1,5 @@
 Next steps:
 * one keyboard char "e"
-** cCallKeybordFunction
 ** cEvalueDataGloveState.getCallFunction()
 * modus 0 (basis mode) and modus 10 (keyboard; print "e")
 ** create cThreadRepeater

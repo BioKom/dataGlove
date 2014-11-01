@@ -97,6 +97,8 @@ std::string cCallSimulation::getName() const {
 bool cCallSimulation::operator()() {
 	
 	cout<<"simulate calling: "<<szCalledFunction<<"("<<szCallParameter<<")"<<endl;
+	//call parent operator
+	iCallFunction::operator()();
 	return true;
 }
 

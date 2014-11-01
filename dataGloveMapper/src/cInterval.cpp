@@ -92,7 +92,10 @@ cInterval::cInterval( const long lInMin, const long lInMax, const long lInTarget
 		const long lTmpValue = lMaximum;
 		lMaximum = lMinimum;
 		lMinimum = lTmpValue;
-		lTarget = ( lMaximum - lMinimum ) / 2;
+		if ( ( lTarget < lMinimum ) || ( lMaximum < lTarget ) ) {
+			//target outside interval -> evaluate new target
+			lTarget = ( lMaximum - lMinimum ) / 2;
+		}
 	}
 }
 
@@ -113,15 +116,6 @@ std::string cInterval::getName() const {
 void cInterval::setMinimum( const long lNewMinimum ) {
 	
 	lMinimum = lNewMinimum;
-	if ( lMaximum < lMinimum ) {
-		const long lTmpValue = lMaximum;
-		lMaximum = lMinimum;
-		lMinimum = lTmpValue;
-	}
-	if ( ( lTarget < lMinimum ) || ( lMaximum < lTarget ) ) {
-		//target outside intervall bonds -> evalue new target
-		lTarget = ( lMaximum - lMinimum ) / 2;
-	}
 }
 
 
@@ -132,15 +126,6 @@ void cInterval::setMinimum( const long lNewMinimum ) {
 void cInterval::setMaximum( const long lNewMaximum ) {
 	
 	lMaximum = lNewMaximum;
-	if ( lMaximum < lMinimum ) {
-		const long lTmpValue = lMaximum;
-		lMaximum = lMinimum;
-		lMinimum = lTmpValue;
-	}
-	if ( ( lTarget < lMinimum ) || ( lMaximum < lTarget ) ) {
-		//target outside intervall bonds -> evalue new target
-		lTarget = ( lMaximum - lMinimum ) / 2;
-	}
 }
 
 
@@ -151,6 +136,25 @@ void cInterval::setMaximum( const long lNewMaximum ) {
 void cInterval::setTarget( const long lNewTarget ) {
 	
 	lTarget = lNewTarget;
+}
+
+
+
+/**
+ * Orders the maximum and minimum values
+ */
+void cInterval::order() {
+	
+	if ( lMaximum < lMinimum ) {
+		//maximum lower minimum -> switch them
+		const long lTmpValue = lMaximum;
+		lMaximum = lMinimum;
+		lMinimum = lTmpValue;
+	}
+	if ( ( lTarget < lMinimum ) || ( lMaximum < lTarget ) ) {
+		//target outside interval -> evaluate new target
+		lTarget = ( lMaximum - lMinimum ) / 2;
+	}
 }
 
 

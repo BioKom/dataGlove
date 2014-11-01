@@ -99,10 +99,12 @@ bool cCallPrepareChangeModus::operator()() {
 	
 	iPreparedModus = iModus;
 	bIsActiv = true;
+	//call parent operator
+	iCallFunction::operator()();
 #ifdef DEBUG_CALL_FUNCTION
 	cout<<"preparing changing to modus: "<<iModus<<endl;
-	return true;
 #endif  //DEBUG_CALL_FUNCTION
+	return true;
 }
 
 
@@ -112,11 +114,23 @@ bool cCallPrepareChangeModus::operator()() {
  */
 void cCallPrepareChangeModus::end() {
 	
-	if ( iPreparedModus == iModus ) {
-		bIsActiv = false;
-	}
 #ifdef DEBUG_CALL_FUNCTION
-	cout<<"unpreparing changing to modus: "<<iModus<<endl;
+	cout<<"end changing to modus: "<<iModus<<endl;
+#endif  //DEBUG_CALL_FUNCTION
+}
+
+
+/**
+ * Unprepares this change modus function.
+ * (After the call, a change modus function will not be prepared.)
+ */
+void cCallPrepareChangeModus::unprepare() {
+	
+	bIsActiv = false;
+	iPreparedModus = -1;
+	
+#ifdef DEBUG_CALL_FUNCTION
+	cout<<"unpreparing changing to modus"<<endl;
 #endif  //DEBUG_CALL_FUNCTION
 }
 

@@ -118,10 +118,12 @@ bool cCallChangeModus::operator()() {
 		return false;
 	}
 	pEvaluateDataGloveState->setActualModus( iModus );
+	//call parent operator
+	iCallFunction::operator()();
 #ifdef DEBUG_CALL_FUNCTION
 	cout<<"changing to modus: "<<iModus<<endl;
-	return true;
 #endif  //DEBUG_CALL_FUNCTION
+	return true;
 }
 
 
