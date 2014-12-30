@@ -46,8 +46,8 @@ History:
 **************************************/
 
 //versions information for the data glove program system
-#define DATA_GLOVE_VERSION          1
-#define DATA_GLOVE_VERSION_NAME     V0.0.1
+#define DATA_GLOVE_VERSION          2
+#define DATA_GLOVE_VERSION_NAME     V0.0.2
 
 
 /*****************************************
@@ -65,11 +65,23 @@ History:
 ******************************************/
 
 /**
- * Prinds messages for the call functions.
+ * Prints messages for the call functions.
  * @see iCallFunction
  */
-#define DEBUG_CALL_FUNCTION
+//#define DEBUG_CALL_FUNCTION
 
+
+/**
+ * Prints messages for every change of modus.
+ * @see cCallChangeModus
+ */
+#define DEBUG_CHANGE_MODUS
+
+/**
+ * Prints messages for every prepared keyboard function.
+ * @see cCallPrepareKeybordFunction
+ */
+#define DEBUG_PREPARED_KEYBOARD_FUNCTION
 
 
 

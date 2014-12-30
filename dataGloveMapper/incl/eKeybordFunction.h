@@ -60,13 +60,20 @@ enum eKeybordFunction {
 	INPUT_KEY_CODE_1,  ///one key code like defined in <linux/input.h>
 	INPUT_KEY_CODE_2,  ///two key codes like defined in <linux/input.h>
 	F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
-	TAB, ESC, ENTER,
-	UPPER_CASE,
+	SPACE, TAB, BACK_TAB, ESC, ENTER,
+	UPPER_CASE, CHAPS_LOCK,
 	UP, DOWN, LEFT, RIGHT,
 	PAGE_UP, PAGE_DOWN, POS1, END,
 	DELETE, REMOVE /*ENTF*/,INSERT,
 	ALT, CTRL /*STRG*/,
-	PRINT, MENUE, SCROLL /*Rollen*/, BREAK /*Pause*/
+	PRINT, MENUE, SCROLL /*Rollen*/, BREAK, /*Pause*/
+	UNDO, UNUNDO,
+	END_APPLICATION,
+	COPY, PAST,
+	NEXT_WORD, PREVIOS_WORD, MARK_NEXT_WORD,
+	
+	
+	QUOTE, SINGLE_QUOTE, SEMICOLON
 	
 };  //eKeybordFunction
 

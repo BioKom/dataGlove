@@ -153,7 +153,7 @@ void cInterval::order() {
 	}
 	if ( ( lTarget < lMinimum ) || ( lMaximum < lTarget ) ) {
 		//target outside interval -> evaluate new target
-		lTarget = ( lMaximum - lMinimum ) / 2;
+		lTarget = ( lMaximum + lMinimum ) / 2;
 	}
 }
 

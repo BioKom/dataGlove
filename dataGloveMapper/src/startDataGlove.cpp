@@ -64,6 +64,9 @@ History:
 #include <iostream>
 #include <fstream>
 
+//timer
+#include <cmath>
+
 
 using namespace std;
 using namespace nDataGlove;
@@ -118,10 +121,17 @@ int main(int argc, char* argv[]){
 		//start the data glove message handler thread
 		threadMessageHandler.start();
 		
-		for ( unsigned int second = 10; 0 < second; ++second ) {
+		unsigned int uiNextPrint = 180;
+		for ( unsigned int second = uiNextPrint; 0 < second; --second ) {
 			//wait till the thread is done
 			cThread::msleep( 1000 );
-			cout<<"remaining: "<<second<<" seconds"<<endl;
+			
+			if ( second == uiNextPrint ) {
+				cout<<"remaining: "<<second<<" seconds"<<endl;
+				uiNextPrint = max(
+					uiNextPrint - pow( 10, floor( log10( second - 1 ) ) ),
+					pow( 10, floor( log10( second - 1 ) ) ) );
+			}
 		}
 		
 		

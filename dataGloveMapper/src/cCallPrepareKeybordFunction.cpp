@@ -49,8 +49,15 @@ History:
 
 #include "cCallPrepareKeybordFunction.h"
 
-#ifdef DEBUG_CALL_FUNCTION
+#if ( defined DEBUG_CALL_FUNCTION ) || ( defined DEBUG_PREPARED_KEYBOARD_FUNCTION )
 	#include <iostream>
+#endif  //( defined DEBUG_CALL_FUNCTION ) || ( defined DEBUG_PREPARED_KEYBOARD_FUNCTION )
+
+
+#ifdef DEBUG_CALL_FUNCTION
+	#ifndef DEBUG_PREPARED_KEYBOARD_FUNCTION
+		#define DEBUG_PREPARED_KEYBOARD_FUNCTION
+	#endif  //DEBUG_PREPARED_KEYBOARD_FUNCTION
 #endif  //DEBUG_CALL_FUNCTION
 
 
@@ -186,12 +193,15 @@ std::string cCallPrepareKeybordFunction::getName() const {
  */
 bool cCallPrepareKeybordFunction::operator()() {
 	
-	pKeybordFunctionPrepared = this;
 	//call parent operator
 	iCallFunction::operator()();
-#ifdef DEBUG_CALL_FUNCTION
-	cout<<"preparing keyboard function: "<<keybordFunction<<" ("<<cChar<<")"<<endl;
-#endif  //DEBUG_CALL_FUNCTION
+	//prepare this keyboard function
+	pKeybordFunctionPrepared = this;
+#ifdef DEBUG_PREPARED_KEYBOARD_FUNCTION
+	cout<<"preparing keyboard function: "<<keybordFunction<<
+		" ("<<keybordFunctionForOperator<<"; '"<<((char)(cChar))<<"'(="<<cChar<<"); "<<
+		keyCode1<<" "<<keyCode2<<")"<<endl;
+#endif  //DEBUG_PREPARED_KEYBOARD_FUNCTION
 	return true;
 }
 
@@ -203,7 +213,9 @@ bool cCallPrepareKeybordFunction::operator()() {
 void cCallPrepareKeybordFunction::end() {
 	
 #ifdef DEBUG_CALL_FUNCTION
-	cout<<"end keyboard function: "<<getKeybordFunction()<<" ("<<getChar()<<")"<<endl;
+	cout<<"end preparing keyboard function: "<<getKeybordFunction()<<
+		" ("<<keybordFunctionForOperator<<"; '"<<cChar<<"'; "<<
+		keyCode1<<" "<<keyCode2<<")"<<endl;
 #endif  //DEBUG_CALL_FUNCTION
 }
 
@@ -214,10 +226,19 @@ void cCallPrepareKeybordFunction::end() {
  */
 void cCallPrepareKeybordFunction::unprepare() {
 	
-	pKeybordFunctionPrepared = NULL;
 #ifdef DEBUG_CALL_FUNCTION
-	cout<<"unpreparing keyboard function"<<endl;
+	cout<<"unpreparing keyboard function: ";
+	if ( pKeybordFunctionPrepared != NULL ) {
+		cout<<pKeybordFunctionPrepared<<
+		" ("<<pKeybordFunctionPrepared->keybordFunctionForOperator<<
+		"; '"<<pKeybordFunctionPrepared->getChar()<<"'; "<<
+		pKeybordFunctionPrepared->getKeyCode1()<<" "<<
+		pKeybordFunctionPrepared->getKeyCode2()<<")"<<endl;
+	} else {
+		cout<<"NULL"<<endl;
+	}
 #endif  //DEBUG_CALL_FUNCTION
+	pKeybordFunctionPrepared = NULL;
 }
 
 
@@ -245,16 +266,42 @@ cCallPrepareKeybordFunction * cCallPrepareKeybordFunction::getPreparedFunction()
 bool cCallPrepareKeybordFunction::IsPrepared(
 		cCallKeybordFunction * pCallKeybordFunction ) const {
 	
-	return ( ( pCallKeybordFunction->getKeybordFunction() != keybordFunction ) ||
-		( ( keybordFunction == CHAR ) &&
-			( pCallKeybordFunction->getChar() != cChar ) ) ||
+	if ( pCallKeybordFunction->getKeybordFunction() != keybordFunction ) {
+		//wrong keybord function prepared
+		return false;
+	}
+	switch ( keybordFunction ) {
+		case CHAR : {
+			return ( pCallKeybordFunction->getChar() == cChar );
+		}; break;
+		case INPUT_KEY_CODE : {
+			return ( pCallKeybordFunction->getKeyCodes() == getKeyCodes() );
+		}; break;
+		case INPUT_KEY_CODE_1 : {
+			return ( pCallKeybordFunction->getKeyCode1() == getKeyCode1() );
+		}; break;
+		case INPUT_KEY_CODE_2 : {
+			return ( ( pCallKeybordFunction->getKeyCode1() == getKeyCode1() ) &&
+				( pCallKeybordFunction->getKeyCode2() == getKeyCode2() ) );
+		}; break;
+		default : {// just keybord function relevant
+			return true;
+		}
+	};//not reachebel
+	return true;
+	
+/*TODO weg (no "just keybord function relevant")
+	return ( ( pCallKeybordFunction->getKeybordFunction() == keybordFunction ) &&
+		( ( ( keybordFunction == CHAR ) &&
+			( pCallKeybordFunction->getChar() == cChar ) ) ||
 		( ( keybordFunction == INPUT_KEY_CODE ) &&
-			( pCallKeybordFunction->getKeyCodes() != getKeyCodes() ) ) ||
+			( pCallKeybordFunction->getKeyCodes() == getKeyCodes() ) ) ||
 		( ( keybordFunction == INPUT_KEY_CODE_1 ) &&
-			( pCallKeybordFunction->getKeyCode1() != getKeyCode1() ) ) ||
+			( pCallKeybordFunction->getKeyCode1() == getKeyCode1() ) ) ||
 		( ( keybordFunction == INPUT_KEY_CODE_2 ) &&
-			( pCallKeybordFunction->getKeyCode1() != getKeyCode1() ) &&
-			( pCallKeybordFunction->getKeyCode2() != getKeyCode2() ) ) );
+			( pCallKeybordFunction->getKeyCode1() == getKeyCode1() ) &&
+			( pCallKeybordFunction->getKeyCode2() == getKeyCode2() ) ) ) );
+*/
 }
 
 

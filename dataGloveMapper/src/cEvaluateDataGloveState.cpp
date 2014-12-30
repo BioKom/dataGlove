@@ -50,10 +50,12 @@ History:
 
 //for debugging
 #define DEBUG_CALL_FUNCTION
-///just simulate the call to the functions
-#define SIMULATE_CALL_FUNCTION
+
+//just simulate the call to the functions
+//TODO weg? #define SIMULATE_CALL_FUNCTION
+
 ///prints information about the created border states
-#define DEBUG_BORDER_STATES
+//#define DEBUG_BORDER_STATES
 
 
 #include "cEvaluateDataGloveState.h"
@@ -71,6 +73,9 @@ History:
 #include "cCallSimulation.h"
 #include "cCallPrepareChangeModus.h"
 #include "cCallChangeModus.h"
+#include "cCallPrepareKeybordFunction.h"
+#include "cCallKeybordFunction.h"
+
 
 #ifdef FEATURE_READ_DATA_TEXT_WITH_REGEX
 	#include <regex>
@@ -701,7 +706,7 @@ bool cEvaluateDataGloveState::loadDataGloveStates(
 		
 		readedEntry = readEntry( streamDataGloveStates );
 		
-		const string readedString = readedEntry.first;
+		const string readedString = trim_copy( readedEntry.first );
 		
 		//fill / adapt state
 		if ( itrColumnType != liTableColumnType.end() ) {
@@ -1190,6 +1195,7 @@ cBorderDataGloveState * cEvaluateDataGloveState::createGoodBorder(
 	return pNewBorder;
 }
 
+
 #ifdef DEBUG_BORDER_STATES
 
 /**
@@ -1295,11 +1301,25 @@ void printBorderTree( const cBorderDataGloveState * pBorderDataGloveState,
 	cout<<endl;
 	printIndention( uiNextIndention );
 	cout<<"Lower border:"<<endl;
+	if ( ( pBorderDataGloveState->getLowerBorder() == NULL ) &&
+			( pBorderDataGloveState->getLowerStates().size() != 1 ) ) {
+		
+		printIndention( uiNextIndention + 1 );
+		cerr<<"WARNING: no lower border but "<<
+			pBorderDataGloveState->getLowerStates().size()<<" states lower"<<endl;
+	}
 	printBorderTree( pBorderDataGloveState->getLowerBorder(), uiNextIndention );
+	
 	printIndention( uiNextIndention );
 	cout<<"Higher border:"<<endl;
+	if ( ( pBorderDataGloveState->getHigherBorder() == NULL ) &&
+			( pBorderDataGloveState->getHigherStates().size() != 1 ) ) {
+		
+		printIndention( uiNextIndention + 1 );
+		cerr<<"WARNING: no higher border but "<<
+			pBorderDataGloveState->getHigherStates().size()<<" states higher"<<endl;
+	}
 	printBorderTree( pBorderDataGloveState->getHigherBorder(), uiNextIndention );
-	
 }
 
 #endif  //DEBUG_BORDER_STATES
@@ -1435,7 +1455,7 @@ bool cEvaluateDataGloveState::createDataGloveStateBorderTrees() {
  */
 iCallFunction * cEvaluateDataGloveState::getCallFunction( const string & szFunction,
 		const string & szFunctionParameter ) {
-	
+/*TODO weg?
 #ifdef SIMULATE_CALL_FUNCTION
 	if ( szFunction == "changeModusPrepare" ) {
 		return new cCallPrepareChangeModus( atoi( szFunctionParameter.c_str() ) );
@@ -1447,17 +1467,23 @@ iCallFunction * cEvaluateDataGloveState::getCallFunction( const string & szFunct
 	
 	return new cCallSimulation( szFunction, szFunctionParameter );
 #else //SIMULATE_CALL_FUNCTION
+*/
 	if ( szFunction == "changeModusPrepare" ) {
 		return new cCallPrepareChangeModus( atoi( szFunctionParameter.c_str() ) );
 	} else if ( szFunction == "changeModus" ) {
 		return new cCallChangeModus( atoi( szFunctionParameter.c_str() ),
 			this );
+	}else if ( szFunction == "prepareKey" ) {
+		return new cCallPrepareKeybordFunction( szFunctionParameter.c_str(),
+			true );
+	} else if ( szFunction == "key" ) {
+		return new cCallKeybordFunction( szFunctionParameter.c_str(), true );
 	}
 	//TODO
 	
 	
 	return NULL;
-#endif //SIMULATE_CALL_FUNCTION
+//TODO weg? #endif //SIMULATE_CALL_FUNCTION
 }
 
 

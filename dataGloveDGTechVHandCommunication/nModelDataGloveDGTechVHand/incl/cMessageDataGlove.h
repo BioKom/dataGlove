@@ -1,6 +1,3 @@
-
-//TODO check
-
 /**
  * @file cMessageDataGlove
  * file name: cMessageDataGlove.h
@@ -89,6 +86,9 @@ class cMessageFromDataGlove;
 
 
 
+//TODO check
+
+
 
 class cMessageDataGlove{
 public:
@@ -139,12 +139,6 @@ public:
 	 * The standard constructor for the DGTech VHand data glove message.
 	 */
 	cMessageDataGlove();
-	
-	/*TODO
-		 * constructor with given message ( char* + int size )
-		 * constructor with given message as string
-	 */
-	
 	
 	/**
 	 * The destructor.

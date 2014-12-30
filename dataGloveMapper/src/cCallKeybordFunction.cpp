@@ -100,7 +100,7 @@ cCallKeybordFunction::cCallKeybordFunction( const std::string inSzParameters,
  * 	@see cCallPrepareKeybordFunction
  */
 cCallKeybordFunction::cCallKeybordFunction( const int inKeyCode1,
-	const bool bInPrepareNeeded ) :
+		const bool bInPrepareNeeded ) :
 		keybordFunction( INPUT_KEY_CODE_1 ),
 		keybordFunctionForOperator( INPUT_KEY_CODE_1 ),
 		keyCode1( inKeyCode1 ),
@@ -232,11 +232,16 @@ std::string cCallKeybordFunction::getName() const {
 bool cCallKeybordFunction::operator()() {
 	
 	if ( bPrepareNeeded &&
-			( cCallPrepareKeybordFunction::getPreparedFunction() != NULL ) &&
-			( cCallPrepareKeybordFunction::getPreparedFunction()->
-				IsPrepared( this ) ) ) {
-		//to modus to set was not prepared, but should be
-		//call parent operator
+			( ( cCallPrepareKeybordFunction::getPreparedFunction() == NULL ) ||
+			( ! cCallPrepareKeybordFunction::getPreparedFunction()->
+				IsPrepared( this ) ) ) ) {
+		//keyboard function was not prepared, but should be
+		//call parent operator (unprepare)
+#ifdef DEBUG_CALL_FUNCTION
+		cout<<"keyboard function was not prepared: "<<keybordFunction<<
+			" ("<<keybordFunctionForOperator<<"; '"<<cChar<<"'; "<<
+			keyCode1<<" "<<keyCode2<<")"<<endl;
+#endif  //DEBUG_CALL_FUNCTION
 		iCallFunction::operator()();
 		return false;
 	}
@@ -263,10 +268,10 @@ bool cCallKeybordFunction::operator()() {
 		default: break;  //do nothing
 	};  //end switch keybordFunctionForOperator
 	
-	//call parent operator
-	iCallFunction::operator()();
 #ifdef DEBUG_CALL_FUNCTION
-	cout<<"calling keyboard function: "<<keybordFunction<<" ("<<cChar<<")"<<endl;
+	cout<<"calling keyboard function: "<<keybordFunction<<
+		" ("<<keybordFunctionForOperator<<"; '"<<cChar<<"'; "<<
+		keyCode1<<" "<<keyCode2<<")"<<endl;
 #endif  //DEBUG_CALL_FUNCTION
 	return true;
 }
@@ -298,7 +303,9 @@ void cCallKeybordFunction::end() {
 		default: break;  //do nothing
 	};  //end switch keybordFunctionForOperator
 #ifdef DEBUG_CALL_FUNCTION
-	cout<<"end calling keyboard function: "<<keybordFunction<<" ("<<cChar<<")"<<endl;
+	cout<<"end calling keyboard function: "<<keybordFunction<<
+		" ("<<keybordFunctionForOperator<<"; '"<<cChar<<"'; "<<
+		keyCode1<<" "<<keyCode2<<")"<<endl;
 #endif  //DEBUG_CALL_FUNCTION
 }
 
@@ -829,7 +836,37 @@ void cCallKeybordFunction::charToOperatorFunction( const wchar_t cInChar ) {
 			keybordFunctionForOperator = INPUT_KEY_CODE_2;
 			keyCode1 = KEY_LEFTSHIFT;
 			keyCode2 = 86;
-		};
+		}; break;
+		case '{': {
+			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+			keyCode1 = KEY_RIGHTALT;
+			keyCode2 = 8;
+		}; break;
+		case '[': {
+			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+			keyCode1 = KEY_RIGHTALT;
+			keyCode2 = 9;
+		}; break;
+		case ']': {
+			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+			keyCode1 = KEY_RIGHTALT;
+			keyCode2 = 10;
+		}; break;
+		case '}': {
+			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+			keyCode1 = KEY_RIGHTALT;
+			keyCode2 = 11;
+		}; break;
+		case '\\': {
+			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+			keyCode1 = KEY_RIGHTALT;
+			keyCode2 = 12;
+		}; break;
+		case '|': {
+			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+			keyCode1 = KEY_RIGHTALT;
+			keyCode2 = 86;
+		}; break;
 	};  //end switch cInChar
 	//fill liKeys
 	if ( keybordFunctionForOperator == INPUT_KEY_CODE_1 ) {
@@ -845,16 +882,28 @@ void cCallKeybordFunction::charToOperatorFunction( const wchar_t cInChar ) {
 
 
 /**
- * This function converts the given char to a key code to call with
- * the operator.
+ * This function converts the given keyboard function to the members to
+ * call with the operator.
+ * Sets the value for:
+ * 	@see keybordFunction
+ * 	@see keybordFunctionForOperator
  *
- * @see keybordFunctionForOperator
- * @param cChar
+ * Also sets if needed:
+ * 	@see keyCode1
+ * 	@see keyCode2
+ * 	@see liKeys
+ *
+ * @param inKeybordFunction the keyboard function to set
+ * 	@see keybordFunction
  */
 void cCallKeybordFunction::keyboardFunctionToOperatorFunction(
 		const eKeybordFunction inKeybordFunction ) {
 	
 	keybordFunction = inKeybordFunction;
+	//empty old values
+	keyCode1 = 0;
+	keyCode2 = 0;
+	liKeys.clear();
 	
 	switch ( inKeybordFunction ) {
 		case F1: {
@@ -909,15 +958,29 @@ void cCallKeybordFunction::keyboardFunctionToOperatorFunction(
 			keybordFunctionForOperator = INPUT_KEY_CODE_1;
 			keyCode1 = KEY_TAB;
 		}; break;
+		case BACK_TAB: {
+			//SHIFT + TAB
+			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+			keyCode1 = KEY_LEFTSHIFT;
+			keyCode2 = KEY_TAB;
+		}; break;
 		case ESC: {
 			keybordFunctionForOperator = INPUT_KEY_CODE_1;
 			keyCode1 = KEY_ESC;
+		}; break;
+		case SPACE: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_1;
+			keyCode1 = KEY_SPACE;
 		}; break;
 		case ENTER: {
 			keybordFunctionForOperator = INPUT_KEY_CODE_1;
 			keyCode1 = KEY_ENTER;
 		}; break;
 		case UPPER_CASE: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_1;
+			keyCode1 = KEY_CAPSLOCK;
+		}; break;
+		case CHAPS_LOCK: {
 			keybordFunctionForOperator = INPUT_KEY_CODE_1;
 			keyCode1 = KEY_CAPSLOCK;
 		}; break;
@@ -990,6 +1053,68 @@ void cCallKeybordFunction::keyboardFunctionToOperatorFunction(
 			keyCode1 = KEY_BREAK;
 			break;
 		};
+		
+		case UNDO: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_1;
+			keyCode1 = KEY_UNDO;
+		}; break;
+		case UNUNDO: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+			keyCode1 = KEY_LEFTSHIFT;
+			keyCode2 = KEY_UNDO;
+		}; break;
+		
+		case END_APPLICATION: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+			keyCode1 = KEY_LEFTCTRL;
+			keyCode2 = 16;
+		}; break;
+		
+		case COPY: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+			keyCode1 = KEY_LEFTCTRL;
+			keyCode2 = 46;
+		}; break;
+		case PAST: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+			keyCode1 = KEY_LEFTCTRL;
+			keyCode2 = 47;
+		}; break;
+		
+		case NEXT_WORD: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+			keyCode1 = KEY_LEFTCTRL;
+			keyCode2 = KEY_RIGHT;
+		}; break;
+		case PREVIOS_WORD: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+			keyCode1 = KEY_LEFTCTRL;
+			keyCode2 = KEY_LEFT;
+		}; break;
+		case MARK_NEXT_WORD: {
+			keybordFunctionForOperator = INPUT_KEY_CODE;
+			liKeys.push_back( KEY_LEFTCTRL );
+			liKeys.push_back( KEY_LEFTSHIFT );
+			liKeys.push_back( KEY_RIGHT );
+		}; break;
+		
+		
+		case QUOTE: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+			keyCode1 = KEY_LEFTSHIFT;
+			keyCode2 = 3;
+		}; break;
+		case SINGLE_QUOTE: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+			keyCode1 = KEY_LEFTSHIFT;
+			keyCode2 = 43;
+		}; break;
+		case SEMICOLON: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+			keyCode1 = KEY_LEFTSHIFT;
+			keyCode2 = 51;
+		}; break;
+		
 		default: break;  //unknown keybord function
 	};  //end switch inKeybordFunction
 	//fill liKeys
@@ -1043,9 +1168,15 @@ eKeybordFunction cCallKeybordFunction::getKeyboardFunction(
 		"F12", F12 ) );
 	
 	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
+		"SPACE", SPACE ) );
+	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
 		"TAB", TAB ) );
 	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
 		"TABULATOR", TAB ) );
+	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
+		"BACK_TAB", BACK_TAB ) );
+	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
+		"BACK_TABULATOR", BACK_TAB ) );
 	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
 		"ESC", ESC ) );
 	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
@@ -1123,6 +1254,34 @@ eKeybordFunction cCallKeybordFunction::getKeyboardFunction(
 		"BREAK", BREAK ) );
 	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
 		"PAUSE", BREAK ) );
+	
+	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
+		"UNDO", UNDO ) );
+	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
+		"UNUNDO", UNUNDO ) );
+	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
+		"REDO", UNUNDO ) );
+	
+	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
+		"END_APPLICATION", END_APPLICATION ) );
+	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
+		"COPY", COPY ) );
+	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
+		"PAST", PAST ) );
+	
+	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
+		"NEXT_WORD", NEXT_WORD ) );
+	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
+		"PREVIOS_WORD", PREVIOS_WORD ) );
+	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
+		"MARK_NEXT_WORD", MARK_NEXT_WORD ) );
+	
+	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
+		"'\"'", QUOTE ) );
+	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
+		"'''", SINGLE_QUOTE ) );
+	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
+		"';'", SEMICOLON ) );
 	
 #ifdef FEATURE_READ_DATA_TEXT_WITH_REGEX
 	for ( map< string, eKeybordFunction >::const_iterator
@@ -1738,12 +1897,25 @@ void cCallKeybordFunction::analyseAndSetParameters( const string & inSzParameter
 		unsigned int iIndexActualParameter = 0;
 		while ( iIndexNextParameter < inSzParameters.size() ) {
 			//while more parameter to read
-			iIndexNextParameter = inSzParameters.find ( ',', iIndexNextParameter );
 			
-			if ( iIndexNextParameter == string::npos ) {
-				//next comma ',' not found
-				iIndexNextParameter = inSzParameters.size();
-			}
+//TODO weg
+if ( inSzParameters == "YEN" ) {
+	
+	iIndexNextParameter = iIndexNextParameter;
+}
+
+			do {
+				iIndexNextParameter = inSzParameters.find ( ',', iIndexNextParameter );
+				
+				if ( ( iIndexNextParameter == string::npos ) ||
+						( inSzParameters.size() < iIndexNextParameter ) ) {
+					//next comma ',' not found -> read till end
+					iIndexNextParameter = inSzParameters.size();
+					break;
+				}
+			} while ( ( iIndexNextParameter == 0 ) ||
+					//or ',' is masked
+					( inSzParameters.at( iIndexNextParameter - 1 ) == '\\' ) );
 			//szKeyCode contains the part betwean two commas ','
 			szKeyCode = inSzParameters.substr( iIndexActualParameter,
 				iIndexNextParameter - iIndexActualParameter );

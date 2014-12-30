@@ -51,6 +51,9 @@ History:
 #ifndef ___N_DATA_GLOVE__N_MAPPER__C_EVALUATE_DATA_GLOVE_STATE__
 #define ___N_DATA_GLOVE__N_MAPPER__C_EVALUATE_DATA_GLOVE_STATE__
 
+//TODO switches for test proposes
+//#define DEBUG
+
 
 #include "version.h"
 
@@ -266,6 +269,43 @@ protected:
 	 */
 	iCallFunction * getCallFunction( const std::string & szFunction,
 		const std::string & szFunctionParameter );
+	
+	
+	
+	/**
+	 * Removes all leading and trailing delimiter chars.
+	 *
+	 * @param szString the string where to remove the chars
+	 * @param szDelimiters the string with the chars to remove
+	 * @return the given string wthout the leading and trailing delimiters
+	 * 	chars
+	 */
+	inline std::string trim_copy(
+			const std::string & szString,
+			const std::string & szDelimiters = " \f\n\r\t\v" ) {
+		
+		DEBUG_OUT_L4(<<"cEvaluateDataGloveState("<<this<<")::trim_copy( szString=\""<<szString<<"\", szDelimiters=\""<<szDelimiters<<"\") called"<<endl<<flush);
+		
+		size_t iFirstToInclude = szString.find_first_not_of( szDelimiters );
+		
+		if ( iFirstToInclude == std::string::npos ) {
+			//no szDelimiters found -> include string from the start
+			iFirstToInclude = 0;
+		}
+		size_t iLastToInclude = szString.find_last_not_of( szDelimiters );
+		
+		if ( iLastToInclude == std::string::npos ) {
+			//no szDelimiters found -> include string till the end
+			iLastToInclude = szString.size() - iFirstToInclude;
+		} else {
+			iLastToInclude = iLastToInclude - iFirstToInclude + 1;
+		}
+		
+		DEBUG_OUT_L4(<<"cEvaluateDataGloveState("<<this<<")::trim_copy() szString(=\""<<szString<<"\").substr( iFirstToInclude="<<iFirstToInclude<<", iLastToInclude="<<iLastToInclude<<" )"<<endl<<flush);
+	
+		return szString.substr( iFirstToInclude, iLastToInclude );
+	}
+
 	
 //members
 	

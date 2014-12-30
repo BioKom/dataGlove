@@ -97,10 +97,11 @@ std::string cCallPrepareChangeModus::getName() const {
  */
 bool cCallPrepareChangeModus::operator()() {
 	
-	iPreparedModus = iModus;
-	bIsActiv = true;
 	//call parent operator
 	iCallFunction::operator()();
+	//prepare modus
+	iPreparedModus = iModus;
+	bIsActiv = true;
 #ifdef DEBUG_CALL_FUNCTION
 	cout<<"preparing changing to modus: "<<iModus<<endl;
 #endif  //DEBUG_CALL_FUNCTION
@@ -115,7 +116,7 @@ bool cCallPrepareChangeModus::operator()() {
 void cCallPrepareChangeModus::end() {
 	
 #ifdef DEBUG_CALL_FUNCTION
-	cout<<"end changing to modus: "<<iModus<<endl;
+	cout<<"end preparing changing to modus: "<<iModus<<endl;
 #endif  //DEBUG_CALL_FUNCTION
 }
 

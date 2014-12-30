@@ -47,8 +47,16 @@ History:
 
 #include "cCallChangeModus.h"
 
-#ifdef DEBUG_CALL_FUNCTION
+#if ( defined DEBUG_CALL_FUNCTION ) || ( defined DEBUG_CHANGE_MODUS )
 	#include <iostream>
+#endif  //( defined DEBUG_CALL_FUNCTION ) || ( defined DEBUG_CHANGE_MODUS )
+
+
+#ifdef DEBUG_CALL_FUNCTION
+	
+	#ifndef DEBUG_CHANGE_MODUS
+		#define DEBUG_CHANGE_MODUS
+	#endif //DEBUG_CHANGE_MODUS
 #endif  //DEBUG_CALL_FUNCTION
 
 
@@ -114,15 +122,19 @@ bool cCallChangeModus::operator()() {
 	if ( bPrepareNeeded &&
 			( ( ! cCallPrepareChangeModus::isActiv() ) ||
 				cCallPrepareChangeModus::getPreparedModus() != iModus ) ) {
-		//to modus to set was not prepared, but should be
+		//modus to set was not prepared, but should be
+		//call parent operator (unprepare)
+		iCallFunction::operator()();
+#ifdef DEBUG_CALL_FUNCTION
+		cout<<"modus to set was not prepared, but should be: "<<iModus<<endl;
+#endif  //DEBUG_CALL_FUNCTION
 		return false;
 	}
+	
 	pEvaluateDataGloveState->setActualModus( iModus );
-	//call parent operator
-	iCallFunction::operator()();
-#ifdef DEBUG_CALL_FUNCTION
+#ifdef DEBUG_CHANGE_MODUS
 	cout<<"changing to modus: "<<iModus<<endl;
-#endif  //DEBUG_CALL_FUNCTION
+#endif  //DEBUG_CHANGE_MODUS
 	return true;
 }
 

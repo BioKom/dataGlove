@@ -236,11 +236,19 @@ protected:
 	void charToOperatorFunction( const wchar_t cInChar );
 	
 	/**
-	 * This function converts the given char to a key code to call with
-	 * the operator.
+	 * This function converts the given keyboard function to the members to
+	 * call with the operator.
+	 * Sets the value for:
+	 * 	@see keybordFunction
+	 * 	@see keybordFunctionForOperator
 	 *
-	 * @see keybordFunctionForOperator
-	 * @param cChar
+	 * Also sets if needed:
+	 * 	@see keyCode1
+	 * 	@see keyCode2
+	 * 	@see liKeys
+	 *
+	 * @param inKeybordFunction the keyboard function to set
+	 * 	@see keybordFunction
 	 */
 	void keyboardFunctionToOperatorFunction(
 			const eKeybordFunction inKeybordFunction );
