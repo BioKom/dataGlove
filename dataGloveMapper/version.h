@@ -33,6 +33,7 @@
 /*
 History:
 17.08.2014  Oesterholz  created
+17.01.2015  Oesterholz  FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR added
 */
 
 
@@ -83,6 +84,11 @@ History:
  */
 #define DEBUG_PREPARED_KEYBOARD_FUNCTION
 
+/**
+ * Prints messages for every prepared modus.
+ * @see cCallPrepareChangeModus
+ */
+#define DEBUG_PREPARED_MODUS_FUNCTION
 
 
 /**************************************
@@ -97,7 +103,7 @@ History:
  *
  * @see cEvaluateDataGloveState::loadDataGloveStates()
  * created: 17.08.2014 Betti Oesterholz
- * status:  implemented
+ * status:  implemented and tested (17.01.2015)
  *//*
 History:
 */
@@ -106,7 +112,20 @@ History:
 #endif //CPP_2011
 
 
-
+/**
+ * With this feature a unicode (=wide string) will be used for reading the
+ * data glove states.
+ * (So characters like 'ü' can be readed.)
+ *
+ * @see cEvaluateDataGloveState::loadDataGloveStates()
+ * created: 17.01.2015 Betti Oesterholz
+ * status:  implemened
+ * 	* cEvaluateDataGloveState
+ * 	* cCallKeybordFunction
+ *//*
+History:
+*/
+#define FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
 
 
 

@@ -78,12 +78,17 @@ public:
 	 * 	Note: The given call function object will be owned by this object,
 	 * 		and will be deleted by it. (Don't delete it!)
 	 * 	@see pCallFunction
+	 * @param bInOwnsCallFunction  If this object owns the the function
+	 * 	(true), which should be called in this state, or not.
+	 * 	If true pCallFunction will be deleted by this object else not.
+	 * 	@see bOwnsCallFunction
 	 * @param iInRepeatAllMilliSecondsAll this milli seconds the call function is called.
 	 * 	If 0 the call function will be repeated once.
 	 * 	@see iRepeatAllMilliSecondsAll
 	 */
 	explicit cDataGloveState( const int iInModus = 0,
 		iCallFunction * pInCallFunction = NULL,
+		const bool bInOwnsCallFunction = true,
 		const unsigned int iInRepeatAllMilliSecondsAll = 0 );
 	
 	
@@ -101,6 +106,10 @@ public:
 	 * 	Note: The given call function object will be owned by this object,
 	 * 	and will be deleted by it. (Don't delete it!)
 	 * 	@see pCallFunction
+	 * @param bInOwnsCallFunction  If this object owns the the function
+	 * 	(true), which should be called in this state, or not.
+	 * 	If true pCallFunction will be deleted by this object else not.
+	 * 	@see bOwnsCallFunction
 	 * @param iInRepeatAllMilliSecondsAll this milli seconds the call
 	 * 	function is called.
 	 * 	If 0 the call function will be repeated once.
@@ -111,6 +120,7 @@ public:
 				cMessageSamplingDataFromDataGlove::tTypeSamplingValue,
 				cInterval * > mapInStateArea,
 		iCallFunction * pInCallFunction = NULL,
+		const bool bInOwnsCallFunction = true,
 		const unsigned int iInRepeatAllMilliSecondsAll = 0 );
 	
 	/**
@@ -151,12 +161,24 @@ protected:
 	
 	/**
 	 * The function, which should be called in this state.
-	 * The call function object is owned by this object, and will be deleted
-	 * by it.
+	 * If bOwnsCallFunction is true the call function object is owned by
+	 * this object, and will be deleted by it, else
+	 * (bOwnsCallFunction==false) not.
+	 * @see bOwnsCallFunction
 	 * @see getCallFunction()
 	 * @see setCallFunction()
 	 */
 	iCallFunction * pCallFunction;
+	
+	/**
+	 * If this object owns the the function (true), which should be called
+	 * in this state, or not.
+	 * If true pCallFunction will be deleted by this object else not.
+	 * @see pCallFunction
+	 * @see getOwnsCallFunction()
+	 * @see setCallFunction()
+	 */
+	bool bOwnsCallFunction;
 	
 	/**
 	 * All this milli seconds the call function is called.
@@ -357,20 +379,38 @@ public:
 		return pCallFunction;
 	}
 	
-	
+	/**
+	 * @return If this object owns the the function
+	 * 	(true), which should be called in this state, or not.
+	 * 	If true pCallFunction will be deleted by this object else not.
+	 * 	@see bOwnsCallFunction
+	 * 	@see pCallFunction
+	 */
+	inline bool getOwnsCallFunctionn() const {
+		
+		return bOwnsCallFunction;
+	}
+
+		
 	/**
 	 * Sets the function, which should be called in this state.
 	 * @see pCallFunction
 	 *
 	 * @param pInCallFunction the function, which should be called in this state
+	 * @param bInOwnsCallFunction If this object owns the the function
+	 * 	(true), which should be called in this state, or not.
+	 * 	If true pCallFunction will be deleted by this object else not.
+	 * 	@see bOwnsCallFunction
 	 */
-	inline void setCallFunction( iCallFunction * pInCallFunction ) {
+	inline void setCallFunction( iCallFunction * pInCallFunction,
+			const bool bInOwnsCallFunction = true ) {
 		
-		if ( pCallFunction ) {
+		if ( bOwnsCallFunction && ( pCallFunction != NULL ) ) {
 			//delete old call function
 			delete pCallFunction;
 		}
 		pCallFunction = pInCallFunction;
+		bOwnsCallFunction = bInOwnsCallFunction;
 	}
 	
 	

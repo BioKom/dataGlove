@@ -1,6 +1,3 @@
-
-//TODO check
-
 /**
  * @file cMessageFromDataGlove
  * file name: cMessageFromDataGlove.h
@@ -32,7 +29,7 @@
  *
  * This file specifies the parent class for all DGTech VHand data glove
  * messages, which are send from the data glove.
- * All Messages which the  DGTech VHand data glove can receive should
+ * All Messages which the DGTech VHand data glove can send should
  * inherit this class.
  * See DG5 VHand 3.0 OEM Technical Datasheet.
  * @see www.dg-tech.it
@@ -71,7 +68,7 @@ public:
 	 */
 	cMessageFromDataGlove();
 	
-	/*TODO
+	/*TODO?
 		 * constructor with given message ( char* + int size )
 		 * constructor with given message as string
 	 */

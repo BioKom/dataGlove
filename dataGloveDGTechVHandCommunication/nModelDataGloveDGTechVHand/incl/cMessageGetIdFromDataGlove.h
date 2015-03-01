@@ -1,6 +1,3 @@
-
-//TODO check
-
 /**
  * @file cMessageGetIdFromDataGlove
  * file name: cMessageGetIdFromDataGlove.h
@@ -32,7 +29,7 @@
  *
  * This file specifies the class for the DGTech VHand data glove
  * messages, which is the answer to the get the Id message.
- * If the get the get Id message is send, this message should be the answer.
+ * If the the get Id message is send, this message should be the answer.
  * See DG5 VHand 3.0 OEM Technical Datasheet.
  * @see www.dg-tech.it
  * @see www.dg-tech.it/vhand3/
@@ -114,14 +111,14 @@ public:
 	int getId() const;
 	
 	/**
-	 * @return if a for wifi device: the ip address received from DHCP of
+	 * @return if a wifi device: the IP address received from DHCP of
 	 * 		the device
 	 * 	else: 0
 	 */
 	long getIp() const;
 	
 	/**
-	 * @return if a for wifi device: the ip address received from DHCP of
+	 * @return if a for wifi device: the IP address received from DHCP of
 	 * 		the device as a string (e.g. 127.0.0.1)
 	 * 	else: "0"
 	 */
@@ -138,12 +135,12 @@ public:
 	std::string getMaskString() const;
 	
 	/**
-	 * @return if a for wifi device: the gateway ip address of the device
+	 * @return if a for wifi device: the gateway IP address of the device
 	 */
 	long getGateway() const;
 	
 	/**
-	 * @return if a for wifi device: the gateway ip address of the device as a string
+	 * @return if a for wifi device: the gateway IP address of the device as a string
 	 */
 	std::string getGatewayString() const;
 	

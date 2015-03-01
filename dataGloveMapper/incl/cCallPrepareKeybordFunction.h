@@ -67,31 +67,31 @@ namespace nMapper{
 class cCallPrepareKeybordFunction : public cCallKeybordFunction{
 public:
 
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
 	/**
 	 * constructor
 	 *
 	 * @param inSzParameters A string with parameters for the call to a key code
 	 * 	@see analyseAndSetParameters()
-	 * @param bInPrepareNeeded if true preparing the keyboard function is
-	 * 	needed, else not
-	 * 	@see bPrepareNeeded
-	 * 	@see cCallPrepareKeybordFunction
 	 */
-	cCallPrepareKeybordFunction( const std::string inSzParameters,
-		const bool bInPrepareNeeded = true );
+	cCallPrepareKeybordFunction( const std::wstring inSzParameters );
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	
+	/**
+	 * constructor
+	 *
+	 * @param inSzParameters A string with parameters for the call to a key code
+	 * 	@see analyseAndSetParameters()
+	 */
+	cCallPrepareKeybordFunction( const std::string inSzParameters );
 	
 	/**
 	 * constructor
 	 *
 	 * @param inKeyCode1 (First) Key code to call (like defined in <linux/input.h>)
 	 * 	@see keyCode1
-	 * @param bInPrepareNeeded if true preparing the keyboard function is
-	 * 	needed, else not
-	 * 	@see bPrepareNeeded
-	 * 	@see cCallPrepareKeybordFunction
 	 */
-	cCallPrepareKeybordFunction( const int inKeyCode1,
-		const bool bInPrepareNeeded = true );
+	cCallPrepareKeybordFunction( const int inKeyCode1 );
 
 	/**
 	 * constructor
@@ -100,26 +100,16 @@ public:
 	 * 	@see keyCode1
 	 * @param inKeyCode1 second key code to call (like defined in <linux/input.h>)
 	 * 	@see keyCode2
-	 * @param bInPrepareNeeded if true preparing the keyboard function is
-	 * 	needed, else not
-	 * 	@see bPrepareNeeded
-	 * 	@see cCallPrepareKeybordFunction
 	 */
-	cCallPrepareKeybordFunction( const int inKeyCode1, const int inKeyCode2,
-		const bool bInPrepareNeeded = true );
+	cCallPrepareKeybordFunction( const int inKeyCode1, const int inKeyCode2 );
 	
 	/**
 	 * constructor
 	 *
 	 * @param inLiKeys A list with key codes to call (like defined in <linux/input.h>)
 	 * 	@see keyCode1
-	 * @param bInPrepareNeeded if true preparing the keyboard function is
-	 * 	needed, else not
-	 * 	@see bPrepareNeeded
-	 * 	@see cCallPrepareKeybordFunction
 	 */
-	cCallPrepareKeybordFunction( const std::list< unsigned int > inLiKeys,
-		const bool bInPrepareNeeded = true );
+	cCallPrepareKeybordFunction( const std::list< unsigned int > inLiKeys );
 
 	/**
 	 * constructor

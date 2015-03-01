@@ -86,9 +86,6 @@ class cMessageFromDataGlove;
 
 
 
-//TODO check
-
-
 
 class cMessageDataGlove{
 public:
@@ -167,7 +164,7 @@ public:
 	 * 	or NULL, if non could be read
 	 */
 	static cMessageFromDataGlove * readMessage(
-		const int iDataGloveFileDescriptor,
+			const int iDataGloveFileDescriptor,
 			const unsigned int uiMsTimeout = 3000,
 			const bool bHeaderRead = false,
 			const bool bReadTillNextHeader = false);
@@ -232,9 +229,9 @@ public:
 	
 	
 	/**
-	 * @param pData the data, for which the CRC is to evaluate
+	 * @param pData the data, for which the CRC is to be evaluated
 	 * @param iDataLength the number of bytes of the data, for which the
-	 * 	CRC is to evaluate
+	 * 	CRC is to be evaluated
 	 * @return the CRC for the given data (sum of the bytes modulo 256)
 	 */
 	inline static unsigned char evalueCRC( const unsigned char * pData,
@@ -242,7 +239,7 @@ public:
 		
 		unsigned char CRC = 0;
 		for ( int iActualByte = 0; iActualByte < iDataLength;
-				iActualByte++ ) {
+				++iActualByte ) {
 			
 			CRC += pData[ iActualByte ];
 		}
@@ -251,9 +248,9 @@ public:
 	}
 	
 	/**
-	 * @param pData the data, for which the CRC is to evaluate
+	 * @param pData the data, for which the CRC is to be evaluated
 	 * @param iDataLength the number of bytes of the data, for which the
-	 * 	CRC is to evaluate
+	 * 	CRC is to be evaluated
 	 * @return the CRC for the given data (sum of the bytes modulo 256)
 	 */
 	inline static unsigned char evalueCRC( const char * pData,
@@ -262,7 +259,7 @@ public:
 		unsigned char CRC = 0;
 		const unsigned char * pUcData = (unsigned char *)(pData);
 		for ( int iActualByte = 0; iActualByte < iDataLength;
-				iActualByte++ ) {
+				++iActualByte ) {
 			
 			CRC += pUcData[ iActualByte ];
 		}
@@ -271,7 +268,7 @@ public:
 	}
 	
 	/**
-	 * Reads a integer number from the szMessage at the given offset.
+	 * Reads a 2 byte signed integer number from the szMessage at the given offset.
 	 *
 	 * @see szMessage
 	 * @param uiOffset the offset, where the number begins in the szMessage
@@ -280,7 +277,7 @@ public:
 	 */
 	inline int read2ByteInt( const unsigned int uiOffset ) const {
 		
-		if ( ( szMessage == NULL ) || ( uiMessageSize <= uiOffset + 2 ) ) {
+		if ( ( szMessage == NULL ) || ( uiMessageSize < uiOffset + 2 ) ) {
 			return 0;
 		}
 		if ( ( szMessage[ uiOffset ] & 0x80 ) == 0 ) {
@@ -288,19 +285,18 @@ public:
 			int iReaded = static_cast<int>( szMessage[ uiOffset ] );
 			iReaded = iReaded << 8;
 			iReaded |= static_cast<int>( szMessage[ uiOffset + 1 ] );
-			iReaded = iReaded << 8;
 			return iReaded;
 		}// else highest bit set -> negative number
 		int iReaded = -1;
-		iReaded &= static_cast<int>( szMessage[ uiOffset ] );
-		iReaded = iReaded << 8;
-		iReaded &= static_cast<int>( szMessage[ uiOffset + 1 ] );
-		iReaded = iReaded << 8;
+		unsigned char * cReaded = ((unsigned char *)(&iReaded));
+		cReaded[ 1 ] &= szMessage[ uiOffset ];
+		cReaded[ 0 ] &= szMessage[ uiOffset + 1 ];
 		return iReaded;
 	}
 
 	/**
-	 * Reads a unsigned int number from the szMessage at the given offset.
+	 * Reads a unsigned 2 byte integer number from the szMessage at the
+	 * given offset.
 	 *
 	 * @see szMessage
 	 * @param uiOffset the offset, where the number begins in the szMessage
@@ -309,7 +305,7 @@ public:
 	 */
 	inline int read2ByteUInt( const unsigned int uiOffset ) const {
 		
-		if ( ( szMessage == NULL ) || ( uiMessageSize <= uiOffset + 2 ) ) {
+		if ( ( szMessage == NULL ) || ( uiMessageSize < uiOffset + 2 ) ) {
 			return 0;
 		}
 		int iReaded = static_cast<int>( szMessage[ uiOffset ] );
@@ -318,6 +314,7 @@ public:
 		
 		return iReaded;
 	}
+	
 	
 	/**
 	 * Reads a long number from the szMessage at the given offset.
@@ -329,7 +326,7 @@ public:
 	 */
 	inline long read4ByteLong( const unsigned int uiOffset ) const {
 		
-		if ( ( szMessage == NULL ) || ( uiMessageSize <= uiOffset + 4 ) ) {
+		if ( ( szMessage == NULL ) || ( uiMessageSize < uiOffset + 4 ) ) {
 			return 0;
 		}
 		if ( ( szMessage[ uiOffset ] & 0x80 ) == 0 ) {
@@ -344,13 +341,11 @@ public:
 			return lReaded;
 		}// else highest bit set -> negative number
 		long lReaded = -1;
-		lReaded &= static_cast<int>( szMessage[ uiOffset ] );
-		lReaded = lReaded << 8;
-		lReaded &= static_cast<int>( szMessage[ uiOffset + 1 ] );
-		lReaded = lReaded << 8;
-		lReaded &= static_cast<int>( szMessage[ uiOffset + 2 ] );
-		lReaded = lReaded << 8;
-		lReaded &= static_cast<int>( szMessage[ uiOffset + 3 ] );
+		unsigned char * cReaded = ((unsigned char *)(&lReaded));
+		cReaded[ 3 ] &= szMessage[ uiOffset ];
+		cReaded[ 2 ] &= szMessage[ uiOffset + 1 ];
+		cReaded[ 1 ] &= szMessage[ uiOffset + 2 ];
+		cReaded[ 0 ] &= szMessage[ uiOffset + 3 ];
 		
 		return lReaded;
 	}
@@ -365,7 +360,7 @@ public:
 	 */
 	inline unsigned long read4ByteULong( const unsigned int uiOffset ) const {
 		
-		if ( ( szMessage == NULL ) || ( uiMessageSize <= uiOffset + 4 ) ) {
+		if ( ( szMessage == NULL ) || ( uiMessageSize < uiOffset + 4 ) ) {
 			return 0;
 		}
 		unsigned long ulReaded = static_cast<int>( szMessage[ uiOffset ] );

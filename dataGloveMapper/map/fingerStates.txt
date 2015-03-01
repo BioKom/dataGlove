@@ -25,7 +25,7 @@
 Finger
 2;3;4;5; easy -> function 1/2/3
 ---------------------------------------
-0;0;0;0; 0  -> MODUS_DOWN / MODUS_DOWN / MODUS_DOWN
+0;0;0;0; 0  -> MODUS_BASIS / MODUS_BASIS / MODUS_BASIS
 1;0;0;0; 0  -> SPACE / ENTER / 1
 0;1;0;0; 0  -> DEL / ESC / ENTF
 1;1;0;0; 0  -> n / N / 2
@@ -42,7 +42,7 @@ Finger
 2;1;1;1; 15 -> a / A / ';'
 0;0;1;2; 15 -> v / V / ^
 1;0;1;2; 15 -> UP / DOWN / &
-0;1;1;2; 15 -> f / f / $
+0;1;1;2; 15 -> f / F / $
 2;0;0;2; 20 -> w / W / :
 1;1;1;2; 20 -> o / O / ,
 2;1;0;1; 20 -> g / G / `
@@ -63,12 +63,15 @@ Finger
 2;2;0;2; 30 -> NEXT_WORD / PREVIOS_WORD / MARK_NEXT_WORD
 2;2;2;0; 30 -> POS_1 / ENDE / INSERT
 2;2;1;2; 30 -> SWITCH & CTRL / SWITCH & RIGHTALT / SWITCH & LEFTALT
-2;1;1;0; 30 -> '/' / \ / -
+2;1;1;0; 30 -> SLASH / BACKSLASH / -
 2;0;1;0; 35 -> x / X / #
 1;1;1;0; 35 -> u / U / 3
 1;2;2;2; 35 -> ü / Ü / §
 2;2;1;0; 40 -> UNDO / UNUNDO / F5
 2;0;1;1; 40 -> ä / Ä / '¸'
+
+//TODO
+
 1;2;0;2; 40 -> ó / ò / ô
 1;2;1;2; 40 -> ö / Ö / æ
 0;2;2;2; 40 -> é / è / ê
@@ -165,9 +168,9 @@ State; Min; Max; Average
 ???
          Quaterion 2
 State; Min;   Max; Average;
-0;    9000; 22999; 20000;
+0;    9000; 21999; 20000;
 1;       0;  8999;  1000;
-2;   23000; 31000;  25000
+2;   23000; 29000; 25000
 
 
 

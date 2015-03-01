@@ -1,6 +1,3 @@
-
-//TODO check
-
 /**
  * @file cMessageToDataGlove
  * file name: cMessageToDataGlove.h

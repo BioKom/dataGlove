@@ -105,9 +105,11 @@ CFLAG:=-O -O2 -std=c++11
 CFLAG_TEST:=-g -pg -Wall -DTEST -std=c++11
 INCL:=-I$(BASE_DIR) -I$(DIR_INCL) -I$(DIR_DG_COMMUNICATION_INCL)\
 	-I$(DIR_DG_COMMUNICATION_MSG_INCL)
-LIBS:=-lstdc++ -lm -pthread -L$(DIR_DG_COMMUNICATION_LIB) -lDataGloveCom
-# -lm -lpthread
-LIBS_TEST:=-lstdc++ -lm -pthread -L$(DIR_DG_COMMUNICATION_LIB) -lDataGloveCom_test
+LIBS:=-lstdc++ -lm -pthread \
+	-L$(DIR_DG_COMMUNICATION_LIB) -lDataGloveCom
+# -lm -lpthread -lboost_locale
+LIBS_TEST:=-lstdc++ -lm -pthread \
+	 -L$(DIR_DG_COMMUNICATION_LIB) -lDataGloveCom_test
 LIBS_WIN:=-static -lstdc++ -lm -pthread -L$(DIR_DG_COMMUNICATION_LIB) -lDataGloveCom
 LIBS_WIN_TEST:=-static -lstdc++ -lm -pthread\
 	-L$(DIR_DG_COMMUNICATION_LIB) -lDataGloveCom_test

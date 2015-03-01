@@ -54,7 +54,7 @@ namespace nMapper{
 
 
 enum eKeybordFunction {
-	NON,
+	KEYBOARD_NON,
 	CHAR,  ///a char should be given as the keybord fuction
 	INPUT_KEY_CODE,  ///a key codes like defined in <linux/input.h>
 	INPUT_KEY_CODE_1,  ///one key code like defined in <linux/input.h>
@@ -72,8 +72,25 @@ enum eKeybordFunction {
 	COPY, PAST,
 	NEXT_WORD, PREVIOS_WORD, MARK_NEXT_WORD,
 	
+	QUOTE,  //"
+	SINGLE_QUOTE,  //'
+	SEMICOLON,  //;
+	COMMA,  //,
+	SLASH,  // '/'
+	BACKSLASH,
 	
-	QUOTE, SINGLE_QUOTE, SEMICOLON
+	SPECIAL_CHAR_DEU_AE,  // ä
+	SPECIAL_CHAR_DEU_UP_AE,  // Ä
+	SPECIAL_CHAR_DEU_OE,  // ö
+	SPECIAL_CHAR_DEU_UP_OE,  // Ö
+	SPECIAL_CHAR_DEU_UE,  // ü
+	SPECIAL_CHAR_DEU_UP_UE,  // Ü
+	
+	SPECIAL_CHAR_DEU_SZ,  //ß
+	
+	DIACRITIC_GRAVE,  //`
+	DIACRITIC_OVERING,  //°
+	
 	
 };  //eKeybordFunction
 

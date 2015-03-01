@@ -79,6 +79,8 @@ bool iCallFunction::operator()() {
 	//call unprepare
 	cCallPrepareKeybordFunction::unprepare();
 	cCallPrepareChangeModus::unprepare();
+	
+	return true;
 }
 
 
@@ -89,6 +91,38 @@ bool iCallFunction::operator()() {
 void iCallFunction::end() {
 	//default -> do nothing
 }
+
+
+/**
+ * This method sets the parameter for the operation.
+ * The parameter are readed from the given string.
+ *
+ * @param szFunctionParameter all parameters for this functor operation
+ * 	as a string
+ * @return true if the parameter could be set, else false
+ */
+bool iCallFunction::setParameter( const std::string & szFunctionParameter ) {
+	//can't set parameter
+	return false;
+}
+
+
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+
+/**
+ * This method sets the parameter for the operation.
+ * The parameter are readed from the given string.
+ *
+ * @param szFunctionParameter all parameters for this functor operation
+ * 	as a string
+ * @return true if the parameter could be set, else false
+ */
+bool iCallFunction::setParameter( const std::wstring & szFunctionParameter ) {
+	//can't set parameter
+	return false;
+}
+
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
 
 
 

@@ -47,11 +47,21 @@ History:
 */
 
 
+
 #include "cCallPrepareChangeModus.h"
 
-#ifdef DEBUG_CALL_FUNCTION
+
+#if ( defined DEBUG_CALL_FUNCTION ) || ( defined DEBUG_PREPARED_MODUS_FUNCTION )
 	#include <iostream>
+#endif  //( defined DEBUG_CALL_FUNCTION ) || ( defined DEBUG_PREPARED_MODUS_FUNCTION )
+
+
+#ifdef DEBUG_CALL_FUNCTION
+	#ifndef DEBUG_PREPARED_MODUS_FUNCTION
+		#define DEBUG_PREPARED_MODUS_FUNCTION
+	#endif  //DEBUG_PREPARED_MODUS_FUNCTION
 #endif  //DEBUG_CALL_FUNCTION
+
 
 
 
@@ -60,6 +70,7 @@ using namespace std;
 
 int cCallPrepareChangeModus::iPreparedModus = 0;
 bool cCallPrepareChangeModus::bIsActiv = false;
+
 
 /**
  * constructor
@@ -70,6 +81,19 @@ bool cCallPrepareChangeModus::bIsActiv = false;
 cCallPrepareChangeModus::cCallPrepareChangeModus( const int iInModus ) :
 		iModus( iInModus ) {
 	//nothing to do
+}
+
+
+/**
+ * constructor
+ *
+ * @param szInModus The modus as a string, which will be prepared with
+ * 	this operator.
+ * 	@see iModus
+ */
+cCallPrepareChangeModus::cCallPrepareChangeModus( const string & szInModus ) {
+	
+	setParameter( szInModus );
 }
 
 
@@ -102,9 +126,9 @@ bool cCallPrepareChangeModus::operator()() {
 	//prepare modus
 	iPreparedModus = iModus;
 	bIsActiv = true;
-#ifdef DEBUG_CALL_FUNCTION
+#ifdef DEBUG_PREPARED_MODUS_FUNCTION
 	cout<<"preparing changing to modus: "<<iModus<<endl;
-#endif  //DEBUG_CALL_FUNCTION
+#endif  //DEBUG_PREPARED_MODUS_FUNCTION
 	return true;
 }
 
@@ -133,6 +157,20 @@ void cCallPrepareChangeModus::unprepare() {
 #ifdef DEBUG_CALL_FUNCTION
 	cout<<"unpreparing changing to modus"<<endl;
 #endif  //DEBUG_CALL_FUNCTION
+}
+
+
+/**
+ * This method sets the parameter for the operation.
+ * The parameter are readed from the given string.
+ *
+ * @param szModus the number for the modus as a string
+ * @return true if the parameter could be set, else false
+ */
+bool cCallPrepareChangeModus::setParameter( const string & szModus ) {
+	//set modus  parameter
+	iModus = atoi( szModus.c_str() );
+	return true;
 }
 
 

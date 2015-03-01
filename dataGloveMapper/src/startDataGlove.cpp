@@ -49,6 +49,11 @@ History:
 
 //TODO rework
 
+/**
+ * Count down till stop the application
+ * @deprecated
+ */
+#define FEATURE_APPLICATION_COUNT_DOWN
 
 #include "version.h"
 
@@ -58,6 +63,7 @@ History:
 #include "cEvaluateDataGloveState.h"
 #include "cThread.h"
 #include "cThreadMessageHandler.h"
+#include "cCallSetBoolFlag.h"
 
 
 #include <string>
@@ -96,6 +102,11 @@ int main(int argc, char* argv[]){
 	//load data glove states
 	cout<<"load data glove states."<<endl;
 	cEvaluateDataGloveState evaluateDataGloveState;
+	
+	cCallSetBoolFlag callStopDataGlove;
+	evaluateDataGloveState.addToUseCallFunction(
+		"stopDataGlove", &callStopDataGlove );
+	
 	const bool bStatesLoaded = evaluateDataGloveState.loadDataGloveStates(
 		szDataGloveStatesPath );
 	
@@ -121,8 +132,13 @@ int main(int argc, char* argv[]){
 		//start the data glove message handler thread
 		threadMessageHandler.start();
 		
+
+#ifdef FEATURE_APPLICATION_COUNT_DOWN
 		unsigned int uiNextPrint = 180;
 		for ( unsigned int second = uiNextPrint; 0 < second; --second ) {
+			if ( callStopDataGlove.getFlag() ) {
+				break;  //stop this application
+			}
 			//wait till the thread is done
 			cThread::msleep( 1000 );
 			
@@ -133,7 +149,12 @@ int main(int argc, char* argv[]){
 					pow( 10, floor( log10( second - 1 ) ) ) );
 			}
 		}
-		
+#else  //FEATURE_APPLICATION_COUNT_DOWN
+		while ( ! callStopDataGlove.getFlag() ) {
+			//wait till the thread is done
+			cThread::msleep( 1000 );
+		}
+#endif  //FEATURE_APPLICATION_COUNT_DOWN
 		
 		dataGloveDGTechVHand.stopSampling();
 		

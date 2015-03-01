@@ -81,6 +81,28 @@ public:
 	virtual void end();
 	
 	
+	/**
+	 * This method sets the parameter for the operation.
+	 * The parameter are readed from the given string.
+	 *
+	 * @param szFunctionParameter all parameters for this functor operation
+	 * 	as a string
+	 * @return true if the parameter could be set, else false
+	 */
+	virtual bool setParameter( const std::string & szFunctionParameter );
+	
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	/**
+	 * This method sets the parameter for the operation.
+	 * The parameter are readed from the given string.
+	 *
+	 * @param szFunctionParameter all parameters for this functor operation
+	 * 	as a string
+	 * @return true if the parameter could be set, else false
+	 */
+	virtual bool setParameter( const std::wstring & szFunctionParameter );
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	
 };//end class iCallFunction
 
 

@@ -46,11 +46,17 @@ History:
 using namespace nDataGlove::nMapper;
 
 /**
- * The standard constructor for the DGTech VHand data glove handler.
+ * The standard constructor for the interval.
+ *
+ * @param inPIntervalCorrection The pointer to the correction object for
+ * 	the intervals, or NULL if non exists.
+ * 	@see pIntervalCorrection
  */
-cInterval::cInterval() :
-		lMinimum( 0 ), lMaximum( 0 ), lTarget( 0 ) {
-	//nothing to do
+cInterval::cInterval( const cIntervalCorrection * inPIntervalCorrection ) :
+		lMinimum( 0 ), lMaximum( 0 ), lTarget( 0 ),
+		pIntervalCorrection( inPIntervalCorrection ) {
+	
+	bIntervalCorrectionUsed = ( pIntervalCorrection != NULL );
 }
 
 
@@ -64,7 +70,8 @@ cInterval::cInterval() :
  */
 cInterval::cInterval( const long lInMin, const long lInMax ) :
 		lMinimum( lInMin ), lMaximum( lInMax ),
-		lTarget( ( lInMax - lInMin ) / 2 ) {
+		lTarget( ( lInMax - lInMin ) / 2 ),
+		pIntervalCorrection( NULL ), bIntervalCorrectionUsed( false ) {
 	
 	if ( lMaximum < lMinimum ) {
 		const long lTmpValue = lMaximum;
@@ -86,7 +93,8 @@ cInterval::cInterval( const long lInMin, const long lInMax ) :
  * 	@see lTarget
  */
 cInterval::cInterval( const long lInMin, const long lInMax, const long lInTarget ) :
-		lMinimum( lInMin ), lMaximum( lInMax ), lTarget( lInTarget ) {
+		lMinimum( lInMin ), lMaximum( lInMax ), lTarget( lInTarget ),
+		pIntervalCorrection( NULL ), bIntervalCorrectionUsed( false ) {
 	
 	if ( lMaximum < lMinimum ) {
 		const long lTmpValue = lMaximum;

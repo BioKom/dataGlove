@@ -66,6 +66,20 @@ History:
 #include <map>
 #include <stack>
 #include <fstream>
+#include <stdlib.h>
+
+
+
+
+/*TODO use if codecvt
+#include <locale>
+#include <codecvt>
+#include <cstdlib>
+*/
+//#include <boost/locale.hpp>
+
+
+
 
 #include "cBorderDataGloveState.h"
 #include "cDataGloveState.h"
@@ -75,11 +89,20 @@ History:
 #include "cCallChangeModus.h"
 #include "cCallPrepareKeybordFunction.h"
 #include "cCallKeybordFunction.h"
+#include "cCallPrepareMouseFunction.h"
+#include "cCallMouseFunction.h"
 
 
 #ifdef FEATURE_READ_DATA_TEXT_WITH_REGEX
 	#include <regex>
 #endif //FEATURE_READ_DATA_TEXT_WITH_REGEX
+
+
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	#include "cMapWString.h"
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	#include "cMapString.h"
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
 
 
 
@@ -128,6 +151,11 @@ std::string cEvaluateDataGloveState::getName() const {
 }
 
 
+namespace nDataGlove{
+namespace nModelDataGloveDGTechVHand{
+namespace nEvaluateDataGloveState{
+
+
 /**
  * This function reads a part from the stream till the next semikolon ';'
  * or new line.
@@ -139,7 +167,7 @@ std::string cEvaluateDataGloveState::getName() const {
  */
 pair< string, bool > readEntry( istream & streamDataGloveStates ) {
 	
-	char c;
+	char c = 0;
 	string strReadedString = "";
 	while ( streamDataGloveStates.good() ) {
 		streamDataGloveStates.get( c );
@@ -155,6 +183,242 @@ pair< string, bool > readEntry( istream & streamDataGloveStates ) {
 	
 	return pair< string, bool >( strReadedString, false );
 }
+
+
+/**
+ * This function reads a part from the stream till the next semikolon ';'
+ * or new line.
+ *
+ * @param streamDataGloveStates the stream from which to read the string
+ * @return a pair with:
+ * 		first: the readed string without the semikolon ';'
+ * 		second: true if a new line as read, else false
+ */
+pair< wstring, bool > readEntry( wistream & streamDataGloveStates ) {
+	
+	wchar_t c = 0;
+	wstring strReadedString;
+	while ( streamDataGloveStates.good() ) {
+		streamDataGloveStates.get( c );
+		if ( c == ';' ) {
+			break;
+		}
+		if ( c == '\n' ) {
+			//new line read
+			return pair< wstring, bool >( strReadedString, true );
+		}
+		strReadedString.push_back( c );
+	};
+	
+	return pair< wstring, bool >( strReadedString, false );
+}
+
+
+/**
+ * Checks if the given string has a ending number.
+ * (Ending spaces and semikolons will be skiped.)
+ *
+ * @param inString the string in which to search for a ending number
+ * @return true if the given string ends with a number, else false
+ */
+bool hasEndingNumber( const string & inString ) {
+	
+	if ( inString.empty() ) {
+		return false;
+	}
+	
+	/* * read from back
+	   * skip ending spaces and semikolons*/
+	char itrChar;
+	size_t iActualChar = inString.length() - 1;
+	while ( true ) {
+		
+		itrChar = inString[ iActualChar ];
+		
+		if ( isdigit( itrChar ) ) {
+			//ending number found
+			return true;
+		}
+		if ( ( itrChar != ' ' ) && ( itrChar != ';' ) && ( itrChar != '\n' ) ) {
+			//ending number can't exists
+			return false;
+		}
+		
+		if ( iActualChar == 0 ) {
+			return false;
+		}
+		--iActualChar;
+	}
+	return false;
+}
+
+
+/**
+ * Checks if the given string has a ending number.
+ * (Ending spaces and semikolons will be skiped.)
+ *
+ * @param inString the string in which to search for a ending number
+ * @return true if the given string ends with a number, else false
+ */
+bool hasEndingNumber( const wstring & inString ) {
+	
+	if ( inString.empty() ) {
+		return false;
+	}
+	
+	/* * read from back
+	   * skip ending spaces and semikolons*/
+	wchar_t itrChar;
+	size_t iActualChar = inString.length() - 1;
+	while ( true ) {
+		
+		itrChar = inString[ iActualChar ];
+		
+		if ( isdigit( itrChar ) ) {
+			//ending number found
+			return true;
+		}
+		if ( ( itrChar != ' ' ) && ( itrChar != ';' ) && ( itrChar != '\n' ) ) {
+			//ending number can't exists
+			return false;
+		}
+		
+		if ( iActualChar == 0 ) {
+			return false;
+		}
+		--iActualChar;
+	}
+	return false;
+}
+
+
+/**
+ * Converts the given string to a long number.
+ *
+ * @param inString the string from which to read the number
+ * @return the readed number
+ */
+long stringToLong( const wstring & inString ) {
+	
+	return wcstol( inString.c_str(), NULL, 10 );
+}
+
+
+/**
+ * Converts the given string to a long number.
+ *
+ * @param inString the string from which to read the number
+ * @return the readed number
+ */
+long stringToLong( const string & inString ) {
+	
+	return strtol( inString.c_str(), NULL, 10 );
+}
+
+
+/**
+ * Reads from the given string a ending number.
+ * (Ending spaces and semikolons will be skiped.)
+ *
+ * @param inString the string from which to read the ending number
+ * @return the readed ending number
+ */
+long readEndingNumber( const string & inString ) {
+	
+	if ( inString.empty() ) {
+		return false;
+	}
+	
+	/* * read from back
+	   * skip ending spaces and semikolons
+	   * read all number letters
+	   * convert readed number letters to char*/
+	size_t iActualChar = inString.length() - 1;
+	char itrChar;
+	string szReadedNumber;
+	while ( true ) {
+		
+		itrChar = inString[ iActualChar ];
+		
+		if ( isdigit( itrChar ) ) {
+			//digit of ending number found
+			szReadedNumber.insert( 0, 1, itrChar );
+			
+		} else if ( itrChar == '-' ) {
+			//sign of ending number found
+			if ( ! szReadedNumber.empty() ) {
+				//add sign to ending number
+				szReadedNumber.insert( 0, 1, itrChar );
+			}
+			break;  //done
+		} else if ( ( itrChar != ' ' ) && ( itrChar != ';' ) && ( itrChar != '\n' ) ) {
+			//ending number readed
+			break;
+		}
+		if ( iActualChar == 0 ) {
+			//done
+			break;
+		}
+		--iActualChar;
+	}
+	return stringToLong( szReadedNumber );
+}
+
+
+/**
+ * Reads from the given string a ending number.
+ * (Ending spaces and semikolons will be skiped.)
+ *
+ * @param inString the string from which to read the ending number
+ * @return the readed ending number
+ */
+long readEndingNumber( const wstring & inString ) {
+	
+	if ( inString.empty() ) {
+		return false;
+	}
+	
+	wchar_t itrChar;
+	/* * read from back
+	   * skip ending spaces and semikolons
+	   * read all number letters
+	   * convert readed number letters to char*/
+	size_t iActualChar = inString.length() - 1;
+	wstring szReadedNumber;
+	while ( true ) {
+		
+		itrChar = inString[ iActualChar ];
+		
+		if ( isdigit( itrChar ) ) {
+			//digit of ending number found
+			szReadedNumber.insert( 0, 1, itrChar );
+			
+		} else if ( itrChar == '-' ) {
+			//sign of ending number found
+			if ( ! szReadedNumber.empty() ) {
+				//add sign to ending number
+				szReadedNumber.insert( 0, 1, itrChar );
+			}
+			break;  //done
+		} else if ( ( itrChar != ' ' ) && ( itrChar != ';' ) && ( itrChar != '\n' ) ) {
+			//ending number readed
+			break;
+		}
+		if ( iActualChar == 0 ) {
+			//done
+			break;
+		}
+		--iActualChar;
+	}
+	return stringToLong( szReadedNumber );
+}
+
+};  //end namespace nEvaluateDataGloveState
+};  //end namespace nModelDataGloveDGTechVHand
+};  //end namespace nDataGlove
+
+
+using namespace nDataGlove::nModelDataGloveDGTechVHand::nEvaluateDataGloveState;
 
 
 
@@ -200,8 +464,13 @@ pair< string, bool > readEntry( istream & streamDataGloveStates ) {
  * 	glove states
  * @return true if the data glove states where read, else false
  */
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+bool cEvaluateDataGloveState::loadDataGloveStates(
+		wistream & streamDataGloveStates ) {
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
 bool cEvaluateDataGloveState::loadDataGloveStates(
 		istream & streamDataGloveStates ) {
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
 	
 	//read the table head
 	//types not for sampling data
@@ -255,419 +524,373 @@ bool cEvaluateDataGloveState::loadDataGloveStates(
 			pair< cMessageSamplingDataFromDataGlove::tTypeSamplingValue,
 				tTypeSamplingDataKind > typeSamplingData;
 		};
-	};
+		
+		/**
+		 * compares this table head with the given
+		 * (Neede to order this object for map.)
+		 *
+		 * @param inOtherTableHead other table head to compare this with
+		 * @return true if the this table head is lower than the given
+		 */
+		bool operator<( const tTableHead & inOtherTableHead ) const {
+			
+			if ( bSamplingType != inOtherTableHead.bSamplingType ) {
+				return bSamplingType;
+			}  //bSamplingType == inOtherTableHead.bSamplingType
+			if ( bSamplingType ) {
+				if ( typeSamplingData.first != inOtherTableHead.typeSamplingData.first ) {
+					return ( typeSamplingData.first < inOtherTableHead.typeSamplingData.first );
+				}
+				if ( typeSamplingData.second != inOtherTableHead.typeSamplingData.second ) {
+					return ( typeSamplingData.second < inOtherTableHead.typeSamplingData.second );
+				}
+			} else {  //not bSamplingType
+				if ( tableHead != inOtherTableHead.tableHead ) {
+					return ( tableHead < inOtherTableHead.tableHead );
+				}
+			}  //else all relevant data equal -> this is not lower
+			return false;
+		};
+		
+	};  //end tTableHead
+	
+	
 	//list with the column types
 	list< tTableHead > liTableColumnType;
 	
 	//create mapping from string / regular expression to column type
-	map< string, tTableHead > mapTableColumnTypeExpr;
 	
 	tTableHead typeOfColum;
+	typeOfColum.bSamplingType = false;
+	typeOfColum.tableHead = tTypeTableHeadExtra::EMPTY;
+	
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+#ifdef FEATURE_READ_DATA_TEXT_WITH_REGEX
+		cMapWString< tTableHead > mapTableColumnTypeExpr( typeOfColum,
+				regex_constants::icase | regex_constants::ECMAScript );
+#else  //FEATURE_READ_DATA_TEXT_WITH_REGEX
+		cMapWString< tTableHead > mapTableColumnTypeExpr( typeOfColum );
+#endif  //FEATURE_READ_DATA_TEXT_WITH_REGEX
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+#ifdef FEATURE_READ_DATA_TEXT_WITH_REGEX
+		cMapString< tTableHead > mapTableColumnTypeExpr( typeOfColum,
+				regex_constants::icase | regex_constants::ECMAScript );
+#else  //FEATURE_READ_DATA_TEXT_WITH_REGEX
+		cMapString< tTableHead > mapTableColumnTypeExpr( typeOfColum );
+#endif  //FEATURE_READ_DATA_TEXT_WITH_REGEX
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+
+	
 #ifdef FEATURE_READ_DATA_TEXT_WITH_REGEX
 	typeOfColum.bSamplingType = false;
 	
 	typeOfColum.tableHead = tTypeTableHeadExtra::MODUS;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*MOD.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*MOD.*", typeOfColum );
 	typeOfColum.tableHead = tTypeTableHeadExtra::FUNCTION;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*fun.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*fun.*", typeOfColum );
 	typeOfColum.tableHead = tTypeTableHeadExtra::PARAMETER;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*par.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*par.*", typeOfColum );
 	typeOfColum.tableHead = tTypeTableHeadExtra::REPEAT_DELAY;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*repeat.*", typeOfColum ) );
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*wied.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*repeat.*", typeOfColum );
+	mapTableColumnTypeExpr.setMapPair( ".*wied.*", typeOfColum );
 	typeOfColum.tableHead = tTypeTableHeadExtra::CALLS;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*calls.*", typeOfColum ) );
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*auf.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*calls.*", typeOfColum );
+	mapTableColumnTypeExpr.setMapPair( ".*auf.*", typeOfColum );
 	
 	typeOfColum.bSamplingType = true;
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::FINGER_1;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*FIN.*1 .*MIN.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*FIN.*1 .*MIN.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*FIN.*1 .*MAX.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*FIN.*1 .*MAX.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*FIN.*1 .*TARG.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*FIN.*1 .*TARG.*", typeOfColum );
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::FINGER_2;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*FIN.*2 .*MIN.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*FIN.*2 .*MIN.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*FIN.*2 .*MAX.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*FIN.*2 .*MAX.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*FIN.*2 .*TAR.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*FIN.*2 .*TAR.*", typeOfColum );
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::FINGER_3;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*FIN.*3 .*MIN.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*FIN.*3 .*MIN.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*FIN.*3 .*MAX.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*FIN.*3 .*MAX.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*FIN.*3 .*TAR.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*FIN.*3 .*TAR.*", typeOfColum );
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::FINGER_4;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*FIN.*4 .*MIN.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*FIN.*4 .*MIN.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*FIN.*4 .*MAX.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*FIN.*4 .*MAX.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*FIN.*4 .*TAR.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*FIN.*4 .*TAR.*", typeOfColum );
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::FINGER_5;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*FIN.*5 .*MIN.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*FIN.*5 .*MIN.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*FIN.*5 .*MAX.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*FIN.*5 .*MAX.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*FIN.*5 .*TAR.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*FIN.*5 .*TAR.*", typeOfColum );
 	
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::QUATERNION_1;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*QUA.*1 .*MIN.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*QUA.*1 .*MIN.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*QUA.*1 .*MAX.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*QUA.*1 .*MAX.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*QUA.*1 .*TAR.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*QUA.*1 .*TAR.*", typeOfColum );
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::QUATERNION_2;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*QUA.*2 .*MIN.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*QUA.*2 .*MIN.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*QUA.*2 .*MAX.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*QUA.*2 .*MAX.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*QUA.*2 .*TAR.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*QUA.*2 .*TAR.*", typeOfColum );
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::QUATERNION_3;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*QUA.*3 .*MIN.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*QUA.*3 .*MIN.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*QUA.*3 .*MAX.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*QUA.*3 .*MAX.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*QUA.*3 .*TAR.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*QUA.*3 .*TAR.*", typeOfColum );
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::QUATERNION_4;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*QUA.*4 .*MIN.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*QUA.*4 .*MIN.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*QUA.*4 .*MAX.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*QUA.*4 .*MAX.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*QUA.*4 .*TAR.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*QUA.*4 .*TAR.*", typeOfColum );
 	
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::GYROSCOPE_X;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*GYR.*X .*MIN.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*GYR.*X .*MIN.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*GYR.*X .*MAX.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*GYR.*X .*MAX.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*GYR.*X .*TAR.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*GYR.*X .*TAR.*", typeOfColum );
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::GYROSCOPE_Y;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*GYR.*Y .*MIN.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*GYR.*Y .*MIN.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*GYR.*Y .*MAX.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*GYR.*Y .*MAX.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*GYR.*Y .*TAR.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*GYR.*Y .*TAR.*", typeOfColum );
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::GYROSCOPE_Z;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*GYR.*Z .*MIN.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*GYR.*Z .*MIN.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*GYR.*Z .*MAX.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*GYR.*Z .*MAX.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*GYR.*Z .*TAR.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*GYR.*Z .*TAR.*", typeOfColum );
 	
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::MAGNETOMETER_X;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*MAG.*X .*MIN.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*MAG.*X .*MIN.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*MAG.*X .*MAX.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*MAG.*X .*MAX.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*MAG.*X .*TAR.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*MAG.*X .*TAR.*", typeOfColum );
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::MAGNETOMETER_Y;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*MAG.*Y .*MIN.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*MAG.*Y .*MIN.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*MAG.*Y .*MAX.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*MAG.*Y .*MAX.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*MAG.*Y .*TAR.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*MAG.*Y .*TAR.*", typeOfColum );
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::MAGNETOMETER_Z;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*MAG.*Z .*MIN.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*MAG.*Z .*MIN.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*MAG.*Z .*MAX.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*MAG.*Z .*MAX.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*MAG.*Z .*TAR.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*MAG.*Z .*TAR.*", typeOfColum );
 	
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::ACCELEROMETER_X;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*AC.*X .*MIN.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*AC.*X .*MIN.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*AC.*X .*MAX.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*AC.*X .*MAX.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*AC.*X .*TAR.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*AC.*X .*TAR.*", typeOfColum );
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::ACCELEROMETER_Y;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*AC.*Y .*MIN.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*AC.*Y .*MIN.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*AC.*Y .*MAX.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*AC.*Y .*MAX.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*AC.*Y .*TAR.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*AC.*Y .*TAR.*", typeOfColum );
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::ACCELEROMETER_Z;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*AC.*Z .*MIN.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*AC.*Z .*MIN.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*AC.*Z .*MAX.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*AC.*Z .*MAX.*", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		".*AC.*Z .*TAR.*", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( ".*AC.*Z .*TAR.*", typeOfColum );
 	
 #else  //FEATURE_READ_DATA_TEXT_WITH_REGEX
 	typeOfColum.bSamplingType = false;
 	
 	typeOfColum.tableHead = tTypeTableHeadExtra::MODUS;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"MODUS", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "MODUS", typeOfColum );
 	typeOfColum.tableHead = tTypeTableHeadExtra::FUNCTION;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"function", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "function", typeOfColum );
 	typeOfColum.tableHead = tTypeTableHeadExtra::PARAMETER;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"parmeter", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "parmeter", typeOfColum );
 	typeOfColum.tableHead = tTypeTableHeadExtra::REPEAT_DELAY;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"repeat delay", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "repeat delay", typeOfColum );
 	typeOfColum.tableHead = tTypeTableHeadExtra::CALLS;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"calls", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "calls", typeOfColum );
 	
 	typeOfColum.bSamplingType = true;
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::FINGER_1;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"FINGER_1 MIN", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "FINGER_1 MIN", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"FINGER_1 MAX", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "FINGER_1 MAX", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"FINGER_1 TARGET", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "FINGER_1 TARGET", typeOfColum );
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::FINGER_2;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"FINGER_2 MIN", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "FINGER_2 MIN", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"FINGER_2 MAX", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "FINGER_2 MAX", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"FINGER_2 TARGET", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "FINGER_2 TARGET", typeOfColum );
 	
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::FINGER_3;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"FINGER_3 MIN", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "FINGER_3 MIN", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"FINGER_3 MAX", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "FINGER_3 MAX", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"FINGER_3 TARGET", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "FINGER_3 TARGET", typeOfColum );
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::FINGER_4;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"FINGER_4 MIN", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "FINGER_4 MIN", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"FINGER_4 MAX", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "FINGER_4 MAX", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"FINGER_4 TARGET", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "FINGER_4 TARGET", typeOfColum );
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::FINGER_5;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"FINGER_5 MIN", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "FINGER_5 MIN", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"FINGER_5 MAX", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "FINGER_5 MAX", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"FINGER_5 TARGET", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "FINGER_5 TARGET", typeOfColum );
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::QUATERNION_1;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"QUATERNION_1 MIN", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "QUATERNION_1 MIN", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"QUATERNION_1 MAX", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "QUATERNION_1 MAX", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"QUATERNION_1 TARGET", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "QUATERNION_1 TARGET", typeOfColum );
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::QUATERNION_2;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"QUATERNION_2 MIN", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "QUATERNION_2 MIN", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"QUATERNION_2 MAX", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "QUATERNION_2 MAX", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"QUATERNION_2 TARGET", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "QUATERNION_2 TARGET", typeOfColum );
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::QUATERNION_3;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"QUATERNION_3 MIN", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "QUATERNION_3 MIN", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"QUATERNION_3 MAX", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "QUATERNION_3 MAX", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"QUATERNION_3 TARGET", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "QUATERNION_3 TARGET", typeOfColum );
 	
 	typeOfColum.typeSamplingData.first =
 		cMessageSamplingDataFromDataGlove::QUATERNION_4;
 	typeOfColum.typeSamplingData.second = MINIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"QUATERNION_4 MIN", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "QUATERNION_4 MIN", typeOfColum );
 	typeOfColum.typeSamplingData.second = MAXIMUM;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"QUATERNION_4 MAX", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "QUATERNION_4 MAX", typeOfColum );
 	typeOfColum.typeSamplingData.second = TARGET;
-	mapTableColumnTypeExpr.insert( pair< string, tTableHead >(
-		"QUATERNION_4 TARGET", typeOfColum ) );
+	mapTableColumnTypeExpr.setMapPair( "QUATERNION_4 TARGET", typeOfColum );
 #endif  //FEATURE_READ_DATA_TEXT_WITH_REGEX
 	
+	//TODO mapTableColumnTypeExpr.optimize();
+	
+	
+	//the given extremas (borders) for the different intervals
+	map< tTableHead, long > mapGivenExtremas;
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	pair< wstring, bool > readedEntry;
+	wstring readedString;
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
 	pair< string, bool > readedEntry;
+	string readedString;
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
 	while ( streamDataGloveStates.good() ) {
 		
 		readedEntry = readEntry( streamDataGloveStates );
 		
-		const string readedString = readedEntry.first;
+		readedString = readedEntry.first;
 		
-		typeOfColum.bSamplingType = false;
-		typeOfColum.tableHead = tTypeTableHeadExtra::EMPTY;
-		for ( map< string, tTableHead >::const_iterator
-				itrMapColumnType = mapTableColumnTypeExpr.begin();
-				itrMapColumnType != mapTableColumnTypeExpr.end();
-				++itrMapColumnType ) {
+		//search for matching string
+		typeOfColum = mapTableColumnTypeExpr( readedString );
+		//read/check for number after column type
+		if ( hasEndingNumber( readedString ) ) {
 			
-#ifdef FEATURE_READ_DATA_TEXT_WITH_REGEX
-			if ( regex_match( readedString, regex( itrMapColumnType->first,
-					regex_constants::icase | regex_constants::ECMAScript ) ) ) {
-				//matchin string found
-				typeOfColum = itrMapColumnType->second;
-				break;
-			}
-#else  //FEATURE_READ_DATA_TEXT_WITH_REGEX
-			if ( itrMapColumnType->first.compare( readedString ) == 0 ) {
-				//matchin string found
-				typeOfColum = itrMapColumnType->second;
-				break;
-			}
-#endif  //FEATURE_READ_DATA_TEXT_WITH_REGEX
+			mapGivenExtremas[ typeOfColum ] = readEndingNumber( readedString );
 		}
+		
+		
 		liTableColumnType.push_back( typeOfColum );
 		
 		if ( readedEntry.second && ( ! liTableColumnType.empty() ) ) {
@@ -695,18 +918,47 @@ bool cEvaluateDataGloveState::loadDataGloveStates(
 		//no data to read
 		return false;
 	}
+	//evaluate corrections
+	mapCorrections.clear();
+	for ( map< tTableHead, long >::const_iterator itrExtrema = mapGivenExtremas.begin();
+			itrExtrema != mapGivenExtremas.end(); ++itrExtrema ) {
+		
+		if ( itrExtrema->first.typeSamplingData.second == MINIMUM ) {
+			//the extrema is for the minimum -> set lower border
+			mapCorrections[ itrExtrema->first.typeSamplingData.first ].
+				setLowerBorder( itrExtrema->second );
+		} else if ( itrExtrema->first.typeSamplingData.second == MAXIMUM ) {
+			//the extrema is for the maximum -> set upper border
+			mapCorrections[ itrExtrema->first.typeSamplingData.first ].
+				setUpperBorder( itrExtrema->second );
+		}  //else do nothing
+	}
+	
 	//read remaining lines
 	list< tTableHead >::const_iterator itrColumnType = liTableColumnType.begin();
 	cDataGloveState * pActualDataGloveState = new cDataGloveState();
+	
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	wstring szFunction;
+	wstring szFunctionParameter;
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
 	string szFunction = "";
 	string szFunctionParameter = "";
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	
+	
 	bool bFunctionParameterRead = false;
 	cInterval * pInterval;
+	
+	map< cMessageSamplingDataFromDataGlove::tTypeSamplingValue,
+			cIntervalCorrection >::const_iterator
+		itrFoundCorrection;
+	
 	while ( streamDataGloveStates.good() ) {
 		
 		readedEntry = readEntry( streamDataGloveStates );
 		
-		const string readedString = trim_copy( readedEntry.first );
+		readedString = trim_copy( readedEntry.first );
 		
 		//fill / adapt state
 		if ( itrColumnType != liTableColumnType.end() ) {
@@ -720,20 +972,32 @@ bool cEvaluateDataGloveState::loadDataGloveStates(
 							itrColumnType->typeSamplingData.first );
 					
 					if ( pInterval == NULL ) {
-						pInterval = new cInterval();
+						
+						itrFoundCorrection = mapCorrections.find(
+							itrColumnType->typeSamplingData.first );
+						if ( itrFoundCorrection == mapCorrections.end() ) {
+							//correction not found
+							pInterval = new cInterval();
+						} else {  //correction found -> use it
+							pInterval = new cInterval( &(itrFoundCorrection->second) );
+						}
+						
 						pActualDataGloveState->setInterval(
 							itrColumnType->typeSamplingData.first, pInterval );
 					}
+					
 					//set the new interval value
 					switch ( itrColumnType->typeSamplingData.second ) {
 						case MINIMUM : {
-							pInterval->setMinimum( atol( readedString.c_str() ) );
+							pInterval->setMinimum( stringToLong( readedString ) );
+							
 						}; break;
 						case MAXIMUM : {
-							pInterval->setMaximum( atol( readedString.c_str() ) );
+							pInterval->setMaximum( stringToLong( readedString ) );
+							
 						}; break;
 						case TARGET : {
-							pInterval->setTarget( atol( readedString.c_str() ) );
+							pInterval->setTarget( stringToLong( readedString ) );
 						}; break;
 					}; //end
 					
@@ -744,7 +1008,7 @@ bool cEvaluateDataGloveState::loadDataGloveStates(
 						}; break;
 						case MODUS : {
 							pActualDataGloveState->setModus(
-								atoi( readedString.c_str() ) );
+								stringToLong( readedString ) );
 						}; break;
 						case FUNCTION : {
 							szFunction = readedString;
@@ -755,18 +1019,44 @@ bool cEvaluateDataGloveState::loadDataGloveStates(
 						}; break;
 						case REPEAT_DELAY : {
 							pActualDataGloveState->setRepeatAllMilliSeconds(
-								atol( readedString.c_str() ) );
+								stringToLong( readedString ) );
 						}; break;
 						case CALLS : {
-							pActualDataGloveState->setCalls( atol( readedString.c_str() ) );
+							pActualDataGloveState->setCalls( stringToLong( readedString ) );
 						}; break;
 					};  //switch itrColumnType->tableHead
 					if ( ( ! szFunction.empty() ) && bFunctionParameterRead ) {
 						//set the call function
-						pActualDataGloveState->setCallFunction(
-							getCallFunction( szFunction, szFunctionParameter ) );
-						szFunction = "";
-						szFunctionParameter = "";
+/*TODO weg debugging
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+if ( ( szFunctionParameter.compare( L"3" ) == 0 ) ||
+		( szFunctionParameter.compare( L"Y" ) == 0 ) ||
+		( szFunctionParameter.compare( L"Z" ) == 0 )
+) {
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+if ( ( szFunctionParameter.compare( "3" ) == 0 ) ||
+		( szFunctionParameter.compare( "Y" ) == 0 ) ||
+		( szFunctionParameter.compare( "Z" ) == 0 )
+) {
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	szFunctionParameter = szFunctionParameter;
+}*/
+						
+						
+						
+						iCallFunction * pCallFunction =
+							getCallFunction( szFunction, szFunctionParameter );
+						if ( pCallFunction ) {
+							pActualDataGloveState->setCallFunction( pCallFunction, false );
+						} else {  //try to create the call function
+							pCallFunction =
+								createCallFunction( szFunction, szFunctionParameter );
+							if ( pCallFunction ) {
+								pActualDataGloveState->setCallFunction( pCallFunction, true );
+							}
+						}
+						szFunction.clear();
+						szFunctionParameter.clear();
 						bFunctionParameterRead = false;
 					}
 				}
@@ -785,8 +1075,8 @@ bool cEvaluateDataGloveState::loadDataGloveStates(
 			}
 			//create new state
 			pActualDataGloveState = new cDataGloveState();
-			szFunction = "";
-			szFunctionParameter = "";
+			szFunction.clear();
+			szFunctionParameter.clear();
 		}
 	}
 	pActualDataGloveState->orderIntervals();
@@ -842,13 +1132,249 @@ bool cEvaluateDataGloveState::loadDataGloveStates(
  * 	glove states
  * @return true if the data glove states where read, else false
  */
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
 bool cEvaluateDataGloveState::loadDataGloveStates(
-		const string & szPathDataGloveStates ) {
+		const wstring & szPathDataGloveStates ) {
 	
-	ifstream streamDataGloveStates( szPathDataGloveStates.c_str() );
+	const string stringPathDataGloveStates(
+		szPathDataGloveStates.begin(), szPathDataGloveStates.end() );
+//TODO
+	wifstream streamDataGloveStates( stringPathDataGloveStates.c_str() );
+	
+/*TODO use if codecvt
+	const std::locale empty_locale = std::locale::empty();
+	typedef std::codecvt_utf8<wchar_t> converter_type;
+	const converter_type * pConverter = new converter_type;
+	const std::locale utf8_locale = std::locale( empty_locale, pConverter );
+	std::wifstream streamDataGloveStates( stringPathDataGloveStates.c_str() );
+	streamDataGloveStates.imbue( utf8_locale );
+*/
+
+/*TODO use boost.locale
+	std::locale fromLoc = boost::locale::generator().generate("en_US.UTF-8");
+
+	streamDataGloveStates.imbue( fromLoc );
+*/
+
+/*TODO weg
+	std::wifstream streamDataGloveStates(
+		stringPathDataGloveStates.c_str() );
+	std::locale loc;
+	std::locale loc2(
+		loc,
+		new std::codecvt_utf8<wchar_t> )
+	streamDataGloveStates.imbue( loc2 );
+	*/
+/*TODO weg
+	std::locale utf8_locale( std::locale(), new gel::stdx::utf8cvt<true> );
+	wifstream streamDataGloveStates;
+	streamDataGloveStates.imbue( utf8_locale );
+	streamDataGloveStates.open( stringPathDataGloveStates.c_str() );
+*/
+	
 	
 	return loadDataGloveStates( streamDataGloveStates );
 }
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+
+
+/**
+ * This method reads the data glove states from the given stream into
+ * this object.
+ * The column's should be seperated by a semikolon ';' . Each rows
+ * should be written in a seperate line.
+ * The first line of the stream should be the headlines for the rows.
+ * Possible headlines are:
+ * 	* "MODUS": the modus of the state
+ * 		@see cDataGloveState::iModus
+ * 	* "function": the function which to call in the state
+ * 		@see iCallFunction
+ * 		@see cDataGloveState::pCallFunction
+ * 	* "parmeter": the parameter for the call to the function
+ * 		@see iCallFunction
+ * 		@see cDataGloveState::pCallFunction
+ * 	* "repeat delay":  All this milli seconds the call function is called.
+ * 		If 0 the call function will be repeated once.
+ * 		@see cDataGloveState::iRepeatAllMilliSeconds
+ * 	* The sampling data types tTypeSamplingValue followed by "MIN",
+ * 	  "MAX" or "TARGET". The tTypeSamplingValue can be for example
+ * 	  "FINGER_1", "QUATERNION_3" or "ACCELEROMETER_X" .
+ * 	  The given values in the row, will indicate the interval for
+ * 	  data glove values of the type. If no value is given, no interval
+ * 	  for the state for this type of data glove sampling value will be
+ * 	  created.
+ * 	** tTypeSamplingValue + " MIN": The minimum value the sampling
+ * 	   value in the state should have.
+ * 	** tTypeSamplingValue + " MAX": The maximum value the sampling
+ * 	   value in the state should have.
+ * 	** tTypeSamplingValue + " TARGET": The target value for the
+ * 	   sampling value in the state.
+ * 	* "calls": How often the state function was called.
+ * 
+ * Example: "
+ * 	MODUS;function;parmeter;repeat delay;;FINGER_1 MIN;FINGER_1 MAX;FINGER_1 TARGET;;FINGER_2 MIN;FINGER_2 MAX;FINGER_2 TARGET;;FINGER_3 MIN;FINGER_3 MAX;FINGER_3 TARGET;;FINGER_4 MIN;FINGER_4 MAX;FINGER_4 TARGET;;FINGER_5 MIN;FINGER_5 MAX;FINGER_5 TARGET;;QUATERNION_1 MIN;QUATERNION_1 MAX;QUATERNION_1 TARGET;;QUATERNION_2 MIN;QUATERNION_2 MAX;QUATERNION_2 TARGET;;QUATERNION_3 MIN;QUATERNION_3 MAX;QUATERNION_3 TARGET;;QUATERNION_4 MIN;QUATERNION_4 MAX;QUATERNION_4 TARGET;calls
+ * 	1;prepareKey;e;0;;50;250;200;;250;600;450;;600;800;700;;750;900;850;;700;800;750;;;;;;10000;20000;15000;;;;;;;;;
+ * 	"
+ *
+ * @param streamDataGloveStates the stream from which to read the data
+ * 	glove states
+ * @return true if the data glove states where read, else false
+ */
+bool cEvaluateDataGloveState::loadDataGloveStates(
+		const string & szPathDataGloveStates ) {
+	
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+//TODO
+	wifstream streamDataGloveStates( szPathDataGloveStates.c_str() );
+	
+	
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	ifstream streamDataGloveStates( szPathDataGloveStates.c_str() );
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	
+	return loadDataGloveStates( streamDataGloveStates );
+}
+
+
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+
+/**
+ * Adds a function to call.
+ *
+ * @see mapToUseCallFunctions
+ * @param szFunctionParameterName the parameter name of the function,
+ * 	for which to add the call function, like given in the data glove
+ * 	state stream
+ * 	@see loadDataGloveStates()
+ * @param pCallFunction a pointer to the function to call
+ * @return true if the function could be added, else false (e.g.
+ * 	a function with the same name exists allready)
+ */
+bool cEvaluateDataGloveState::addToUseCallFunction(
+		const wstring & szFunctionParameterName,
+		iCallFunction * pCallFunction ) {
+	
+	if ( pCallFunction == NULL ) {
+		//no call function given
+		return false;
+	}  //else call function given
+	
+	const pair< map< wstring, iCallFunction * >::iterator, bool > paInserted =
+		mapToUseCallFunctions.insert( pair< wstring, iCallFunction * >(
+			szFunctionParameterName, pCallFunction) );
+	
+	return paInserted.second;
+}
+
+
+/**
+ * Adds a function to call.
+ *
+ * @see mapToUseCallFunctions
+ * @param szFunctionParameterName the parameter name of the function,
+ * 	for which to add the call function, like given in the data glove
+ * 	state stream
+ * 	@see loadDataGloveStates()
+ * @param pCallFunction a pointer to the function to call
+ * @return true if the function could be added, else false (e.g.
+ * 	a function with the same name exists allready)
+ */
+bool cEvaluateDataGloveState::addToUseCallFunction(
+		const string & szFunctionParameterName,
+		iCallFunction * pCallFunction ) {
+	
+	if ( pCallFunction == NULL ) {
+		//no call function given
+		return false;
+	}  //else call function given
+	
+	const pair< map< wstring, iCallFunction * >::iterator, bool > paInserted =
+		mapToUseCallFunctions.insert( pair< wstring, iCallFunction * >(
+			wstring( szFunctionParameterName.begin(), szFunctionParameterName.end() ),
+			pCallFunction) );
+	
+	return paInserted.second;
+}
+
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+
+/**
+ * Adds a function to call.
+ *
+ * @see mapToUseCallFunctions
+ * @param szFunctionParameterName the parameter name of the function,
+ * 	for which to add the call function, like given in the data glove
+ * 	state stream
+ * 	@see loadDataGloveStates()
+ * @param pCallFunction a pointer to the function to call
+ * @return true if the function could be added, else false (e.g.
+ * 	a function with the same name exists allready)
+ */
+bool cEvaluateDataGloveState::addToUseCallFunction(
+		const string & szFunctionParameterName,
+		iCallFunction * pCallFunction ) {
+	
+	if ( pCallFunction == NULL ) {
+		//no call function given
+		return false;
+	}  //else call function given
+	
+	const pair< map< string, iCallFunction * >::iterator, bool > paInserted =
+		mapToUseCallFunctions.insert( pair< string, iCallFunction * >(
+			szFunctionParameterName, pCallFunction) );
+	
+	return paInserted.second;
+}
+
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+
+
+/**
+ * @return a map with the a functions to call
+ * 	Elements:
+ * 	key: he parameter name of the function, for which to
+ * 		add the call function, like given in the data glove state stream
+ * 		@see loadDataGloveStates()
+ * 	value: a pointer to the to use function
+ * 	@see mapToUseCallFunctions
+ */
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+map< wstring, iCallFunction * > cEvaluateDataGloveState::getToUseCallFunction() {
+	
+	return mapToUseCallFunctions;
+}
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+map< string, iCallFunction * > cEvaluateDataGloveState::getToUseCallFunction() {
+	
+	return mapToUseCallFunctions;
+}
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+
+
+/**
+ * Removes the function to call.
+ *
+ * @see mapToUseCallFunctions
+ * @param szFunctionParameterName the parameter name of the function,
+ * 	for which to remove the call function, like given in the data glove
+ * 	state stream
+ * 	@see loadDataGloveStates()
+ * @return true if the function could be removed, else false
+ */
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+bool cEvaluateDataGloveState::removeToUseCallFunction(
+		const wstring & szFunctionParameterName ) {
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+bool cEvaluateDataGloveState::removeToUseCallFunction(
+		const string & szFunctionParameterName ) {
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	
+	const int numberElementsRemoved =
+		mapToUseCallFunctions.erase( szFunctionParameterName );
+	
+	return ( 0 < numberElementsRemoved );
+}
+
 
 
 /**
@@ -862,14 +1388,10 @@ bool cEvaluateDataGloveState::loadDataGloveStates(
  * 	second, else false
  */
 bool compareBiggestCalls(const  cDataGloveState * firstState,
-	const  cDataGloveState * secondState ) {
+		const  cDataGloveState * secondState ) {
 	
 	return ( secondState->getCalls() < firstState->getCalls() );
 }
-
-
-
-
 
 
 /**
@@ -980,6 +1502,16 @@ cBorderDataGloveState * cEvaluateDataGloveState::createGoodBorder(
 			
 			if ( pNewBorder != NULL ) {
 				pNewBorder->filterStates( setDataGloveStates );
+				
+				//did a interval corection for the border type exists
+				map< cMessageSamplingDataFromDataGlove::tTypeSamplingValue,
+						cIntervalCorrection >::const_iterator
+					itrFoundCorrection = mapCorrections.find(
+						pNewBorder->getTypeSamplingValue() );
+				if ( itrFoundCorrection != mapCorrections.end() ) {
+					//correction found -> use it
+					pNewBorder->setCorrection( &(itrFoundCorrection->second) );
+				}
 			}
 			
 			return pNewBorder;
@@ -1440,7 +1972,6 @@ bool cEvaluateDataGloveState::createDataGloveStateBorderTrees() {
 }
 
 
-
 /**
  * Returns the call function with the given parameters.
  * Creates the call function.
@@ -1453,14 +1984,20 @@ bool cEvaluateDataGloveState::createDataGloveStateBorderTrees() {
  * @return a pointer to the call function object (pleas delete), or
  * 	NULL if non could be created
  */
-iCallFunction * cEvaluateDataGloveState::getCallFunction( const string & szFunction,
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+iCallFunction * cEvaluateDataGloveState::createCallFunction(
+		const wstring & szFunction,
+		const wstring & szFunctionParameter ) {
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+iCallFunction * cEvaluateDataGloveState::createCallFunction( const string & szFunction,
 		const string & szFunctionParameter ) {
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
 /*TODO weg?
 #ifdef SIMULATE_CALL_FUNCTION
 	if ( szFunction == "changeModusPrepare" ) {
-		return new cCallPrepareChangeModus( atoi( szFunctionParameter.c_str() ) );
+		return new cCallPrepareChangeModus( stringToLong( szFunctionParameter.c_str() ) );
 	} else if ( szFunction == "changeModus" ) {
-		return new cCallChangeModus( atoi( szFunctionParameter.c_str() ),
+		return new cCallChangeModus( stringToLong( szFunctionParameter.c_str() ),
 			this );
 	}
 	
@@ -1468,22 +2005,84 @@ iCallFunction * cEvaluateDataGloveState::getCallFunction( const string & szFunct
 	return new cCallSimulation( szFunction, szFunctionParameter );
 #else //SIMULATE_CALL_FUNCTION
 */
-	if ( szFunction == "changeModusPrepare" ) {
-		return new cCallPrepareChangeModus( atoi( szFunctionParameter.c_str() ) );
-	} else if ( szFunction == "changeModus" ) {
-		return new cCallChangeModus( atoi( szFunctionParameter.c_str() ),
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	if ( szFunction == L"changeModusPrepare" ) {
+		return new cCallPrepareChangeModus( stringToLong( szFunctionParameter ) );
+	} else if ( szFunction == L"changeModus" ) {
+		return new cCallChangeModus( stringToLong( szFunctionParameter ),
 			this );
-	}else if ( szFunction == "prepareKey" ) {
-		return new cCallPrepareKeybordFunction( szFunctionParameter.c_str(),
-			true );
+	} else if ( szFunction == L"prepareKey" ) {
+		return new cCallPrepareKeybordFunction( szFunctionParameter );
+	} else if ( szFunction == L"key" ) {
+		return new cCallKeybordFunction( szFunctionParameter, true );
+	} else if ( szFunction == L"prepareMouse" ) {
+		return new cCallPrepareMouseFunction( szFunctionParameter );
+	} else if ( szFunction == L"mouse" ) {
+		return new cCallMouseFunction( szFunctionParameter );
+	}
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	if ( szFunction == "changeModusPrepare" ) {
+		return new cCallPrepareChangeModus( stringToLong( szFunctionParameter.c_str() ) );
+	} else if ( szFunction == "changeModus" ) {
+		return new cCallChangeModus( stringToLong( szFunctionParameter.c_str() ),
+			this );
+	} else if ( szFunction == "prepareKey" ) {
+		return new cCallPrepareKeybordFunction( szFunctionParameter.c_str() );
 	} else if ( szFunction == "key" ) {
 		return new cCallKeybordFunction( szFunctionParameter.c_str(), true );
+	} else if ( szFunction == "prepareMouse" ) {
+		return new cCallPrepareMouseFunction( szFunctionParameter );
+	} else if ( szFunction == "mouse" ) {
+		return new cCallMouseFunction( szFunctionParameter );
 	}
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
 	//TODO
 	
 	
 	return NULL;
 //TODO weg? #endif //SIMULATE_CALL_FUNCTION
+}
+
+
+/**
+ * Returns the call function with the given parameters.
+ *
+ * @see loadDataGloveStates()
+ * @see mapToUseCallFunctions
+ * @see iCallFunction
+ * @see addToUseCallFunction()
+ * @see getToUseCallFunction()
+ * @see removeToUseCallFunction()
+ * @param szFunction the name of the function for which to return the
+ * 	call function
+ * @param szFunctionParameter the parameter for the call function to return
+ * @return a pointer to the call function object (do not delete), or
+ * 	NULL if non could be created
+ */
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+iCallFunction * cEvaluateDataGloveState::getCallFunction( const std::wstring & szFunction,
+		const std::wstring & szFunctionParameter ) {
+	
+	map< wstring, iCallFunction * >::iterator itrToUseCallFunctions =
+		mapToUseCallFunctions.find( szFunction );
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+iCallFunction * cEvaluateDataGloveState::getCallFunction( const std::string & szFunction,
+		const std::string & szFunctionParameter ) {
+	
+	map< string, iCallFunction * >::iterator itrToUseCallFunctions =
+		mapToUseCallFunctions.find( szFunction );
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	if ( ( itrToUseCallFunctions != mapToUseCallFunctions.end() ) &&
+			( itrToUseCallFunctions->second != NULL ) ) {
+		//to use call function found
+		
+		if ( ! szFunctionParameter.empty() ) {
+			itrToUseCallFunctions->second->setParameter( szFunctionParameter );
+		}
+		//return pointer to function to call
+		return itrToUseCallFunctions->second;
+	}
+	return NULL;
 }
 
 

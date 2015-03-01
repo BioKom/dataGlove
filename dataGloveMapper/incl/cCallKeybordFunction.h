@@ -34,7 +34,7 @@
  * keys (e.g. Strg, F1).
  *
  * @pattern functor
- * @see cCallKeybordFunction
+ * @see cCallPrepareKeybordFunction
  * @see iCallFunction
  * @see cDataGloveState
  * @see cEvaluateDataGloveState
@@ -61,10 +61,44 @@ History:
 namespace nDataGlove{
 namespace nMapper{
 
+namespace nCallKeybordFunction{
+	class cMapperKeybordFunction;
+	class cMapperKeyCode;
+};//end namespace nCallKeybordFunction
+
 
 class cCallKeybordFunction : public iCallFunction{
 public:
 
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	/**
+	 * constructor
+	 *
+	 * @param inSzParameters A string with parameters for the call to a key code
+	 * 	@see analyseAndSetParameters()
+	 * @param bInPrepareNeeded if true preparing the keyboard function is
+	 * 	needed, else not
+	 * 	@see bPrepareNeeded
+	 * 	@see cCallPrepareKeybordFunction
+	 */
+	cCallKeybordFunction( const std::wstring inSzParameters,
+		const bool bInPrepareNeeded = true );
+	
+	/**
+	 * constructor
+	 *
+	 * @param cChar The char/key, which will be prepared with this operator.
+	 * 	@see cChar
+	 * 	@see keybordFunction
+	 * @param bInPrepareNeeded if true preparing the keyboard function is
+	 * 	needed, else not
+	 * 	@see bPrepareNeeded
+	 * 	@see cCallPrepareKeybordFunction
+	 */
+	cCallKeybordFunction( const wchar_t cInChar,
+		const bool bInPrepareNeeded = true );
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	
 	/**
 	 * constructor
 	 *
@@ -173,6 +207,29 @@ public:
 	virtual void end();
 	
 	/**
+	 * This method sets the parameter for the operation.
+	 * The parameter are readed from the given string.
+	 *
+	 * @param szFunctionParameter all parameters for this functor operation
+	 * 	as a string
+	 * @return true if the parameter could be set, else false
+	 */
+	virtual bool setParameter( const std::string & szFunctionParameter );
+	
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	/**
+	 * This method sets the parameter for the operation.
+	 * The parameter are readed from the given string.
+	 *
+	 * @param szFunctionParameter all parameters for this functor operation
+	 * 	as a string
+	 * @return true if the parameter could be set, else false
+	 */
+	virtual bool setParameter( const std::wstring & szFunctionParameter );
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+
+	
+	/**
 	 * @return The keyboard function, which will be prepared
 	 * 	with this operator.
 	 * 	If it is "CHAR" cChar contains the to output char.
@@ -224,6 +281,14 @@ public:
 	wchar_t getChar() const;
 	
 	
+	/**
+	 * @return  The keyboard function, which will be used with this operator.
+	 * 	If it is "CHAR" cChar contains the to output char.
+	 * 	This function will be used in the operator method.
+	 * 	@see keybordFunctionForOperator
+	 */
+	eKeybordFunction getKeybordFunctionForOperator() const;
+	
 protected:
 	
 	/**
@@ -257,11 +322,16 @@ protected:
 	 * This function returns the keyboard function for the given string.
 	 *
 	 * @param inSzParameters the string for which to return the keyboard function
-	 * @return the keyboard function for the given string, or NON if non could
+	 * @return the keyboard function for the given string, or KEYBOARD_NON if non could
 	 * 	be evaluated
 	 */
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	static eKeybordFunction getKeyboardFunction(
+		const std::wstring & inSzParameters );
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
 	static eKeybordFunction getKeyboardFunction(
 		const std::string & inSzParameters );
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
 	
 	/**
 	 * This function returns the key code like defined in <linux/input.h> for
@@ -270,7 +340,11 @@ protected:
 	 * @param inSzKeyCode the string for which to return the key code
 	 * @return the key code for the given string, or 0 if non could be evaluated
 	 */
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	static unsigned int readKeyCode( const std::wstring & inSzKeyCode );
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
 	static unsigned int readKeyCode( const std::string & inSzKeyCode );
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
 	
 	
 	/**
@@ -284,12 +358,17 @@ protected:
 	 * 	@see cChar
 	 *
 	 * @param inSzParameters the string with the parameters for the keyboard function
+	 * @return true if the parameter could be set, else false
 	 */
-	void analyseAndSetParameters( const std::string & inSzParameters );
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	bool analyseAndSetParameters( const std::wstring & inSzParameters );
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	bool analyseAndSetParameters( const std::string & inSzParameters );
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
 	
 //members
 	/**
-	 * The keyboard function, which will be prepared with this operator.
+	 * The keyboard function, which will be used with this operator.
 	 * If it is "CHAR" cChar contains the to output char.
 	 * @see getKeybordFunction()
 	 * @see cChar
@@ -297,10 +376,12 @@ protected:
 	eKeybordFunction keybordFunction;
 
 	/**
-	 * The keyboard function, which will be prepared with this operator.
+	 * The keyboard function, which will be used with this operator.
 	 * If it is "CHAR" cChar contains the to output char.
-	 * This function wil be used in the operator method.
+	 * This function will be used in the operator method.
+	 * @see keybordFunction
 	 * @see getKeybordFunction()
+	 * @see getKeybordFunctionForOperator
 	 * @see cChar
 	 */
 	eKeybordFunction keybordFunctionForOperator;
@@ -331,7 +412,7 @@ protected:
 	std::list< unsigned int > liKeys;
 	
 	/**
-	 * The char/key, which will be prepared with this operator.
+	 * The char/key, which will be used with this operator.
 	 * Just valid if keybordFunction is "CHAR".
 	 * @see getChar()
 	 * @see keybordFunction
@@ -346,6 +427,17 @@ protected:
 	 * @see cCallPrepareKeybordFunction
 	 */
 	const bool bPrepareNeeded;
+	
+	
+	/**
+	 * Mapper for the strings to keyboard functions.
+	 */
+	static nCallKeybordFunction::cMapperKeybordFunction mapperKeybordFunction;
+	
+	/**
+	 * Mapper for the strings to key codes.
+	 */
+	static nCallKeybordFunction::cMapperKeyCode mapperKeyCode;
 	
 };//end class cCallKeybordFunction
 

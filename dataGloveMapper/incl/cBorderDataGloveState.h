@@ -312,6 +312,26 @@ public:
 	 */
 	void setHigherStates( const std::set< cDataGloveState * > & setInHigherStates );
 	
+	/**
+	 * @see pIntervalCorrection
+	 * @see bIntervalCorrectionUsed
+	 * @see evalueBorderState()
+	 * @return The pointer to the correction object for the intervals, or
+	 * 	NULL if non exists.
+	 */
+	const cIntervalCorrection * getCorrection() const;
+	
+	/**
+	 * Sets the pointer to the correction object for he intervals, or NULL
+	 * if non exists.
+	 *
+	 * @see pIntervalCorrection
+	 * @see bIntervalCorrectionUsed
+	 * @see evalueBorderState()
+	 * @param inPIntervalCorrection The pointer to the correction object for
+	 * 	the intervals, or NULL if non exists.
+	 */
+	void setCorrection( const cIntervalCorrection * inPIntervalCorrection );
 	
 	
 protected:
@@ -396,6 +416,30 @@ protected:
 	 */
 	std::set< cDataGloveState * > higherStates;
 	
+	
+	/**
+	 * The pointer to the correction object for the intervals, or NULL if
+	 * non exists.
+	 *
+	 * For some values (e.g. Quaterion) the message value to hand position
+	 * mapping changes (e.g. no tilt is one time 0 and the other 2000 ).
+	 * The interval corrections are for theas cases.
+	 * The correction objects can have a lower and a upper border.
+	 * If a value is lower / higher than the lower / upper border of the
+	 * correction the correction value will be adapted, so that the value is
+	 * the lower / upper border.
+	 * Every given value will be corrected with the corection value.
+	 *
+	 * @see pIntervalCorrectionUsed
+	 */
+	const cIntervalCorrection * pIntervalCorrection;
+	
+	/**
+	 * True if pIntervalCorrection is set (not NULL), else false.
+	 * @see pIntervalCorrection
+	 */
+	bool bIntervalCorrectionUsed;
+	
 public:  //inline
 	
 	/**
@@ -420,8 +464,14 @@ public:  //inline
 			nDataGlove::nModelDataGloveDGTechVHand::cMessageSamplingDataFromDataGlove *
 				pMessageSamplingDataFromDataGlove ) {
 		
-		if ( pMessageSamplingDataFromDataGlove->getValue( typeSamplingValue )
-				< lBorderValue ) {
+		const long lSamplingValue = bIntervalCorrectionUsed ?
+			//use intervall correction if existing
+			pIntervalCorrection->correct(
+				pMessageSamplingDataFromDataGlove->getValue( typeSamplingValue ) ) :
+			//else don't correct
+			pMessageSamplingDataFromDataGlove->getValue( typeSamplingValue );
+		
+		if ( lSamplingValue < lBorderValue ) {
 			//the message state is lower then this border
 			if ( pLowerBorder != NULL ) {
 				return pLowerBorder->evalueBorderState(

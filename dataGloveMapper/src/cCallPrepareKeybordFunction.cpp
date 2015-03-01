@@ -69,19 +69,31 @@ cCallPrepareKeybordFunction *
 	cCallPrepareKeybordFunction::pKeybordFunctionPrepared = NULL;
 
 
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+
 /**
  * constructor
  *
  * @param inSzParameters A string with parameters for the call to a key code
  * 	@see analyseAndSetParameters()
- * @param bInPrepareNeeded if true preparing the keyboard function is
- * 	needed, else not
- * 	@see bPrepareNeeded
- * 	@see cCallPrepareKeybordFunction
+ */
+cCallPrepareKeybordFunction::cCallPrepareKeybordFunction( const std::wstring inSzParameters ) :
+		cCallKeybordFunction( inSzParameters, true ) {
+	//nothing to do
+}
+
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+
+
+/**
+ * constructor
+ *
+ * @param inSzParameters A string with parameters for the call to a key code
+ * 	@see analyseAndSetParameters()
  */
 cCallPrepareKeybordFunction::cCallPrepareKeybordFunction(
-		const std::string inSzParameters, const bool bInPrepareNeeded ) :
-		cCallKeybordFunction( inSzParameters, bInPrepareNeeded ) {
+		const std::string inSzParameters ) :
+		cCallKeybordFunction( inSzParameters, true ) {
 	//nothing to do
 }
 
@@ -91,14 +103,9 @@ cCallPrepareKeybordFunction::cCallPrepareKeybordFunction(
  *
  * @param inKeyCode1 (First) Key code to call (like defined in <linux/input.h>)
  * 	@see keyCode1
- * @param bInPrepareNeeded if true preparing the keyboard function is
- * 	needed, else not
- * 	@see bPrepareNeeded
- * 	@see cCallPrepareKeybordFunction
  */
-cCallPrepareKeybordFunction::cCallPrepareKeybordFunction( const int inKeyCode1,
-	const bool bInPrepareNeeded ) :
-		cCallKeybordFunction( inKeyCode1, bInPrepareNeeded ) {
+cCallPrepareKeybordFunction::cCallPrepareKeybordFunction( const int inKeyCode1 ) :
+		cCallKeybordFunction( inKeyCode1, true ) {
 	//nothing to do
 }
 
@@ -110,14 +117,10 @@ cCallPrepareKeybordFunction::cCallPrepareKeybordFunction( const int inKeyCode1,
  * 	@see keyCode1
  * @param inKeyCode1 second key code to call (like defined in <linux/input.h>)
  * 	@see keyCode2
- * @param bInPrepareNeeded if true preparing the keyboard function is
- * 	needed, else not
- * 	@see bPrepareNeeded
- * 	@see cCallPrepareKeybordFunction
  */
-cCallPrepareKeybordFunction::cCallPrepareKeybordFunction( const int inKeyCode1, const int inKeyCode2,
-	const bool bInPrepareNeeded ) :
-		cCallKeybordFunction( inKeyCode1, inKeyCode2, bInPrepareNeeded ) {
+cCallPrepareKeybordFunction::cCallPrepareKeybordFunction(
+		const int inKeyCode1, const int inKeyCode2 ) :
+		cCallKeybordFunction( inKeyCode1, inKeyCode2, true ) {
 	//nothing to do
 }
 
@@ -127,15 +130,10 @@ cCallPrepareKeybordFunction::cCallPrepareKeybordFunction( const int inKeyCode1, 
  *
  * @param inLiKeys A list with key codes to call (like defined in <linux/input.h>)
  * 	@see keyCode1
- * @param bInPrepareNeeded if true preparing the keyboard function is
- * 	needed, else not
- * 	@see bPrepareNeeded
- * 	@see cCallPrepareKeybordFunction
  */
 cCallPrepareKeybordFunction::cCallPrepareKeybordFunction(
-	const std::list< unsigned int > inLiKeys,
-	const bool bInPrepareNeeded ) :
-		cCallKeybordFunction( inLiKeys, bInPrepareNeeded ) {
+		const std::list< unsigned int > inLiKeys ) :
+		cCallKeybordFunction( inLiKeys, true ) {
 	//nothing to do
 }
 
@@ -254,23 +252,18 @@ cCallPrepareKeybordFunction * cCallPrepareKeybordFunction::getPreparedFunction()
 }
 
 
-/*TODO weg
- * template <typename Type>
-	equalList( const list< Type > & liFirstList )
-*/
-
-
 /**
  * @return true if the given kyboard function is prepared, else false
  */
 bool cCallPrepareKeybordFunction::IsPrepared(
 		cCallKeybordFunction * pCallKeybordFunction ) const {
 	
-	if ( pCallKeybordFunction->getKeybordFunction() != keybordFunction ) {
+	if ( pCallKeybordFunction->getKeybordFunctionForOperator() !=
+			keybordFunctionForOperator ) {
 		//wrong keybord function prepared
 		return false;
 	}
-	switch ( keybordFunction ) {
+	switch ( keybordFunctionForOperator ) {
 		case CHAR : {
 			return ( pCallKeybordFunction->getChar() == cChar );
 		}; break;
@@ -287,21 +280,8 @@ bool cCallPrepareKeybordFunction::IsPrepared(
 		default : {// just keybord function relevant
 			return true;
 		}
-	};//not reachebel
+	};//not reachable
 	return true;
-	
-/*TODO weg (no "just keybord function relevant")
-	return ( ( pCallKeybordFunction->getKeybordFunction() == keybordFunction ) &&
-		( ( ( keybordFunction == CHAR ) &&
-			( pCallKeybordFunction->getChar() == cChar ) ) ||
-		( ( keybordFunction == INPUT_KEY_CODE ) &&
-			( pCallKeybordFunction->getKeyCodes() == getKeyCodes() ) ) ||
-		( ( keybordFunction == INPUT_KEY_CODE_1 ) &&
-			( pCallKeybordFunction->getKeyCode1() == getKeyCode1() ) ) ||
-		( ( keybordFunction == INPUT_KEY_CODE_2 ) &&
-			( pCallKeybordFunction->getKeyCode1() == getKeyCode1() ) &&
-			( pCallKeybordFunction->getKeyCode2() == getKeyCode2() ) ) ) );
-*/
 }
 
 

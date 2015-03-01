@@ -34,3 +34,23 @@ This program maps data glove input (gestures) into functionality (like type
 a key or mouse move left).
 
 
+===Correction of data glove values===
+
+For some values (e.g. Quaterion) the message value to hand position
+mapping changes (e.g. no tilt is one time 0 and the other 2000 ).
+The interval corrections are for these cases.
+The correction objects can have a lower and a upper border.
+If a value is lower / higher than the lower / upper border of the
+correction object the correction value will be adapted, so that the
+value is the lower / upper border.
+Every given value will be corrected with the correction value.
+
+correction of data glove values examples:
+* "FINGER_1 MIN 0" -> if lower 0 -> all FINGER_1 values + delta so that values are bigger or equal 0
+* "FINGER_1 MAX 1000" -> if higher 1000 -> all FINGER_1 values + delta so that values are lower or equal 1000
+
+
+
+
+
+

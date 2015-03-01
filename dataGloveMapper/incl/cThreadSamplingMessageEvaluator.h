@@ -142,9 +142,9 @@ protected:
 	 * A pointer to the last received sampling data from the data glove or
 	 * NULL if non was received.
 	 */
-	nModelDataGloveDGTechVHand::cMessageSamplingDataFromDataGlove *
-		pLastMessageSamplingDataFromDataGlove;
-	
+//TODO weg: 	nModelDataGloveDGTechVHand::cMessageSamplingDataFromDataGlove *
+//		pLastMessageSamplingDataFromDataGlove;
+
 	/**
 	 * A pointer to the new received sampling data from the data glove or
 	 * NULL if non was received.

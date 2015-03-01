@@ -1,6 +1,3 @@
-
-//TODO check
-
 /**
  * @file cMessageGetIdFromDataGlove
  * file name: cMessageGetIdFromDataGlove.cpp
@@ -10,7 +7,7 @@
  *
  * System: C++
  *
- * This file specifies the class for the DGTech VHand data glove
+ * This file implements the class for the DGTech VHand data glove
  * messages, which is the answer to the get the Id message.
  *
  *
@@ -30,7 +27,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This file specifies the class for the DGTech VHand data glove
+ * This file implements the class for the DGTech VHand data glove
  * messages, which is the answer to the get the Id message.
  * If the get the get Id message is send, this message should be the answer.
  * See DG5 VHand 3.0 OEM Technical Datasheet.
@@ -61,9 +58,6 @@ using namespace std;
 
 /**
  * The standard constructor for the DGTech VHand data glove message.
- *
- * @param bCreateMessage if true the message will be created, else
- * 	this message will just contain an empty message
  */
 cMessageGetIdFromDataGlove::cMessageGetIdFromDataGlove() {
 	
@@ -99,7 +93,7 @@ std::string cMessageGetIdFromDataGlove::getName() const {
  */
 int cMessageGetIdFromDataGlove::getDeviceType() const {
 	
-	if ( ( szMessage == NULL ) || ( uiMessageSize <= 4 ) ) {
+	if ( ( szMessage == NULL ) || ( uiMessageSize < 4 ) ) {
 		return 0;
 	}
 	return static_cast<int>( szMessage[ 3 ] );
@@ -111,7 +105,7 @@ int cMessageGetIdFromDataGlove::getDeviceType() const {
  */
 std::string cMessageGetIdFromDataGlove::getDeviceTypeString() const {
 	
-	if ( ( szMessage == NULL ) || ( uiMessageSize <= 4 ) ) {
+	if ( ( szMessage == NULL ) || ( uiMessageSize < 4 ) ) {
 		return 0;
 	}
 	switch ( szMessage[ 3 ] ) {
@@ -129,7 +123,7 @@ std::string cMessageGetIdFromDataGlove::getDeviceTypeString() const {
  */
 int cMessageGetIdFromDataGlove::getMicroType() const {
 	
-	if ( ( szMessage == NULL ) || ( uiMessageSize <= 5 ) ) {
+	if ( ( szMessage == NULL ) || ( uiMessageSize < 5 ) ) {
 		return 0;
 	}
 	return static_cast<int>( szMessage[ 4 ] );
@@ -141,7 +135,7 @@ int cMessageGetIdFromDataGlove::getMicroType() const {
  */
 std::string cMessageGetIdFromDataGlove::getMicroTypeString() const {
 	
-	if ( ( szMessage == NULL ) || ( uiMessageSize <= 5 ) ) {
+	if ( ( szMessage == NULL ) || ( uiMessageSize < 5 ) ) {
 		return 0;
 	}
 	switch ( szMessage[ 4 ] ) {
@@ -158,36 +152,36 @@ std::string cMessageGetIdFromDataGlove::getMicroTypeString() const {
  */
 int cMessageGetIdFromDataGlove::getId() const {
 	
-	return read2ByteInt( 5 );
+	return read2ByteUInt( 5 );
 }
 
 
 
 /**
- * @return if a for wifi device: the ip address received from DHCP of
+ * @return if a wifi device: the IP address received from DHCP of
  * 		the device
  * 	else: 0
  */
 long cMessageGetIdFromDataGlove::getIp() const {
 	
-	return read4ByteLong( 7 );
+	return read4ByteULong( 7 );
 }
 
 
 /**
- * @return if a for wifi device: the ip address received from DHCP of
+ * @return if a for wifi device: the IP address received from DHCP of
  * 		the device as a string (e.g. 127.0.0.1)
  * 	else: "0"
  */
 std::string cMessageGetIdFromDataGlove::getIpString() const {
 	
-	if ( ( szMessage == NULL ) || ( uiMessageSize <= 11 ) ) {
+	if ( ( szMessage == NULL ) || ( uiMessageSize < 11 ) ) {
 		return 0;
 	}
-	const int iId1 = static_cast<int>( szMessage[ 7 ] );
-	const int iId2 = static_cast<int>( szMessage[ 8 ] );
-	const int iId3 = static_cast<int>( szMessage[ 9 ] );
-	const int iId4 = static_cast<int>( szMessage[ 10 ] );
+	const unsigned int iId1 = static_cast<unsigned int>( szMessage[ 7 ] );
+	const unsigned int iId2 = static_cast<unsigned int>( szMessage[ 8 ] );
+	const unsigned int iId3 = static_cast<unsigned int>( szMessage[ 9 ] );
+	const unsigned int iId4 = static_cast<unsigned int>( szMessage[ 10 ] );
 	
 	char szIpString[ 32 ];
 	
@@ -202,7 +196,7 @@ std::string cMessageGetIdFromDataGlove::getIpString() const {
  */
 long cMessageGetIdFromDataGlove::getMask() const {
 	
-	return read4ByteLong( 11 );
+	return read4ByteULong( 11 );
 }
 
 
@@ -211,33 +205,33 @@ long cMessageGetIdFromDataGlove::getMask() const {
  */
 std::string cMessageGetIdFromDataGlove::getMaskString() const {
 	
-	if ( ( szMessage == NULL ) || ( uiMessageSize <= 11 ) ) {
+	if ( ( szMessage == NULL ) || ( uiMessageSize < 15 ) ) {
 		return 0;
 	}
-	const int iNetmask1 = static_cast<int>( szMessage[ 7 ] );
-	const int iNetmask2 = static_cast<int>( szMessage[ 8 ] );
-	const int iNetmask3 = static_cast<int>( szMessage[ 9 ] );
-	const int iNetmask4 = static_cast<int>( szMessage[ 10 ] );
+	const unsigned int iNetmask1 = static_cast<unsigned int>( szMessage[ 11 ] );
+	const unsigned int iNetmask2 = static_cast<unsigned int>( szMessage[ 12 ] );
+	const unsigned int iNetmask3 = static_cast<unsigned int>( szMessage[ 13 ] );
+	const unsigned int iNetmask4 = static_cast<unsigned int>( szMessage[ 14 ] );
 	
-	char szIpString[ 32 ];
+	char szMaskString[ 32 ];
 	
-	sprintf( szIpString, "%d.%d.%d.%d", iNetmask1, iNetmask2, iNetmask3, iNetmask4 );
+	sprintf( szMaskString, "%d.%d.%d.%d", iNetmask1, iNetmask2, iNetmask3, iNetmask4 );
 	
-	return std::string( szIpString );
+	return std::string( szMaskString );
 }
 
 
 /**
- * @return if a for wifi device: the gateway ip address of the device
+ * @return if a for wifi device: the gateway IP address of the device
  */
 long cMessageGetIdFromDataGlove::getGateway() const {
 	
-	return read4ByteLong( 15 );
+	return read4ByteULong( 15 );
 }
 
 
 /**
- * @return if a for wifi device: the gateway ip address of the device as a string
+ * @return if a for wifi device: the gateway IP address of the device as a string
  */
 std::string cMessageGetIdFromDataGlove::getGatewayString() const {
 	

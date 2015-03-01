@@ -53,7 +53,8 @@ QUATERION_1_S2=";;;;;22000; 31000; 25000;;;;;;;;;"
 
 
 echo "Konverting file: ${INPUT_FILE}"
-sed -e "s&\([0-9]\);\([0-9]\);\([0-9]\);\([0-9]\);\([^;]*\)-> *\([^;]*\) */ *\([^;]*\) */ *\([^;]*\) *&${TEXT_PREP_FUN}\6;${REPEAT_DELAY};0;\1;\2;\3;\4;0;\n${TEXT_KEY_FUN}\6;${REPEAT_DELAY};1;\1;\2;\3;\4;0;\n${TEXT_PREP_FUN}\7;${REPEAT_DELAY};0;\1;\2;\3;\4;1;\n${TEXT_KEY_FUN}\7;${REPEAT_DELAY};1;\1;\2;\3;\4;1;\n${TEXT_PREP_FUN}\8;${REPEAT_DELAY};0;\1;\2;\3;\4;2;\n${TEXT_KEY_FUN}\8;${REPEAT_DELAY};1;\1;\2;\3;\4;2;&"  ${INPUT_FILE} | \
+sed -e "s/';'/SEMICOLON/g" -e "s/'\"'/QUOTE/g" -e "s/'''/SINGLE_QUOTE/g" -e "s/,/COMMA/g"  ${INPUT_FILE} | \
+sed -e "s&\([0-9]\);\([0-9]\);\([0-9]\);\([0-9]\);\([^;]*\)-> *\([^;]*\) */ *\([^;]*\) */ *\([^;]*\) *&${TEXT_PREP_FUN}\6;${REPEAT_DELAY};0;\1;\2;\3;\4;0;\n${TEXT_KEY_FUN}\6;${REPEAT_DELAY};1;\1;\2;\3;\4;0;\n${TEXT_PREP_FUN}\7;${REPEAT_DELAY};0;\1;\2;\3;\4;1;\n${TEXT_KEY_FUN}\7;${REPEAT_DELAY};1;\1;\2;\3;\4;1;\n${TEXT_PREP_FUN}\8;${REPEAT_DELAY};0;\1;\2;\3;\4;2;\n${TEXT_KEY_FUN}\8;${REPEAT_DELAY};1;\1;\2;\3;\4;2;&" | \
 sed -e "s&\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);0;&\1;\2;\3;\4;\5;\6;\7;\8;\9;${QUATERION_1_S0}&" \
     -e "s&\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);1;&\1;\2;\3;\4;\5;\6;\7;\8;\9;${QUATERION_1_S1}&"  \
     -e "s&\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);2;&\1;\2;\3;\4;\5;\6;\7;\8;\9;${QUATERION_1_S2}&" | \
@@ -71,12 +72,12 @@ sed -e "s&\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);0;\(.*\)&\1;\2;\3;\4
     -e "s&\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);2;\(.*\)&\1;\2;\3;\4;\5;${FINGER_2_S2};\6&" | \
 sed -e "s&\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);0;\(.*\)&\1;\2;\3;\4;${FINGER_1_S0};\5&" \
     -e "s&\([^;]*\);\([^;]*\);\([^;]*\);\([^;]*\);1;\(.*\)&\1;\2;\3;\4;${FINGER_1_S1};\5&" | \
-sed -e 's/ //g' > ${OUTPUT_FILE}
-
-#replace fingers begin at back
-
-#sed -e "s/\([0-9]\);\([0-9]\);\([0-9]\);\([0-9]\);/\1;\2;\3;\4\n/" -e "s/\"o/\\&ouml;/g"  ${INPUT_FILE} > ${OUTPUT_FILE}
-#sed -e "s/\([0-9]\);\([0-9]\);\([0-9]\);\([0-9]\);\([^;]*\)->\([^;]*\)/\([^;]*\)/\([^;]*\)/\6\1;\2;\3;\4\n\7\1;\2;\3;\4\n\8\1;\2;\3;\4/" -e "s/\"o/\\&ouml;/g"  ${INPUT_FILE} > ${OUTPUT_FILE}
+sed -e 's/ //g' | \
+sed -e "s/ä/SPECIAL_CHAR_DEU_AE/g" -e "s/Ä/SPECIAL_CHAR_DEU_UP_AE/g" \
+    -e "s/ö/SPECIAL_CHAR_DEU_OE/g" -e "s/Ö/SPECIAL_CHAR_DEU_UP_OE/g" \
+    -e "s/ü/SPECIAL_CHAR_DEU_UE/g" -e "s/Ü/SPECIAL_CHAR_DEU_UP_UE/g" \
+    -e "s/ß/SPECIAL_CHAR_DEU_SZ/g" \
+    -e 's/`/DIACRITIC_GRAVE/g' -e "s/°/DIACRITIC_GRAVE/g" > ${OUTPUT_FILE}
 
 
 

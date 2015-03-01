@@ -60,12 +60,521 @@ History:
 	#include <regex>
 #endif //FEATURE_READ_DATA_TEXT_WITH_REGEX
 
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	#include "cMapWString.h"
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	#include "cMapString.h"
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+
 
 
 using namespace nDataGlove::nMapper;
 using namespace std;
 
 
+namespace nDataGlove{
+namespace nMapper{
+namespace nCallKeybordFunction{
+
+	class cMapperKeybordFunction : public
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+		cMapWString<eKeybordFunction>
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+		cMapString<eKeybordFunction>
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	{
+	public:
+		
+		cMapperKeybordFunction() :
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+#ifdef FEATURE_READ_DATA_TEXT_WITH_REGEX
+			cMapWString< eKeybordFunction >( KEYBOARD_NON,
+				regex_constants::icase | regex_constants::ECMAScript )
+#else  //FEATURE_READ_DATA_TEXT_WITH_REGEX
+			cMapWString< eKeybordFunction >( KEYBOARD_NON )
+#endif  //FEATURE_READ_DATA_TEXT_WITH_REGEX
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+#ifdef FEATURE_READ_DATA_TEXT_WITH_REGEX
+			cMapString< eKeybordFunction >( KEYBOARD_NON,
+				regex_constants::icase | regex_constants::ECMAScript )
+#else  //FEATURE_READ_DATA_TEXT_WITH_REGEX
+			cMapString< eKeybordFunction >( KEYBOARD_NON )
+#endif  //FEATURE_READ_DATA_TEXT_WITH_REGEX
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+		{
+			setMapPair( "F1", F1 );
+			setMapPair( "F2", F2 );
+			setMapPair( "F3", F3 );
+			setMapPair( "F4", F4 );
+			setMapPair( "F5", F5 );
+			setMapPair( "F6", F6 );
+			setMapPair( "F7", F7 );
+			setMapPair( "F8", F8 );
+			setMapPair( "F9", F9 );
+			setMapPair( "F10", F10 );
+			setMapPair( "F11", F11 );
+			setMapPair( "F12", F12 );
+			
+			setMapPair( "SPACE", SPACE );
+			setMapPair( "TAB", TAB );
+			setMapPair( "TABULATOR", TAB );
+			setMapPair( "BACK_TAB", BACK_TAB );
+			setMapPair( "BACK_TABULATOR", BACK_TAB );
+			setMapPair( "ESC", ESC );
+			setMapPair( "ESCAPE", ESC );
+			setMapPair( "ENTER", ENTER );
+			setMapPair( "UPPER_CASE", UPPER_CASE );
+			
+			setMapPair( "UP", UP );
+			setMapPair( "DOWN", DOWN );
+			setMapPair( "LEFT", LEFT );
+			setMapPair( "RIGHT", RIGHT );
+			
+			setMapPair( "PAGE_UP", PAGE_UP );
+			setMapPair( "PAGE UP", PAGE_UP );
+			setMapPair( "PAGE_DOWN", PAGE_DOWN );
+			setMapPair( "PAGE DOWN", PAGE_DOWN );
+			setMapPair( "POS1", POS1 );
+			setMapPair( "POSITION1", POS1 );
+			setMapPair( "POS 1", POS1 );
+			setMapPair( "POSITION 1", POS1 );
+			setMapPair( "POS_1", POS1 );
+			setMapPair( "POSITION_1", POS1 );
+			setMapPair( "HOME", POS1 );
+			setMapPair( "END", END );
+			setMapPair( "ENDE", END );
+			
+			setMapPair( "DELETE", DELETE );
+			setMapPair( "DEL", DELETE );
+			setMapPair( "REMOVE", REMOVE );
+			setMapPair( "ENTF", REMOVE );
+			setMapPair( "INSERT", INSERT );
+			setMapPair( "INS", INSERT );
+			
+			setMapPair( "ALT", ALT );
+			setMapPair( "CTRL", CTRL );
+			setMapPair( "STRG", CTRL );
+			
+			setMapPair( "PRINT", PRINT );
+			setMapPair( "MENUE", MENUE );
+			setMapPair( "SCROLL", SCROLL );
+			setMapPair( "ROLLEN", SCROLL );
+			setMapPair( "BREAK", BREAK );
+			setMapPair( "PAUSE", BREAK );
+			
+			setMapPair( "UNDO", UNDO );
+			setMapPair( "UNUNDO", UNUNDO );
+			setMapPair( "REDO", UNUNDO );
+			
+			setMapPair( "END_APPLICATION", END_APPLICATION );
+			setMapPair( "COPY", COPY );
+			setMapPair( "PAST", PAST );
+			
+			setMapPair( "NEXT_WORD", NEXT_WORD );
+			setMapPair( "PREVIOS_WORD", PREVIOS_WORD );
+			setMapPair( "MARK_NEXT_WORD", MARK_NEXT_WORD );
+			
+			setMapPair( "QUOTE", QUOTE );
+			setMapPair( "'\"'", QUOTE );
+			setMapPair( "SINGLE_QUOTE", SINGLE_QUOTE );
+			setMapPair( "'''", SINGLE_QUOTE );
+			setMapPair( "SEMICOLON", SEMICOLON );
+			setMapPair( "';'", SEMICOLON );
+			
+			setMapPair( "COMMA", COMMA );
+			setMapPair( "SLASH", SLASH );
+			setMapPair( "BACKSLASH", BACKSLASH );
+			
+			setMapPair( "SPECIAL_CHAR_DEU_AE", SPECIAL_CHAR_DEU_AE );
+			setMapPair( "SPECIAL_CHAR_DEU_UP_AE", SPECIAL_CHAR_DEU_UP_AE );
+			setMapPair( "SPECIAL_CHAR_DEU_OE", SPECIAL_CHAR_DEU_OE );
+			setMapPair( "SPECIAL_CHAR_DEU_UP_OE", SPECIAL_CHAR_DEU_UP_OE );
+			setMapPair( "SPECIAL_CHAR_DEU_UE", SPECIAL_CHAR_DEU_UE );
+			setMapPair( "SPECIAL_CHAR_DEU_UP_UE", SPECIAL_CHAR_DEU_UP_UE );
+			setMapPair( "SPECIAL_CHAR_DEU_SZ", SPECIAL_CHAR_DEU_SZ );
+			
+			setMapPair( "DIACRITIC_GRAVE", DIACRITIC_GRAVE );
+			setMapPair( "DIACRITIC_OVERING", DIACRITIC_OVERING );
+			
+			
+			
+//TODO create const object for it ( template<return_type>FindType ? )
+//  search with tree (split search prases iterativ into groups)
+			
+			
+		}
+		
+		
+	};  //class cMapperKeybordFunction
+	
+	
+	
+	class cMapperKeyCode : public
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+		cMapWString< unsigned int >
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+		cMapString< unsigned int >
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	{
+	public:
+		
+		cMapperKeyCode() :
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+#ifdef FEATURE_READ_DATA_TEXT_WITH_REGEX
+			cMapWString< unsigned int >( KEYBOARD_NON,
+				regex_constants::icase | regex_constants::ECMAScript )
+#else  //FEATURE_READ_DATA_TEXT_WITH_REGEX
+			cMapWString< unsigned int >( KEYBOARD_NON )
+#endif  //FEATURE_READ_DATA_TEXT_WITH_REGEX
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+#ifdef FEATURE_READ_DATA_TEXT_WITH_REGEX
+			cMapString< unsigned int >( KEYBOARD_NON,
+				regex_constants::icase | regex_constants::ECMAScript )
+#else  //FEATURE_READ_DATA_TEXT_WITH_REGEX
+			cMapString< unsigned int >( KEYBOARD_NON )
+#endif  //FEATURE_READ_DATA_TEXT_WITH_REGEX
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+		{
+			setMapPair( "KEY_ESC", KEY_ESC );
+			setMapPair( "KEY_1", KEY_1 );
+			setMapPair( "KEY_2", KEY_2 );
+			setMapPair( "KEY_3", KEY_3 );
+			setMapPair( "KEY_4", KEY_4 );
+			setMapPair( "KEY_5", KEY_5 );
+			setMapPair( "KEY_6", KEY_6 );
+			setMapPair( "KEY_7", KEY_7 );
+			setMapPair( "KEY_8", KEY_8 );
+			setMapPair( "KEY_9", KEY_9 );
+			setMapPair( "KEY_0", KEY_0 );
+			setMapPair( "KEY_MINUS", KEY_MINUS );
+			setMapPair( "KEY_EQUAL", KEY_EQUAL );
+			setMapPair( "KEY_BACKSPACE", KEY_BACKSPACE );
+			setMapPair( "KEY_TAB", KEY_TAB );
+			setMapPair( "KEY_Q", KEY_Q );
+			setMapPair( "KEY_W", KEY_W );
+			setMapPair( "KEY_E", KEY_E );
+			setMapPair( "KEY_R", KEY_R );
+			setMapPair( "KEY_T", KEY_T );
+			setMapPair( "KEY_Y", KEY_Y );
+			setMapPair( "KEY_U", KEY_U );
+			setMapPair( "KEY_I", KEY_I );
+			setMapPair( "KEY_O", KEY_O );
+			setMapPair( "KEY_P", KEY_P );
+			setMapPair( "KEY_LEFTBRACE", KEY_LEFTBRACE );
+			setMapPair( "KEY_RIGHTBRACE", KEY_RIGHTBRACE );
+			setMapPair( "KEY_ENTER", KEY_ENTER );
+			setMapPair( "KEY_LEFTCTRL", KEY_LEFTCTRL );
+			setMapPair( "KEY_A", KEY_A );
+			setMapPair( "KEY_S", KEY_S );
+			setMapPair( "KEY_D", KEY_D );
+			setMapPair( "KEY_F", KEY_F );
+			setMapPair( "KEY_G", KEY_G );
+			setMapPair( "KEY_H", KEY_H );
+			setMapPair( "KEY_J", KEY_J );
+			setMapPair( "KEY_K", KEY_K );
+			setMapPair( "KEY_L", KEY_L );
+			setMapPair( "KEY_SEMICOLON", KEY_SEMICOLON );
+			setMapPair( "KEY_APOSTROPHE", KEY_APOSTROPHE );
+			setMapPair( "KEY_GRAVE", KEY_GRAVE );
+			setMapPair( "KEY_LEFTSHIFT", KEY_LEFTSHIFT );
+			setMapPair( "KEY_SHIFT", KEY_LEFTSHIFT );
+			setMapPair( "KEY_BACKSLASH", KEY_BACKSLASH );
+			setMapPair( "KEY_Z", KEY_Z );
+			setMapPair( "KEY_X", KEY_X );
+			setMapPair( "KEY_C", KEY_C );
+			setMapPair( "KEY_V", KEY_V );
+			setMapPair( "KEY_B", KEY_B );
+			setMapPair( "KEY_N", KEY_N );
+			setMapPair( "KEY_M", KEY_M );
+			setMapPair( "KEY_COMMA", KEY_COMMA );
+			setMapPair( "KEY_DOT", KEY_DOT );
+			setMapPair( "KEY_SLASH", KEY_SLASH );
+			setMapPair( "KEY_RIGHTSHIFT", KEY_RIGHTSHIFT );
+			setMapPair( "KEY_KPASTERISK", KEY_KPASTERISK );
+			setMapPair( "KEY_LEFTALT", KEY_LEFTALT );
+			setMapPair( "KEY_SPACE", KEY_SPACE );
+			setMapPair( "KEY_CAPSLOCK", KEY_CAPSLOCK );
+			setMapPair( "KEY_F1", KEY_F1 );
+			setMapPair( "KEY_F2", KEY_F2 );
+			setMapPair( "KEY_F3", KEY_F3 );
+			setMapPair( "KEY_F4", KEY_F4 );
+			setMapPair( "KEY_F5", KEY_F5 );
+			setMapPair( "KEY_F6", KEY_F6 );
+			setMapPair( "KEY_F7", KEY_F7 );
+			setMapPair( "KEY_F8", KEY_F8 );
+			setMapPair( "KEY_F9", KEY_F9 );
+			setMapPair( "KEY_F10", KEY_F10 );
+			setMapPair( "KEY_NUMLOCK", KEY_NUMLOCK );
+			setMapPair( "KEY_SCROLLLOCK", KEY_SCROLLLOCK );
+			setMapPair( "KEY_KP7", KEY_KP7 );
+			setMapPair( "KEY_KP8", KEY_KP8 );
+			setMapPair( "KEY_KP9", KEY_KP9 );
+			setMapPair( "KEY_KPMINUS", KEY_KPMINUS );
+			setMapPair( "KEY_KP4", KEY_KP4 );
+			setMapPair( "KEY_KP5", KEY_KP5 );
+			setMapPair( "KEY_KP6", KEY_KP6 );
+			setMapPair( "KEY_KPPLUS", KEY_KPPLUS );
+			setMapPair( "KEY_KP1", KEY_KP1 );
+			setMapPair( "KEY_KP2", KEY_KP2 );
+			setMapPair( "KEY_KP3", KEY_KP3 );
+			setMapPair( "KEY_KP0", KEY_KP0 );
+			setMapPair( "KEY_KPDOT", KEY_KPDOT );
+			setMapPair( "KEY_ZENKAKUHANKAKU", KEY_ZENKAKUHANKAKU );
+			setMapPair( "KEY_102ND", KEY_102ND );
+			setMapPair( "KEY_F11", KEY_F11 );
+			setMapPair( "KEY_F12", KEY_F12 );
+			setMapPair( "KEY_RO", KEY_RO );
+			setMapPair( "KEY_KATAKANA", KEY_KATAKANA );
+			setMapPair( "KEY_HIRAGANA", KEY_HIRAGANA );
+			setMapPair( "KEY_HENKAN", KEY_HENKAN );
+			setMapPair( "KEY_KATAKANAHIRAGANA", KEY_KATAKANAHIRAGANA );
+			setMapPair( "KEY_MUHENKAN", KEY_MUHENKAN );
+			setMapPair( "KEY_KPJPCOMMA", KEY_KPJPCOMMA );
+			setMapPair( "KEY_KPENTER", KEY_KPENTER );
+			setMapPair( "KEY_RIGHTCTRL", KEY_RIGHTCTRL );
+			setMapPair( "KEY_KPSLASH", KEY_KPSLASH );
+			setMapPair( "KEY_SYSRQ", KEY_SYSRQ );
+			setMapPair( "KEY_RIGHTALT", KEY_RIGHTALT );
+			setMapPair( "KEY_LINEFEED", KEY_LINEFEED );
+			setMapPair( "KEY_HOME", KEY_HOME );
+			setMapPair( "KEY_UP", KEY_UP );
+			setMapPair( "KEY_PAGEUP", KEY_PAGEUP );
+			setMapPair( "KEY_LEFT", KEY_LEFT );
+			setMapPair( "KEY_RIGHT", KEY_RIGHT );
+			setMapPair( "KEY_END", KEY_END );
+			setMapPair( "KEY_DOWN", KEY_DOWN );
+			setMapPair( "KEY_PAGEDOWN", KEY_PAGEDOWN );
+			setMapPair( "KEY_INSERT", KEY_INSERT );
+			setMapPair( "KEY_MACRO", KEY_MACRO );
+			setMapPair( "KEY_MUTE", KEY_MUTE );
+			setMapPair( "KEY_VOLUMEDOWN", KEY_VOLUMEDOWN );
+			setMapPair( "KEY_VOLUMEUP", KEY_VOLUMEUP );
+			setMapPair( "KEY_POWER", KEY_POWER );
+			setMapPair( "KEY_KPEQUAL", KEY_KPEQUAL );
+			setMapPair( "KEY_KPPLUSMINUS", KEY_KPPLUSMINUS );
+			setMapPair( "KEY_PAUSE", KEY_PAUSE );
+			setMapPair( "KEY_SCALE", KEY_SCALE );
+			
+			setMapPair( "KEY_KPCOMMA", KEY_KPCOMMA );
+			setMapPair( "KEY_HANGEUL", KEY_HANGEUL );
+			setMapPair( "KEY_HANGUEL", KEY_HANGUEL );
+			setMapPair( "KEY_HANJA", KEY_HANJA );
+			setMapPair( "KEY_YEN", KEY_YEN );
+			setMapPair( "KEY_LEFTMETA", KEY_LEFTMETA );
+			setMapPair( "KEY_RIGHTMETA", KEY_RIGHTMETA );
+			setMapPair( "KEY_COMPOSE", KEY_COMPOSE );
+			
+			setMapPair( "KEY_STOP", KEY_STOP );
+			setMapPair( "KEY_AGAIN", KEY_AGAIN );
+			setMapPair( "KEY_PROPS", KEY_PROPS );
+			setMapPair( "KEY_UNDO", KEY_UNDO );
+			setMapPair( "KEY_FRONT", KEY_FRONT );
+			setMapPair( "KEY_COPY", KEY_COPY );
+			setMapPair( "KEY_OPEN", KEY_OPEN );
+			setMapPair( "KEY_PASTE", KEY_PASTE );
+			setMapPair( "KEY_FIND", KEY_FIND );
+			setMapPair( "KEY_CUT", KEY_CUT );
+			setMapPair( "KEY_HELP", KEY_HELP );
+			setMapPair( "KEY_MENU", KEY_MENU );
+			setMapPair( "KEY_CALC", KEY_CALC );
+			setMapPair( "KEY_SETUP", KEY_SETUP );
+			setMapPair( "KEY_SLEEP", KEY_SLEEP );
+			setMapPair( "KEY_WAKEUP", KEY_WAKEUP );
+			setMapPair( "KEY_FILE", KEY_FILE );
+			setMapPair( "KEY_SENDFILE", KEY_SENDFILE );
+			setMapPair( "KEY_DELETEFILE", KEY_DELETEFILE );
+			setMapPair( "KEY_XFER", KEY_XFER );
+			setMapPair( "KEY_PROG1", KEY_PROG1 );
+			setMapPair( "KEY_PROG2", KEY_PROG2 );
+			setMapPair( "KEY_WWW", KEY_WWW );
+			setMapPair( "KEY_MSDOS", KEY_MSDOS );
+			setMapPair( "KEY_COFFEE", KEY_COFFEE );
+			setMapPair( "KEY_SCREENLOCK", KEY_SCREENLOCK );
+			setMapPair( "KEY_DIRECTION", KEY_DIRECTION );
+			setMapPair( "KEY_CYCLEWINDOWS", KEY_CYCLEWINDOWS );
+			setMapPair( "KEY_MAIL", KEY_MAIL );
+			setMapPair( "KEY_BOOKMARKS", KEY_BOOKMARKS );
+			setMapPair( "KEY_COMPUTER", KEY_COMPUTER );
+			setMapPair( "KEY_BACK", KEY_BACK );
+			setMapPair( "KEY_FORWARD", KEY_FORWARD );
+			setMapPair( "KEY_CLOSECD", KEY_CLOSECD );
+			setMapPair( "KEY_EJECTCD", KEY_EJECTCD );
+			setMapPair( "KEY_EJECTCLOSECD", KEY_EJECTCLOSECD );
+			setMapPair( "KEY_NEXTSONG", KEY_NEXTSONG );
+			setMapPair( "KEY_PLAYPAUSE", KEY_PLAYPAUSE );
+			setMapPair( "KEY_PREVIOUSSONG", KEY_PREVIOUSSONG );
+			setMapPair( "KEY_STOPCD", KEY_STOPCD );
+			setMapPair( "KEY_RECORD", KEY_RECORD );
+			setMapPair( "KEY_REWIND", KEY_REWIND );
+			setMapPair( "KEY_PHONE", KEY_PHONE );
+			setMapPair( "KEY_ISO", KEY_ISO );
+			setMapPair( "KEY_CONFIG", KEY_CONFIG );
+			setMapPair( "KEY_HOMEPAGE", KEY_HOMEPAGE );
+			setMapPair( "KEY_REFRESH", KEY_REFRESH );
+			setMapPair( "KEY_EXIT", KEY_EXIT );
+			setMapPair( "KEY_MOVE", KEY_MOVE );
+			setMapPair( "KEY_EDIT", KEY_EDIT );
+			setMapPair( "KEY_SCROLLUP", KEY_SCROLLUP );
+			setMapPair( "KEY_SCROLLDOWN", KEY_SCROLLDOWN );
+			setMapPair( "KEY_KPLEFTPAREN", KEY_KPLEFTPAREN );
+			setMapPair( "KEY_KPRIGHTPAREN", KEY_KPRIGHTPAREN );
+			setMapPair( "KEY_NEW", KEY_NEW );
+			setMapPair( "KEY_REDO", KEY_REDO );
+			
+			setMapPair( "KEY_F13", KEY_F13 );
+			setMapPair( "KEY_F14", KEY_F14 );
+			setMapPair( "KEY_F15", KEY_F15 );
+			setMapPair( "KEY_F16", KEY_F16 );
+			setMapPair( "KEY_F17", KEY_F17 );
+			setMapPair( "KEY_F18", KEY_F18 );
+			setMapPair( "KEY_F19", KEY_F19 );
+			setMapPair( "KEY_F20", KEY_F20 );
+			setMapPair( "KEY_F21", KEY_F21 );
+			setMapPair( "KEY_F22", KEY_F22 );
+			setMapPair( "KEY_F23", KEY_F23 );
+			setMapPair( "KEY_F24", KEY_F24 );
+			
+			setMapPair( "KEY_PLAYCD", KEY_PLAYCD );
+			setMapPair( "KEY_PAUSECD", KEY_PAUSECD );
+			setMapPair( "KEY_PROG3", KEY_PROG3 );
+			setMapPair( "KEY_PROG4", KEY_PROG4 );
+			setMapPair( "KEY_DASHBOARD", KEY_DASHBOARD );
+			setMapPair( "KEY_SUSPEND", KEY_SUSPEND );
+			setMapPair( "KEY_CLOSE", KEY_CLOSE );
+			setMapPair( "KEY_PLAY", KEY_PLAY );
+			setMapPair( "KEY_FASTFORWARD", KEY_FASTFORWARD );
+			setMapPair( "KEY_BASSBOOST", KEY_BASSBOOST );
+			setMapPair( "KEY_PRINT", KEY_PRINT );
+			setMapPair( "KEY_HP", KEY_HP );
+			setMapPair( "KEY_CAMERA", KEY_CAMERA );
+			setMapPair( "KEY_SOUND", KEY_SOUND );
+			setMapPair( "KEY_QUESTION", KEY_QUESTION );
+			setMapPair( "KEY_EMAIL", KEY_EMAIL );
+			setMapPair( "KEY_CHAT", KEY_CHAT );
+			setMapPair( "KEY_SEARCH", KEY_SEARCH );
+			setMapPair( "KEY_CONNECT", KEY_CONNECT );
+			setMapPair( "KEY_FINANCE", KEY_FINANCE );
+			setMapPair( "KEY_SPORT", KEY_SPORT );
+			setMapPair( "KEY_SHOP", KEY_SHOP );
+			setMapPair( "KEY_ALTERASE", KEY_ALTERASE );
+			setMapPair( "KEY_CANCEL", KEY_CANCEL );
+			setMapPair( "KEY_BRIGHTNESSDOWN", KEY_BRIGHTNESSDOWN );
+			setMapPair( "KEY_BRIGHTNESSUP", KEY_BRIGHTNESSUP );
+			setMapPair( "KEY_MEDIA", KEY_MEDIA );
+			
+			setMapPair( "KEY_SWITCHVIDEOMODE", KEY_SWITCHVIDEOMODE );
+			setMapPair( "KEY_KBDILLUMTOGGLE", KEY_KBDILLUMTOGGLE );
+			setMapPair( "KEY_KBDILLUMDOWN", KEY_KBDILLUMDOWN );
+			setMapPair( "KEY_KBDILLUMUP", KEY_KBDILLUMUP );
+
+			setMapPair( "KEY_SEND", KEY_SEND );
+			setMapPair( "KEY_REPLY", KEY_REPLY );
+			setMapPair( "KEY_FORWARDMAIL", KEY_FORWARDMAIL );
+			setMapPair( "KEY_SAVE", KEY_SAVE );
+			setMapPair( "KEY_DOCUMENTS", KEY_DOCUMENTS );
+			
+			setMapPair( "KEY_BATTERY", KEY_BATTERY );
+			
+			setMapPair( "KEY_BLUETOOTH", KEY_BLUETOOTH );
+			setMapPair( "KEY_WLAN", KEY_WLAN );
+			setMapPair( "KEY_UWB", KEY_UWB );
+			
+			setMapPair( "KEY_UNKNOWN", KEY_UNKNOWN );
+			
+			setMapPair( "KEY_VIDEO_NEXT", KEY_VIDEO_NEXT );
+			setMapPair( "KEY_VIDEO_PREV", KEY_VIDEO_PREV );
+			setMapPair( "KEY_BRIGHTNESS_CYCLE", KEY_BRIGHTNESS_CYCLE );
+			setMapPair( "KEY_BRIGHTNESS_ZERO", KEY_BRIGHTNESS_ZERO );
+			setMapPair( "KEY_DISPLAY_OFF", KEY_DISPLAY_OFF );
+
+			setMapPair( "KEY_WIMAX", KEY_WIMAX );
+			setMapPair( "KEY_RFKILL", KEY_RFKILL );
+			
+			setMapPair( "KEY_MICMUTE", KEY_MICMUTE );
+		
+		}
+		
+		
+	};  //class cMapperKeyCode
+	
+	/**
+	 * Converts the given string to a long number.
+	 *
+	 * @param inString the string from which to read the number
+	 * @return the readed number
+	 */
+	long stringToLong( const wstring & inString ) {
+		
+		return wcstol( inString.c_str(), NULL, 10 );
+	}
+
+
+	/**
+	 * Converts the given string to a long number.
+	 *
+	 * @param inString the string from which to read the number
+	 * @return the readed number
+	 */
+	long stringToLong( const string & inString ) {
+		
+		return strtol( inString.c_str(), NULL, 10 );
+	}
+
+	
+};//end namespace nCallKeybordFunction
+
+using namespace nDataGlove::nMapper::nCallKeybordFunction;
+
+	cMapperKeybordFunction cCallKeybordFunction::mapperKeybordFunction;
+	cMapperKeyCode cCallKeybordFunction::mapperKeyCode;
+
+};//end namespace nMapper
+};//end namespace nDataGlove
+
+
+
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+
+/**
+ * constructor
+ *
+ * @param inSzParameters A string with parameters for the call to a key code
+ * @param bInPrepareNeeded if true preparing the keyboard function is
+ * 	needed, else not
+ * 	@see bPrepareNeeded
+ * 	@see cCallPrepareKeybordFunction
+ */
+cCallKeybordFunction::cCallKeybordFunction( const std::wstring inSzParameters,
+		const bool bInPrepareNeeded ) :
+		keybordFunction( KEYBOARD_NON ),
+		keybordFunctionForOperator( KEYBOARD_NON ),
+		keyCode1( 0 ), keyCode2( 0 ), cChar( 0x0 ),
+		bPrepareNeeded( bInPrepareNeeded ) {
+	
+	analyseAndSetParameters( inSzParameters );
+}
+
+
+/**
+ * constructor
+ *
+ * @param cChar The char/key, which will be prepared with this operator.
+ * 	@see cChar
+ * 	@see keybordFunction
+ * @param bInPrepareNeeded if true preparing the keyboard function is
+ * 	needed, else not
+ * 	@see bPrepareNeeded
+ * 	@see cCallPrepareKeybordFunction
+ */
+cCallKeybordFunction::cCallKeybordFunction( const wchar_t cInChar,
+	const bool bInPrepareNeeded ) :
+		keybordFunction( CHAR ), keyCode1( 0 ), keyCode2( 0 ),
+		cChar( cInChar ), bPrepareNeeded( bInPrepareNeeded ) {
+	
+	charToOperatorFunction( cInChar );
+}
+
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
 
 
 /**
@@ -79,12 +588,13 @@ using namespace std;
  */
 cCallKeybordFunction::cCallKeybordFunction( const std::string inSzParameters,
 		const bool bInPrepareNeeded ) :
-		keybordFunction( NON ),
-		keybordFunctionForOperator( NON ),
+		keybordFunction( KEYBOARD_NON ),
+		keybordFunctionForOperator( KEYBOARD_NON ),
 		keyCode1( 0 ), keyCode2( 0 ), cChar( 0x0 ),
 		bPrepareNeeded( bInPrepareNeeded ) {
 	
-	analyseAndSetParameters( inSzParameters );
+	analyseAndSetParameters( wstring(
+		inSzParameters.begin(), inSzParameters.end() ) );
 }
 
 
@@ -182,7 +692,6 @@ cCallKeybordFunction::cCallKeybordFunction( const eKeybordFunction inKeybordFunc
 		cChar( 0x0 ), bPrepareNeeded( bInPrepareNeeded ) {
 	
 	keyboardFunctionToOperatorFunction( inKeybordFunction );
-	
 }
 
 
@@ -311,6 +820,40 @@ void cCallKeybordFunction::end() {
 
 
 /**
+ * This method sets the parameter for the operation.
+ * The parameter are readed from the given string.
+ *
+ * @param szFunctionParameter all parameters for this functor operation
+ * 	as a string
+ * @return true if the parameter could be set, else false
+ */
+bool cCallKeybordFunction::setParameter( const string & szFunctionParameter ) {
+	
+	return analyseAndSetParameters( wstring(
+		szFunctionParameter.begin(), szFunctionParameter.end() ) );
+}
+
+
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+
+/**
+ * This method sets the parameter for the operation.
+ * The parameter are readed from the given string.
+ *
+ * @param szFunctionParameter all parameters for this functor operation
+ * 	as a string
+ * @return true if the parameter could be set, else false
+ */
+bool cCallKeybordFunction::setParameter(
+		const wstring & szFunctionParameter ) {
+	
+	return analyseAndSetParameters( szFunctionParameter );
+}
+
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+
+
+/**
  * @return The keyboard function, which will be prepared
  * 	with this operator.
  * 	If it is "CHAR" cChar contains the to output char.
@@ -383,6 +926,18 @@ bool cCallKeybordFunction::getPrepareNeeded() const {
 wchar_t cCallKeybordFunction::getChar() const {
 	
 	return cChar;
+}
+
+
+/**
+ * @return  The keyboard function, which will be used with this operator.
+ * 	If it is "CHAR" cChar contains the to output char.
+ * 	This function will be used in the operator method.
+ * 	@see keybordFunctionForOperator
+ */
+eKeybordFunction cCallKeybordFunction::getKeybordFunctionForOperator() const {
+	
+	return keybordFunctionForOperator;
 }
 
 
@@ -1115,6 +1670,50 @@ void cCallKeybordFunction::keyboardFunctionToOperatorFunction(
 			keyCode2 = 51;
 		}; break;
 		
+		case SPECIAL_CHAR_DEU_AE: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_1;
+			keyCode1 = 40;
+		}; break;
+		case SPECIAL_CHAR_DEU_UP_AE: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+			keyCode1 = KEY_LEFTSHIFT;
+			keyCode2 = 40;
+		}; break;
+		case SPECIAL_CHAR_DEU_OE: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_1;
+			keyCode1 = 39;
+		}; break;
+		case SPECIAL_CHAR_DEU_UP_OE: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+			keyCode1 = KEY_LEFTSHIFT;
+			keyCode2 = 39;
+		}; break;
+		case SPECIAL_CHAR_DEU_UE: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_1;
+			keyCode1 = 26;
+		}; break;
+		case SPECIAL_CHAR_DEU_UP_UE: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+			keyCode1 = KEY_LEFTSHIFT;
+			keyCode2 = 26;
+		}; break;
+		case SPECIAL_CHAR_DEU_SZ: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_1;
+			keyCode1 = 12;
+		}; break;
+		
+		case DIACRITIC_GRAVE: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+			keyCode1 = KEY_LEFTSHIFT;
+			keyCode2 = 13;
+		}; break;
+		case DIACRITIC_OVERING: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+			keyCode1 = KEY_LEFTSHIFT;
+			keyCode2 = 41;
+		}; break;
+		
+		
 		default: break;  //unknown keybord function
 	};  //end switch inKeybordFunction
 	//fill liKeys
@@ -1133,182 +1732,37 @@ void cCallKeybordFunction::keyboardFunctionToOperatorFunction(
  * This function returns the keyboard function for the given string.
  *
  * @param inSzParameters the string for which to return the keyboard function
- * @return the keyboard function for the given string, or NON if non could
+ * @return the keyboard function for the given string, or KEYBOARD_NON if non could
  * 	be evaluated
  */
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+eKeybordFunction cCallKeybordFunction::getKeyboardFunction(
+		const wstring & inSzParameters ) {
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
 eKeybordFunction cCallKeybordFunction::getKeyboardFunction(
 		const string & inSzParameters ) {
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
 	
-	//create mapping from regular expressions (string) to keyboard function
-	map< string, eKeybordFunction > mapKeybordFunctionExpr;
-	
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"F1", F1 ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"F2", F2 ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"F3", F3 ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"F4", F4 ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"F5", F5 ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"F6", F6 ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"F7", F7 ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"F8", F8 ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"F9", F9 ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"F10", F10 ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"F11", F11 ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"F12", F12 ) );
-	
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"SPACE", SPACE ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"TAB", TAB ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"TABULATOR", TAB ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"BACK_TAB", BACK_TAB ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"BACK_TABULATOR", BACK_TAB ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"ESC", ESC ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"ESCAPE", ESC ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"ENTER", ENTER ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"UPPER_CASE", UPPER_CASE ) );
-	
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"UP", UP ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"DOWN", DOWN ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"LEFT", LEFT ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"RIGHT", RIGHT ) );
-	
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"PAGE_UP", PAGE_UP ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"PAGE UP", PAGE_UP ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"PAGE_DOWN", PAGE_DOWN ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"PAGE DOWN", PAGE_DOWN ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"POS1", POS1 ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"POSITION1", POS1 ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"POS 1", POS1 ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"POSITION 1", POS1 ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"POS_1", POS1 ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"POSITION_1", POS1 ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"HOME", POS1 ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"END", END ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"ENDE", END ) );
-	
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"DELETE", DELETE ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"DEL", DELETE ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"REMOVE", REMOVE ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"ENTF", REMOVE ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"INSERT", INSERT ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"INS", INSERT ) );
-	
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"ALT", ALT ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"CTRL", CTRL ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"STRG", CTRL ) );
-	
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"PRINT", PRINT ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"MENUE", MENUE ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"SCROLL", SCROLL ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"ROLLEN", SCROLL ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"BREAK", BREAK ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"PAUSE", BREAK ) );
-	
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"UNDO", UNDO ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"UNUNDO", UNUNDO ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"REDO", UNUNDO ) );
-	
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"END_APPLICATION", END_APPLICATION ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"COPY", COPY ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"PAST", PAST ) );
-	
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"NEXT_WORD", NEXT_WORD ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"PREVIOS_WORD", PREVIOS_WORD ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"MARK_NEXT_WORD", MARK_NEXT_WORD ) );
-	
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"'\"'", QUOTE ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"'''", SINGLE_QUOTE ) );
-	mapKeybordFunctionExpr.insert( pair< string, eKeybordFunction >(
-		"';'", SEMICOLON ) );
+	if ( inSzParameters.empty() ) {
+		//no keyboard function to evaluate
+		return KEYBOARD_NON;
+	}
 	
 #ifdef FEATURE_READ_DATA_TEXT_WITH_REGEX
-	for ( map< string, eKeybordFunction >::const_iterator
-			itrMapKeybordFunction = mapKeybordFunctionExpr.begin();
-			itrMapKeybordFunction != mapKeybordFunctionExpr.end();
-			++itrMapKeybordFunction ) {
-		if ( regex_match( inSzParameters, regex( itrMapKeybordFunction->first,
-				regex_constants::icase | regex_constants::ECMAScript ) ) ) {
-			//matching string found -> return its keyboard function
-			return itrMapKeybordFunction->second;
-		}
-	}
-	
-#else  //FEATURE_READ_DATA_TEXT_WITH_REGEX
-	
-	for ( map< string, eKeybordFunction >::const_iterator
-			itrMapKeybordFunction = mapKeybordFunctionExpr.begin();
-			itrMapKeybordFunction != mapKeybordFunctionExpr.end();
-			++itrMapKeybordFunction ) {
-
-		if ( itrMapKeybordFunction->first.compare( inSzParameters ) == 0 ) {
-			//matching string found -> return its keyboard function
-			return itrMapKeybordFunction->second;
-		}
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	if ( regex_match( inSzParameters, wregex( L"KEY_*",
+			regex_constants::icase | regex_constants::ECMAScript ) ) ) {
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	if ( regex_match( inSzParameters, regex( szKeyPrefix,
+			regex_constants::icase | regex_constants::ECMAScript ) ) ) {
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+		//no keyboard function begins with "KEY_" -> done (quick exit)
+		return KEYBOARD_NON;
 	}
 #endif  //FEATURE_READ_DATA_TEXT_WITH_REGEX
-	return NON;
+	
+	//map from regular expressions (string) to keyboard function
+	return mapperKeybordFunction( inSzParameters );
 }
 
 
@@ -1319,540 +1773,30 @@ eKeybordFunction cCallKeybordFunction::getKeyboardFunction(
  * @param inSzKeyCode the string for which to return the key code
  * @return the key code for the given string, or 0 if non could be evaluated
  */
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+unsigned int cCallKeybordFunction::readKeyCode(
+		const std::wstring & inSzKeyCode ) {
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
 unsigned int cCallKeybordFunction::readKeyCode(
 		const std::string & inSzKeyCode ) {
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
 	
-	//create mapping from regular expressions (string) to keyboard function
-	map< string, unsigned int > mapKeybordFunctionExpr;
-	
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_ESC", KEY_ESC ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_1", KEY_1 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_2", KEY_2 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_3", KEY_3 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_4", KEY_4 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_5", KEY_5 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_6", KEY_6 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_7", KEY_7 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_8", KEY_8 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_9", KEY_9 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_0", KEY_0 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_MINUS", KEY_MINUS ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_EQUAL", KEY_EQUAL ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_BACKSPACE", KEY_BACKSPACE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_TAB", KEY_TAB ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_Q", KEY_Q ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_W", KEY_W ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_E", KEY_E ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_R", KEY_R ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_T", KEY_T ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_Y", KEY_Y ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_U", KEY_U ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_I", KEY_I ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_O", KEY_O ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_P", KEY_P ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_LEFTBRACE", KEY_LEFTBRACE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_RIGHTBRACE", KEY_RIGHTBRACE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_ENTER", KEY_ENTER ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_LEFTCTRL", KEY_LEFTCTRL ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_A", KEY_A ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_S", KEY_S ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_D", KEY_D ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F", KEY_F ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_G", KEY_G ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_H", KEY_H ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_J", KEY_J ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_K", KEY_K ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_L", KEY_L ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_SEMICOLON", KEY_SEMICOLON ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_APOSTROPHE", KEY_APOSTROPHE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_GRAVE", KEY_GRAVE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_LEFTSHIFT", KEY_LEFTSHIFT ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_SHIFT", KEY_LEFTSHIFT ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_BACKSLASH", KEY_BACKSLASH ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_Z", KEY_Z ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_X", KEY_X ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_C", KEY_C ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_V", KEY_V ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_B", KEY_B ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_N", KEY_N ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_M", KEY_M ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_COMMA", KEY_COMMA ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_DOT", KEY_DOT ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_SLASH", KEY_SLASH ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_RIGHTSHIFT", KEY_RIGHTSHIFT ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KPASTERISK", KEY_KPASTERISK ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_LEFTALT", KEY_LEFTALT ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_SPACE", KEY_SPACE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_CAPSLOCK", KEY_CAPSLOCK ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F1", KEY_F1 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F2", KEY_F2 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F3", KEY_F3 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F4", KEY_F4 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F5", KEY_F5 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F6", KEY_F6 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F7", KEY_F7 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F8", KEY_F8 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F9", KEY_F9 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F10", KEY_F10 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_NUMLOCK", KEY_NUMLOCK ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_SCROLLLOCK", KEY_SCROLLLOCK ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KP7", KEY_KP7 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KP8", KEY_KP8 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KP9", KEY_KP9 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KPMINUS", KEY_KPMINUS ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KP4", KEY_KP4 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KP5", KEY_KP5 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KP6", KEY_KP6 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KPPLUS", KEY_KPPLUS ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KP1", KEY_KP1 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KP2", KEY_KP2 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KP3", KEY_KP3 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KP0", KEY_KP0 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KPDOT", KEY_KPDOT ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_ZENKAKUHANKAKU", KEY_ZENKAKUHANKAKU ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_102ND", KEY_102ND ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F11", KEY_F11 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F12", KEY_F12 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_RO", KEY_RO ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KATAKANA", KEY_KATAKANA ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_HIRAGANA", KEY_HIRAGANA ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_HENKAN", KEY_HENKAN ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KATAKANAHIRAGANA", KEY_KATAKANAHIRAGANA ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_MUHENKAN", KEY_MUHENKAN ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KPJPCOMMA", KEY_KPJPCOMMA ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KPENTER", KEY_KPENTER ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_RIGHTCTRL", KEY_RIGHTCTRL ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KPSLASH", KEY_KPSLASH ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_SYSRQ", KEY_SYSRQ ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_RIGHTALT", KEY_RIGHTALT ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_LINEFEED", KEY_LINEFEED ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_HOME", KEY_HOME ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_UP", KEY_UP ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_PAGEUP", KEY_PAGEUP ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_LEFT", KEY_LEFT ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_RIGHT", KEY_RIGHT ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_END", KEY_END ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_DOWN", KEY_DOWN ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_PAGEDOWN", KEY_PAGEDOWN ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_INSERT", KEY_INSERT ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_MACRO", KEY_MACRO ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_MUTE", KEY_MUTE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_VOLUMEDOWN", KEY_VOLUMEDOWN ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_VOLUMEUP", KEY_VOLUMEUP ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_POWER", KEY_POWER ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KPEQUAL", KEY_KPEQUAL ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KPPLUSMINUS", KEY_KPPLUSMINUS ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_PAUSE", KEY_PAUSE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_SCALE", KEY_SCALE ) );
-	
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KPCOMMA", KEY_KPCOMMA ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_HANGEUL", KEY_HANGEUL ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_HANGUEL", KEY_HANGUEL ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_HANJA", KEY_HANJA ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_YEN", KEY_YEN ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_LEFTMETA", KEY_LEFTMETA ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_RIGHTMETA", KEY_RIGHTMETA ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_COMPOSE", KEY_COMPOSE ) );
-	
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_STOP", KEY_STOP ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_AGAIN", KEY_AGAIN ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_PROPS", KEY_PROPS ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_UNDO", KEY_UNDO ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_FRONT", KEY_FRONT ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_COPY", KEY_COPY ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_OPEN", KEY_OPEN ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_PASTE", KEY_PASTE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_FIND", KEY_FIND ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_CUT", KEY_CUT ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_HELP", KEY_HELP ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_MENU", KEY_MENU ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_CALC", KEY_CALC ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_SETUP", KEY_SETUP ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_SLEEP", KEY_SLEEP ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_WAKEUP", KEY_WAKEUP ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_FILE", KEY_FILE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_SENDFILE", KEY_SENDFILE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_DELETEFILE", KEY_DELETEFILE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_XFER", KEY_XFER ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_PROG1", KEY_PROG1 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_PROG2", KEY_PROG2 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_WWW", KEY_WWW ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_MSDOS", KEY_MSDOS ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_COFFEE", KEY_COFFEE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_SCREENLOCK", KEY_SCREENLOCK ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_DIRECTION", KEY_DIRECTION ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_CYCLEWINDOWS", KEY_CYCLEWINDOWS ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_MAIL", KEY_MAIL ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_BOOKMARKS", KEY_BOOKMARKS ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_COMPUTER", KEY_COMPUTER ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_BACK", KEY_BACK ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_FORWARD", KEY_FORWARD ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_CLOSECD", KEY_CLOSECD ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_EJECTCD", KEY_EJECTCD ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_EJECTCLOSECD", KEY_EJECTCLOSECD ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_NEXTSONG", KEY_NEXTSONG ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_PLAYPAUSE", KEY_PLAYPAUSE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_PREVIOUSSONG", KEY_PREVIOUSSONG ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_STOPCD", KEY_STOPCD ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_RECORD", KEY_RECORD ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_REWIND", KEY_REWIND ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_PHONE", KEY_PHONE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_ISO", KEY_ISO ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_CONFIG", KEY_CONFIG ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_HOMEPAGE", KEY_HOMEPAGE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_REFRESH", KEY_REFRESH ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_EXIT", KEY_EXIT ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_MOVE", KEY_MOVE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_EDIT", KEY_EDIT ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_SCROLLUP", KEY_SCROLLUP ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_SCROLLDOWN", KEY_SCROLLDOWN ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KPLEFTPAREN", KEY_KPLEFTPAREN ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KPRIGHTPAREN", KEY_KPRIGHTPAREN ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_NEW", KEY_NEW ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_REDO", KEY_REDO ) );
-	
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F13", KEY_F13 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F14", KEY_F14 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F15", KEY_F15 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F16", KEY_F16 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F17", KEY_F17 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F18", KEY_F18 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F19", KEY_F19 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F20", KEY_F20 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F21", KEY_F21 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F22", KEY_F22 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F23", KEY_F23 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_F24", KEY_F24 ) );
-	
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_PLAYCD", KEY_PLAYCD ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_PAUSECD", KEY_PAUSECD ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_PROG3", KEY_PROG3 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_PROG4", KEY_PROG4 ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_DASHBOARD", KEY_DASHBOARD ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_SUSPEND", KEY_SUSPEND ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_CLOSE", KEY_CLOSE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_PLAY", KEY_PLAY ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_FASTFORWARD", KEY_FASTFORWARD ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_BASSBOOST", KEY_BASSBOOST ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_PRINT", KEY_PRINT ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_HP", KEY_HP ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_CAMERA", KEY_CAMERA ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_SOUND", KEY_SOUND ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_QUESTION", KEY_QUESTION ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_EMAIL", KEY_EMAIL ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_CHAT", KEY_CHAT ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_SEARCH", KEY_SEARCH ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_CONNECT", KEY_CONNECT ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_FINANCE", KEY_FINANCE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_SPORT", KEY_SPORT ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_SHOP", KEY_SHOP ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_ALTERASE", KEY_ALTERASE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_CANCEL", KEY_CANCEL ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_BRIGHTNESSDOWN", KEY_BRIGHTNESSDOWN ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_BRIGHTNESSUP", KEY_BRIGHTNESSUP ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_MEDIA", KEY_MEDIA ) );
-	
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_SWITCHVIDEOMODE", KEY_SWITCHVIDEOMODE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KBDILLUMTOGGLE", KEY_KBDILLUMTOGGLE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KBDILLUMDOWN", KEY_KBDILLUMDOWN ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_KBDILLUMUP", KEY_KBDILLUMUP ) );
-
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_SEND", KEY_SEND ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_REPLY", KEY_REPLY ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_FORWARDMAIL", KEY_FORWARDMAIL ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_SAVE", KEY_SAVE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_DOCUMENTS", KEY_DOCUMENTS ) );
-	
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_BATTERY", KEY_BATTERY ) );
-	
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_BLUETOOTH", KEY_BLUETOOTH ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_WLAN", KEY_WLAN ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_UWB", KEY_UWB ) );
-	
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_UNKNOWN", KEY_UNKNOWN ) );
-	
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_VIDEO_NEXT", KEY_VIDEO_NEXT ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_VIDEO_PREV", KEY_VIDEO_PREV ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_BRIGHTNESS_CYCLE", KEY_BRIGHTNESS_CYCLE ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_BRIGHTNESS_ZERO", KEY_BRIGHTNESS_ZERO ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_DISPLAY_OFF", KEY_DISPLAY_OFF ) );
-
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_WIMAX", KEY_WIMAX ) );
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_RFKILL", KEY_RFKILL ) );
-	
-	mapKeybordFunctionExpr.insert( pair< string, unsigned int >(
-		"KEY_MICMUTE", KEY_MICMUTE ) );
-	
-#ifdef FEATURE_READ_DATA_TEXT_WITH_REGEX
-	for ( map< string, unsigned int >::const_iterator
-			itrMapKeybordFunction = mapKeybordFunctionExpr.begin();
-			itrMapKeybordFunction != mapKeybordFunctionExpr.end();
-			++itrMapKeybordFunction ) {
-		if ( regex_match( inSzKeyCode, regex( itrMapKeybordFunction->first,
-				regex_constants::icase | regex_constants::ECMAScript ) ) ) {
-			//matching string found -> return its key code
-			return itrMapKeybordFunction->second;
-		}
+	if ( inSzKeyCode.empty() ) {
+		//no string to check
+		return 0;
 	}
-	
-#else  //FEATURE_READ_DATA_TEXT_WITH_REGEX
-	
-	for ( map< string, unsigned int >::const_iterator
-			itrMapKeybordFunction = mapKeybordFunctionExpr.begin();
-			itrMapKeybordFunction != mapKeybordFunctionExpr.end();
-			++itrMapKeybordFunction ) {
-
-		if ( itrMapKeybordFunction->first.compare( inSzKeyCode ) == 0 ) {
-			//matching string found -> return its key code
-			break itrMapKeybordFunction->second;
-		}
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	if ( ! regex_match( inSzKeyCode, wregex( L"KEY_*",
+			regex_constants::icase | regex_constants::ECMAScript ) ) ) {
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	if ( ! regex_match( inSzKeyCode, regex( "KEY_*",
+			regex_constants::icase | regex_constants::ECMAScript ) ) ) {
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+		//all key codes begin with "KEY_" -> done (quick exit)
+		return stringToLong( inSzKeyCode );
 	}
-#endif  //FEATURE_READ_DATA_TEXT_WITH_REGEX
-	
-	return atoi( inSzKeyCode.c_str() );
+	//map to key code
+	return mapperKeyCode( inSzKeyCode );
 }
 
 
@@ -1869,11 +1813,15 @@ unsigned int cCallKeybordFunction::readKeyCode(
  *
  * @param inSzParameters the string with the parameters for the keyboard function
  */
-void cCallKeybordFunction::analyseAndSetParameters( const string & inSzParameters ) {
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+bool cCallKeybordFunction::analyseAndSetParameters( const wstring & inSzParameters ) {
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+bool cCallKeybordFunction::analyseAndSetParameters( const string & inSzParameters ) {
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
 	
-	if ( inSzParameters == "" ) {
+	if ( inSzParameters.empty() ) {
 		//no parameters -> no keyboard function
-		return;
+		return false;
 	}
 	if ( inSzParameters.size() == 1 ) {
 		//char given
@@ -1881,75 +1829,80 @@ void cCallKeybordFunction::analyseAndSetParameters( const string & inSzParameter
 		keybordFunction = CHAR;
 		
 		charToOperatorFunction( cChar );
-		return;
+		return true;
 	}  //else more than one char in string
 	
 	//try to get a keyboard function
 	const eKeybordFunction keybordFunctionTmp =
 		getKeyboardFunction( inSzParameters );
-	if ( keybordFunctionTmp != NON ) {
+	if ( keybordFunctionTmp != KEYBOARD_NON ) {
 		//set read keyboard function
 		keyboardFunctionToOperatorFunction( keybordFunctionTmp );
-	} else {  //read the keys into liKeys
-		string szKeyCode;
-		unsigned int iReadedKey = 0;
-		unsigned int iIndexNextParameter = 0;
-		unsigned int iIndexActualParameter = 0;
-		while ( iIndexNextParameter < inSzParameters.size() ) {
-			//while more parameter to read
+		return true;
+	}// else read the keys into liKeys
+	bool bAnalyseOk = true;
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	wstring szKeyCode;
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	string szKeyCode;
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	unsigned int iReadedKey = 0;
+	unsigned int iIndexNextParameter = 0;
+	unsigned int iIndexActualParameter = 0;
+	while ( iIndexNextParameter < inSzParameters.size() ) {
+		//while more parameter to read
+		
+		do {
+			iIndexNextParameter = inSzParameters.find( ',', iIndexNextParameter );
 			
-//TODO weg
-if ( inSzParameters == "YEN" ) {
-	
-	iIndexNextParameter = iIndexNextParameter;
-}
-
-			do {
-				iIndexNextParameter = inSzParameters.find ( ',', iIndexNextParameter );
-				
-				if ( ( iIndexNextParameter == string::npos ) ||
-						( inSzParameters.size() < iIndexNextParameter ) ) {
-					//next comma ',' not found -> read till end
-					iIndexNextParameter = inSzParameters.size();
-					break;
-				}
-			} while ( ( iIndexNextParameter == 0 ) ||
-					//or ',' is masked
-					( inSzParameters.at( iIndexNextParameter - 1 ) == '\\' ) );
-			//szKeyCode contains the part betwean two commas ','
-			szKeyCode = inSzParameters.substr( iIndexActualParameter,
-				iIndexNextParameter - iIndexActualParameter );
-			
-			iIndexActualParameter = iIndexNextParameter;
-			//discard comma ','
-			iIndexNextParameter++;
+			if ( ( iIndexNextParameter == string::npos ) ||
+					( inSzParameters.size() <= iIndexNextParameter ) ) {
+				//next comma ',' not found -> read till end
+				iIndexNextParameter = inSzParameters.size();
+				break;
+			}
+		} while ( ( iIndexNextParameter == 0 ) ||
+				//or ',' is masked
+				( inSzParameters.at( iIndexNextParameter - 1 ) == '\\' ) );
+		//szKeyCode contains the part betwean two commas ','
+		szKeyCode = inSzParameters.substr( iIndexActualParameter,
+			iIndexNextParameter - iIndexActualParameter );
+		
+		iIndexActualParameter = iIndexNextParameter;
+		//discard comma ','
+		iIndexNextParameter++;
+		if ( ! szKeyCode.empty() ) {
 			//read the next key code
 			iReadedKey = readKeyCode( szKeyCode );
 			if ( iReadedKey != 0 ) {
 				liKeys.push_back( iReadedKey );
-			}  //else unknown key
-		}  //end while more parameter to read
-		
-		//fill keyCode1 and keyCode2
-		std::list< unsigned int >::const_iterator itrKey = liKeys.begin();
-		if ( itrKey != liKeys.end() ) {
-			//set first key code
-			keyCode1 = (*itrKey);
-			itrKey++;
-			if ( itrKey != liKeys.end() ) {
-				//set second key code
-				keyCode2 = (*itrKey);
+			} else {  //unknown key
+				bAnalyseOk = false;
 			}
 		}
-		
-		if ( liKeys.size() == 1 ) {
-			//exactly one key code
-			keybordFunctionForOperator = INPUT_KEY_CODE_1;
-		} else if ( liKeys.size() == 2 ) {
-			//exactly two key codes
-			keybordFunctionForOperator = INPUT_KEY_CODE_2;
+	}  //end while more parameter to read
+	
+	//fill keyCode1 and keyCode2
+	std::list< unsigned int >::const_iterator itrKey = liKeys.begin();
+	if ( itrKey != liKeys.end() ) {
+		//set first key code
+		keyCode1 = (*itrKey);
+		itrKey++;
+		if ( itrKey != liKeys.end() ) {
+			//set second key code
+			keyCode2 = (*itrKey);
 		}
 	}
+	
+	if ( liKeys.size() == 1 ) {
+		//exactly one key code
+		keybordFunctionForOperator = INPUT_KEY_CODE_1;
+	} else if ( liKeys.size() == 2 ) {
+		//exactly two key codes
+		keybordFunctionForOperator = INPUT_KEY_CODE_2;
+	}
+	
+	return bAnalyseOk && ( ! liKeys.empty() );
 }
 
 

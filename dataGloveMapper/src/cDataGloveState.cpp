@@ -65,14 +65,20 @@ using namespace nDataGlove::nMapper;
  * 	Note: The given call function object will be owned by this object,
  * 		and will be deleted by it. (Don't delete it!)
  * 	@see pCallFunction
+ * @param bInOwnsCallFunction  If this object owns the the function
+ * 	(true), which should be called in this state, or not.
+ * 	If true pCallFunction will be deleted by this object else not.
+ * 	@see bOwnsCallFunction
  * @param iInRepeatAllMilliSecondsAll this milli seconds the call function is called.
  * 	If 0 the call function will be repeated once.
  * 	@see iRepeatAllMilliSecondsAll
  */
 cDataGloveState::cDataGloveState( const int iInModus,
 		iCallFunction * pInCallFunction,
+		const bool bInOwnsCallFunction,
 		const unsigned int iInRepeatAllMilliSecondsAll ) : iModus( iInModus ),
 		pCallFunction( pInCallFunction ),
+		bOwnsCallFunction( bInOwnsCallFunction ),
 		iRepeatAllMilliSeconds( iInRepeatAllMilliSecondsAll ), ulCalls( 0 ) {
 	//nothing to do
 }
@@ -92,6 +98,10 @@ cDataGloveState::cDataGloveState( const int iInModus,
  * 	Note: The given call function object will be owned by this object,
  * 	and will be deleted by it. (Don't delete it!)
  * 	@see pCallFunction
+ * @param bInOwnsCallFunction  If this object owns the the function
+ * 	(true), which should be called in this state, or not.
+ * 	If true pCallFunction will be deleted by this object else not.
+ * 	@see bOwnsCallFunction
  * @param iInRepeatAllMilliSecondsAll this milli seconds the call
  * 	function is called.
  * 	If 0 the call function will be repeated once.
@@ -102,9 +112,11 @@ cDataGloveState::cDataGloveState( const int iInModus,
 				cMessageSamplingDataFromDataGlove::tTypeSamplingValue,
 				cInterval * > mapInStateArea,
 		iCallFunction * pInCallFunction,
+		bool bInOwnsCallFunction,
 		const unsigned int iInRepeatAllMilliSecondsAll ) : iModus( iInModus ),
 		mapStateArea( mapInStateArea ),
 		pCallFunction( pInCallFunction ),
+		bOwnsCallFunction( bInOwnsCallFunction ),
 		iRepeatAllMilliSeconds( iInRepeatAllMilliSecondsAll ), ulCalls( 0 ) {
 	//nothing to do
 }
@@ -123,7 +135,7 @@ cDataGloveState::~cDataGloveState() {
 		
 		delete itrValueArea->second;
 	}
-	if ( pCallFunction ) {
+	if ( bOwnsCallFunction && ( pCallFunction != NULL ) ) {
 		delete pCallFunction;
 	}
 }

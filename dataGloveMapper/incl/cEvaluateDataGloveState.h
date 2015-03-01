@@ -63,7 +63,12 @@ History:
 #include <iostream>
 
 #include "cBorderDataGloveState.h"
+#include "cIntervalCorrection.h"
 
+//TODO try again if codecvt is implemented in gcc
+//#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+//	#define FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+//#endif //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
 
 namespace nDataGlove{
 
@@ -143,7 +148,57 @@ public:
 	 * 	glove states
 	 * @return true if the data glove states where read, else false
 	 */
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	bool loadDataGloveStates( std::wistream & streamDataGloveStates );
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
 	bool loadDataGloveStates( std::istream & streamDataGloveStates );
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	
+	/**
+	 * This method reads the data glove states from the given stream into
+	 * this object.
+	 * The column's should be seperated by a semikolon ';' . Each rows
+	 * should be written in a seperate line.
+	 * The first line of the stream should be the headlines for the rows.
+	 * Possible headlines are:
+	 * 	* "MODUS": the modus of the state
+	 * 		@see cDataGloveState::iModus
+	 * 	* "function": the function which to call in the state
+	 * 		@see iCallFunction
+	 * 		@see cDataGloveState::pCallFunction
+	 * 	* "parmeter": the parameter for the call to the function
+	 * 		@see iCallFunction
+	 * 		@see cDataGloveState::pCallFunction
+	 * 	* "repeat delay":  All this milli seconds the call function is called.
+	 * 		If 0 the call function will be repeated once.
+	 * 		@see cDataGloveState::iRepeatAllMilliSeconds
+	 * 	* The sampling data types tTypeSamplingValue followed by "MIN",
+	 * 	  "MAX" or "TARGET". The tTypeSamplingValue can be for example
+	 * 	  "FINGER_1", "QUATERNION_3" or "ACCELEROMETER_X" .
+	 * 	  The given values in the row, will indicate the interval for
+	 * 	  data glove values of the type. If no value is given, no interval
+	 * 	  for the state for this type of data glove sampling value will be
+	 * 	  created.
+	 * 	** tTypeSamplingValue + " MIN": The minimum value the sampling
+	 * 	   value in the state should have.
+	 * 	** tTypeSamplingValue + " MAX": The maximum value the sampling
+	 * 	   value in the state should have.
+	 * 	** tTypeSamplingValue + " TARGET": The target value for the
+	 * 	   sampling value in the state.
+	 * 	* "calls": How often the state function was called.
+	 * 
+	 * Example: "
+	 * 	MODUS;function;parmeter;repeat delay;;FINGER_1 MIN;FINGER_1 MAX;FINGER_1 TARGET;;FINGER_2 MIN;FINGER_2 MAX;FINGER_2 TARGET;;FINGER_3 MIN;FINGER_3 MAX;FINGER_3 TARGET;;FINGER_4 MIN;FINGER_4 MAX;FINGER_4 TARGET;;FINGER_5 MIN;FINGER_5 MAX;FINGER_5 TARGET;;QUATERNION_1 MIN;QUATERNION_1 MAX;QUATERNION_1 TARGET;;QUATERNION_2 MIN;QUATERNION_2 MAX;QUATERNION_2 TARGET;;QUATERNION_3 MIN;QUATERNION_3 MAX;QUATERNION_3 TARGET;;QUATERNION_4 MIN;QUATERNION_4 MAX;QUATERNION_4 TARGET;calls
+	 * 	1;prepareKey;e;0;;50;250;200;;250;600;450;;600;800;700;;750;900;850;;700;800;750;;;;;;10000;20000;15000;;;;;;;;;
+	 * 	"
+	 *
+	 * @param streamDataGloveStates the stream from which to read the data
+	 * 	glove states
+	 * @return true if the data glove states where read, else false
+	 */
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	bool loadDataGloveStates( const std::wstring & szPathDataGloveStates );
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
 	
 	/**
 	 * This method reads the data glove states from the given stream into
@@ -189,6 +244,8 @@ public:
 	 */
 	bool loadDataGloveStates( const std::string & szPathDataGloveStates );
 	
+	
+	
 /*TODO later
 	bool storeDataGloveStates( std::ostream & streamDataGloveStates );
 	
@@ -198,6 +255,69 @@ public:
 	
 */
 	
+
+	/**
+	 * Adds a function to call.
+	 *
+	 * @see mapToUseCallFunctions
+	 * @param szFunctionParameterName the parameter name of the function,
+	 * 	for which to add the call function, like given in the data glove
+	 * 	state stream
+	 * 	@see loadDataGloveStates()
+	 * @param pCallFunction a pointer to the function to call
+	 * @return true if the function could be added, else false (e.g.
+	 * 	a function with the same name exists allready)
+	 */
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	bool addToUseCallFunction( const std::wstring & szFunctionParameterName,
+		iCallFunction * pCallFunction );
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	
+	/**
+	 * Adds a function to call.
+	 *
+	 * @see mapToUseCallFunctions
+	 * @param szFunctionParameterName the parameter name of the function,
+	 * 	for which to add the call function, like given in the data glove
+	 * 	state stream
+	 * 	@see loadDataGloveStates()
+	 * @param pCallFunction a pointer to the function to call
+	 * @return true if the function could be added, else false (e.g.
+	 * 	a function with the same name exists allready)
+	 */
+	bool addToUseCallFunction( const std::string & szFunctionParameterName,
+		iCallFunction * pCallFunction );
+	
+	/**
+	 * @return a map with the a functions to call
+	 * 	Elements:
+	 * 	key: he parameter name of the function, for which to
+	 * 		add the call function, like given in the data glove state stream
+	 * 		@see loadDataGloveStates()
+	 * 	value: a pointer to the to use function
+	 * 	@see mapToUseCallFunctions
+	 */
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	std::map< std::wstring, iCallFunction * > getToUseCallFunction();
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	std::map< std::string, iCallFunction * > getToUseCallFunction();
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	
+	/**
+	 * Removes the function to call.
+	 *
+	 * @see mapToUseCallFunctions
+	 * @param szFunctionParameterName the parameter name of the function,
+	 * 	for which to remove the call function, like given in the data glove
+	 * 	state stream
+	 * 	@see loadDataGloveStates()
+	 * @return true if the function could be removed, else false
+	 */
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	bool removeToUseCallFunction( const std::wstring & szFunctionParameterName );
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	bool removeToUseCallFunction( const std::string & szFunctionParameterName );
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
 	
 protected:
 	
@@ -267,9 +387,32 @@ protected:
 	 * @return a pointer to the call function object (pleas delete), or
 	 * 	NULL if non could be created
 	 */
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	iCallFunction * createCallFunction( const std::wstring & szFunction,
+		const std::wstring & szFunctionParameter );
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	iCallFunction * createCallFunction( const std::string & szFunction,
+		const std::string & szFunctionParameter );
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	
+	/**
+	 * Returns the call function with the given parameters.
+	 *
+	 * @see loadDataGloveStates()
+	 * @see iCallFunction
+	 * @param szFunction the name of the function for which to return the
+	 * 	call function
+	 * @param szFunctionParameter the parameter for the call function to return
+	 * @return a pointer to the call function object (do not delete), or
+	 * 	NULL if non could be created
+	 */
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	iCallFunction * getCallFunction( const std::wstring & szFunction,
+		const std::wstring & szFunctionParameter );
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
 	iCallFunction * getCallFunction( const std::string & szFunction,
 		const std::string & szFunctionParameter );
-	
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
 	
 	
 	/**
@@ -280,6 +423,33 @@ protected:
 	 * @return the given string wthout the leading and trailing delimiters
 	 * 	chars
 	 */
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	inline std::wstring trim_copy(
+			const std::wstring & szString,
+			const std::wstring & szDelimiters = L" \f\n\r\t\v" ) {
+		
+		DEBUG_OUT_L4(<<"cEvaluateDataGloveState("<<this<<")::trim_copy( szString=\""<<szString<<"\", szDelimiters=\""<<szDelimiters<<"\") called"<<endl<<flush);
+		
+		size_t iFirstToInclude = szString.find_first_not_of( szDelimiters );
+		
+		if ( iFirstToInclude == std::wstring::npos ) {
+			//no szDelimiters found -> include string from the start
+			iFirstToInclude = 0;
+		}
+		size_t iLastToInclude = szString.find_last_not_of( szDelimiters );
+		
+		if ( iLastToInclude == std::wstring::npos ) {
+			//no szDelimiters found -> include string till the end
+			iLastToInclude = szString.size() - iFirstToInclude;
+		} else {
+			iLastToInclude = iLastToInclude - iFirstToInclude + 1;
+		}
+		
+		DEBUG_OUT_L4(<<"cEvaluateDataGloveState("<<this<<")::trim_copy() szString(=\""<<szString<<"\").substr( iFirstToInclude="<<iFirstToInclude<<", iLastToInclude="<<iLastToInclude<<" )"<<endl<<flush);
+	
+		return szString.substr( iFirstToInclude, iLastToInclude );
+	}
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
 	inline std::string trim_copy(
 			const std::string & szString,
 			const std::string & szDelimiters = " \f\n\r\t\v" ) {
@@ -305,6 +475,7 @@ protected:
 	
 		return szString.substr( iFirstToInclude, iLastToInclude );
 	}
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
 
 	
 //members
@@ -346,6 +517,43 @@ protected:
 	 * A set with all borders, to search for the data glove states.
 	 */
 	std::set< cBorderDataGloveState * > setAllBorders;
+	
+	
+	
+	/**
+	 * A map with to use call functions.
+	 * The value elements are not owned by this object and won't be deleted
+	 * by it.
+	 * Elements:
+	 * 	key: he parameter name of the function, for which to
+	 * 		add the call function, like given in the data glove state stream
+	 * 		@see loadDataGloveStates()
+	 * 	value: a pointer to the to use function
+	 * @see addToUseCallFunction()
+	 * @see getToUseCallFunction()
+	 * @see removeToUseCallFunction()
+	 */
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	std::map< std::wstring, iCallFunction * > mapToUseCallFunctions;
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	std::map< std::string, iCallFunction * > mapToUseCallFunctions;
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
+	
+	/**
+	 * The map with correction objects for the intervals.
+	 *
+	 * For some values (e.g. Quaterion) the message value to hand position
+	 * mapping changes (e.g. no tilt is one time 0 and the other 2000 ).
+	 * The interval corrections are for these cases.
+	 * The correction objects can have a lower and a upper border.
+	 * If a value is lower / higher than the lower / upper border of the
+	 * correction object the correction value will be adapted, so that the
+	 * value is the lower / upper border.
+	 * Every given value will be corrected with the corection value.
+	 */
+	std::map< nModelDataGloveDGTechVHand::cMessageSamplingDataFromDataGlove::
+			tTypeSamplingValue, cIntervalCorrection >
+				mapCorrections;
 	
 public:
 	
@@ -405,6 +613,7 @@ public:
 		std::map< int, cBorderDataGloveState * >::iterator
 			itrNewStartBorder = mapStartBordersForModus.find( iNewModus );
 		if ( itrNewStartBorder == mapStartBordersForModus.end() ) {
+			pActualModusStartBorder = NULL;
 			return false;  //no such modus
 		}  //else set new modus and start border
 		pActualModusStartBorder = itrNewStartBorder->second;

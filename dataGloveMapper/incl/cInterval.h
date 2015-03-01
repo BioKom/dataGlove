@@ -47,6 +47,8 @@ History:
 
 #include <string>
 
+#include "cIntervalCorrection.h"
+
 
 namespace nDataGlove{
 namespace nMapper{
@@ -56,9 +58,13 @@ class cInterval{
 public:
 
 	/**
-	 * The standard constructor for the DGTech VHand data glove handler.
+	 * The standard constructor for the interval.
+	 *
+	 * @param inPIntervalCorrection The pointer to the correction object for
+	 * 	the intervals, or NULL if non exists.
+	 * 	@see pIntervalCorrection
 	 */
-	cInterval();
+	cInterval( const cIntervalCorrection * inPIntervalCorrection = NULL );
 	
 	/**
 	 * The constructor for the DGTech VHand data glove handler.
@@ -81,7 +87,6 @@ public:
 	 * 	@see lTarget
 	 */
 	cInterval( const long lInMin, const long lInMax, const long lInTarget );
-	
 	
 	/**
 	 * @return the name of this class "cInterval"
@@ -131,6 +136,31 @@ protected:
 	 */
 	long lTarget;
 	
+	
+	/**
+	 * The pointer to the correction object for the intervals, or NULL if
+	 * non exists.
+	 *
+	 * For some values (e.g. Quaterion) the message value to hand position
+	 * mapping changes (e.g. no tilt is one time 0 and the other 2000 ).
+	 * The interval corrections are for theas cases.
+	 * The correction objects can have a lower and a upper border.
+	 * If a value is lower / higher than the lower / upper border of the
+	 * correction the correction value will be adapted, so that the value is
+	 * the lower / upper border.
+	 * Every given value will be corrected with the corection value.
+	 *
+	 * @see pIntervalCorrectionUsed
+	 */
+	const cIntervalCorrection * pIntervalCorrection;
+	
+	/**
+	 * True if pIntervalCorrection is set (not NULL), else false.
+	 * @see pIntervalCorrection
+	 */
+	bool bIntervalCorrectionUsed;
+	
+	
 public:  //inline
 	
 	/**
@@ -166,6 +196,13 @@ public:  //inline
 	 */
 	inline bool isIn( const long lInValue ) const {
 		
+		if ( bIntervalCorrectionUsed ) {
+			//use correction object
+			const long lCorrectedvalue = pIntervalCorrection->correct( lInValue );
+			return ( lMinimum <= lCorrectedvalue ) &&
+				( lCorrectedvalue <= lMaximum );
+		}
+		
 		return ( lMinimum <= lInValue ) && ( lInValue <= lMaximum );
 	}
 	
@@ -178,6 +215,12 @@ public:  //inline
 	 */
 	inline long getDistanceToTarget( const long lInValue ) const {
 		
+		if ( bIntervalCorrectionUsed ) {
+			//use correction object
+			const long lCorrectedvalue = pIntervalCorrection->correct( lInValue );
+			return ( lTarget < lCorrectedvalue ) ?
+			( lCorrectedvalue - lTarget ) : ( lTarget - lCorrectedvalue );
+		}
 		return ( lTarget < lInValue ) ?
 			( lInValue - lTarget ) : ( lTarget - lInValue );
 	}

@@ -108,6 +108,15 @@ public:
 	virtual void end();
 	
 	/**
+	 * This method sets the parameter for the operation.
+	 * The parameter are readed from the given string.
+	 *
+	 * @param szModus the number for the modus as a string
+	 * @return true if the parameter could be set, else false
+	 */
+	virtual bool setParameter( const std::string & szModus );
+	
+	/**
 	 * @return The modus, which will be prepared with this operator.
 	 * 	@see iModus
 	 */

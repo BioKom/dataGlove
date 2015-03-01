@@ -76,7 +76,6 @@ using namespace nDataGlove;
  */
 cThreadSamplingMessageEvaluator::cThreadSamplingMessageEvaluator() :
 		cThread(),
-		pLastMessageSamplingDataFromDataGlove( NULL ),
 		pNewMessageSamplingDataFromDataGlove( NULL ),
 		ulMessageCounter( 0 ),
 		uiNumberOfMessagesInActualSecond( 0 ),
@@ -90,6 +89,22 @@ cThreadSamplingMessageEvaluator::cThreadSamplingMessageEvaluator() :
  * destructor
  */
 cThreadSamplingMessageEvaluator::~cThreadSamplingMessageEvaluator() {
+	
+	//delete old sampling messages
+#ifdef CPP_2011
+	mutexMembers.lock();
+#endif  //CPP_2011
+	nModelDataGloveDGTechVHand::cMessageSamplingDataFromDataGlove *
+		pToDeleteMessageSamplingDataFromDataGlove =
+			pNewMessageSamplingDataFromDataGlove;
+	pNewMessageSamplingDataFromDataGlove = NULL;
+
+#ifdef CPP_2011
+	mutexMembers.unlock();
+#endif  //CPP_2011
+	if ( pToDeleteMessageSamplingDataFromDataGlove != NULL ) {
+		delete pToDeleteMessageSamplingDataFromDataGlove;
+	}
 	
 	if ( bIsRunning ) {
 		//stop this thread and wait til it is no more running
@@ -208,7 +223,9 @@ bool cThreadSamplingMessageEvaluator::run() {
 	bIsRunning = true;
 	bStop = false;
 	cMessageSamplingDataFromDataGlove * pMessageToEvaluate = NULL;
-	cDataGloveState * pDataGloveState = NULL;;
+	cDataGloveState * pDataGloveState = NULL;
+	int iModusForDataGloveState = 0;
+	
 	iCallFunction * pCallFunction;
 	while ( ! bStop ) {
 		msleep( 100 );
@@ -232,14 +249,21 @@ bool cThreadSamplingMessageEvaluator::run() {
 		}  //else pReadedMessage != NULL
 		//handle message
 		DEBUG_OUT_L3(<<"cThreadSamplingMessageEvaluator("<<this<<")::run() processing next message: "<<pMessageToEvaluate<<endl<<flush);
+		
 		if ( pDataGloveState != NULL ) {
-			if ( pDataGloveState->isIn( pMessageToEvaluate ) ) {
+			
+			if ( ( pEvaluateDataGloveState != NULL ) &&
+					( iModusForDataGloveState != pEvaluateDataGloveState->getActualModus() ) ) {
+				//modus changed -> old data glove state invalide
+				//pDataGloveState = NULL;
+			} else if ( pDataGloveState->isIn( pMessageToEvaluate ) ) {
 				//state not changed
 				if ( pCallFunction != NULL ) {
 					//TODO if it is time to call the function again, do it
 					
 					
 				}
+				delete pMessageToEvaluate;
 				continue;  //no message nothing to evaluate
 			}//else state changed -> evaluate new state
 			pDataGloveState = NULL;
@@ -265,11 +289,10 @@ bool cThreadSamplingMessageEvaluator::run() {
 						
 					}
 				}
+				iModusForDataGloveState = pEvaluateDataGloveState->getActualModus();
 			}
-			
-			pLastMessageSamplingDataFromDataGlove = pMessageToEvaluate;
 		}
-		
+		delete pMessageToEvaluate;
 	}  //while more messages to read
 	
 	bStop = false;

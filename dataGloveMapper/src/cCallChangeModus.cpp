@@ -131,9 +131,16 @@ bool cCallChangeModus::operator()() {
 		return false;
 	}
 	
-	pEvaluateDataGloveState->setActualModus( iModus );
 #ifdef DEBUG_CHANGE_MODUS
-	cout<<"changing to modus: "<<iModus<<endl;
+	const bool bModusChanged =
+		pEvaluateDataGloveState->setActualModus( iModus );
+	if ( bModusChanged ) {
+		cout<<"modus changed to: "<<iModus<<endl;
+	} else {
+		cout<<"could not chang modus to: "<<iModus<<endl;
+	}
+#else
+	pEvaluateDataGloveState->setActualModus( iModus );
 #endif  //DEBUG_CHANGE_MODUS
 	return true;
 }
@@ -158,6 +165,21 @@ void cCallChangeModus::end() {
 int cCallChangeModus::getModus() const {
 	
 	return iModus;
+}
+
+
+
+/**
+ * This method sets the parameter for the operation.
+ * The parameter are readed from the given string.
+ *
+ * @param szModus the number for the modus as a string
+ * @return true if the parameter could be set, else false
+ */
+bool cCallChangeModus::setParameter( const string & szModus ) {
+	//set modus  parameter
+	iModus = atoi( szModus.c_str() );
+	return true;
 }
 
 

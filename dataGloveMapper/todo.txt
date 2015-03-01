@@ -1,8 +1,18 @@
 Next steps:
+* Mouse
+* Script to evaluate Mouse move mappings
+** grid for index and middle
+*** center hoole
+*** move finger one step -> mouse move = mouse move * factor
 * create cThreadRepeater?
 * optimise load states
 * test virtual keybord
 
+
+=Nice to have=
+
+* for umlaute use wchar (loading from file)
+** cEvaluateDataGloveState
 
 
 

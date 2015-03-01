@@ -81,7 +81,8 @@ cBorderDataGloveState::cBorderDataGloveState( const nDataGlove::nModelDataGloveD
 		cMessageSamplingDataFromDataGlove::tTypeSamplingValue inTypeSamplingValue,
 		const long lInBorderValue ) : pParent( NULL ),
 		typeSamplingValue( inTypeSamplingValue ), lBorderValue( lInBorderValue ),
-		pLowerBorder( NULL ), pHigherBorder( NULL ) {
+		pLowerBorder( NULL ), pHigherBorder( NULL ),
+		pIntervalCorrection( NULL ), bIntervalCorrectionUsed( false ) {
 	//nothing to do
 }
 
@@ -428,6 +429,37 @@ void cBorderDataGloveState::setHigherStates(
 		const set< cDataGloveState * > & setInHigherStates ) {
 	
 	higherStates = setInHigherStates;
+}
+
+
+/**
+ * @see pIntervalCorrection
+ * @see bIntervalCorrectionUsed
+ * @see evalueBorderState()
+ * @return The pointer to the correction object for the intervals, or
+ * 	NULL if non exists.
+ */
+const cIntervalCorrection * cBorderDataGloveState::getCorrection() const {
+	
+	return pIntervalCorrection;
+}
+
+
+/**
+ * Sets the pointer to the correction object for he intervals, or NULL
+ * if non exists.
+ *
+ * @see pIntervalCorrection
+ * @see bIntervalCorrectionUsed
+ * @see evalueBorderState()
+ * @param inPIntervalCorrection The pointer to the correction object for
+ * 	the intervals, or NULL if non exists.
+ */
+void cBorderDataGloveState::setCorrection(
+		const cIntervalCorrection * inPIntervalCorrection ) {
+	
+	pIntervalCorrection = inPIntervalCorrection;
+	bIntervalCorrectionUsed = ( pIntervalCorrection != NULL );
 }
 
 

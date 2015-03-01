@@ -1,6 +1,3 @@
-
-//TODO check
-
 /**
  * @file cMessageToDataGlove
  * file name: cMessageToDataGlove.cpp
@@ -32,7 +29,7 @@
  *
  * This file implements the parent class for all DGTech VHand data glove
  * messages, which are send to the data glove.
- * All Messages which the  DGTech VHand data glove can receive should
+ * All Messages which the DGTech VHand data glove can receive should
  * inherit this class.
  * See DG5 VHand 3.0 OEM Technical Datasheet.
  * @see www.dg-tech.it
@@ -60,7 +57,6 @@ using namespace std;
  * The standard constructor for the DGTech VHand data glove message.
  */
 cMessageToDataGlove::cMessageToDataGlove() {
-	
 	//nothing to do
 }
 
@@ -69,7 +65,6 @@ cMessageToDataGlove::cMessageToDataGlove() {
  * The destructor.
  */
 cMessageToDataGlove::~cMessageToDataGlove() {
-	
 	//nothing to do
 }
 

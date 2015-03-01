@@ -1,6 +1,3 @@
-
-//TODO check
-
 /**
  * @file cMessageDataGlove
  * file name: cMessageDataGlove.cpp
@@ -46,10 +43,10 @@ History:
 */
 
 
-//switches for test proposes
+//switches for test proposes:
 //#define DEBUG
 
-//TODO for debugging:
+//switch for debugging:
 //#define DEBUG_PRINT_MESSAGE( MSG, NUM_BYTE ) printMessage( MSG, NUM_BYTE )
 #define DEBUG_PRINT_MESSAGE( MSG, NUM_BYTE )
 
@@ -110,6 +107,9 @@ std::string cMessageDataGlove::getName() const {
  * @param iDataGloveFileDescriptor the data glove file identifer
  * @param uiMsTimeout milli seconds to wait for a new message
  * @param bHeaderRead if true the header was read from the stream, else not
+ * @param bReadTillNextHeader if the first character in the file is not
+ * 	a header character, try to read till the next header
+ * 	just works with ( bHeaderRead = false )
  * @return the data glove message read (please delete after usage),
  * 	or NULL, if non could be read
  */
@@ -119,7 +119,7 @@ cMessageFromDataGlove * cMessageDataGlove::readMessage(
 		const bool bHeaderRead,
 		const bool bReadTillNextHeader ) {
 	
-	DEBUG_OUT_L2(<<"cMessageDataGlove::readMessage( iDataGloveFileDescriptor="<<iDataGloveFileDescriptor<<", uiMsTimeout="<<uiMsTimeout<<", bHeaderRead="<<(bHeaderRead?"yes":"no")<<" ) called"<<endl<<flush);
+	DEBUG_OUT_L2(<<"cMessageDataGlove::readMessage( iDataGloveFileDescriptor="<<iDataGloveFileDescriptor<<", uiMsTimeout="<<uiMsTimeout<<", bHeaderRead="<<(bHeaderRead?"yes":"no")<<", bReadTillNextHeader="<<(bReadTillNextHeader?"yes":"no")<<" ) called"<<endl<<flush);
 	if ( iDataGloveFileDescriptor == -1 ) {
 		//no valid file -> can't read the message
 		DEBUG_OUT_L2(<<"   not a valid file descriptor"<<endl<<flush);
@@ -184,8 +184,8 @@ cMessageFromDataGlove * cMessageDataGlove::readMessage(
 	//check if cCommandChar is valid
 	if ( ( cCommandChar != DATA_GLOVE_D_G_TECH_V_HAND__CMD_GET_ID ) &&
 			( cCommandChar != DATA_GLOVE_D_G_TECH_V_HAND__CMD_START_SAMPLING )
-		) {
 		//TODO more cCommandChar types
+		) {
 		//no valid from message
 		DEBUG_OUT_L2(<<"   no valid from message"<<endl<<flush);
 		return NULL;
@@ -216,7 +216,7 @@ cMessageFromDataGlove * cMessageDataGlove::readMessage(
 	szReadedMessage[ 1 ] = cCommandChar;
 	szReadedMessage[ 2 ] = charReaded;
 	szReadedMessage[ uiReadedMessageSize ] = 0x0;  //add Null character behind message
-	unsigned int uiByte = 3;
+	unsigned int uiByte = 3;  //index of the next to read byte
 	//uiBytesToRead -= 1;
 	
 	DEBUG_OUT_L2(<<"   Reading remaining "<<uiBytesToRead<<" byte of message with size "<<uiReadedMessageSize<<endl<<flush);
@@ -240,12 +240,6 @@ cMessageFromDataGlove * cMessageDataGlove::readMessage(
 			uiByte += iReadStatus;
 			uiBytesToRead -= iReadStatus;
 			
-/*TODO weg integers read could be look like endchar
-			if ( szReadedMessage[ uiByte ] == DATA_GLOVE_D_G_TECH_V_HAND__ENDCHAR ) {
-				//end char read -> entire message read
-				break;
-			}
-*/
 			continue;
 		}//else ( 0 == iReadStatus ) -> no bytes read
 		if ( tmEndTime <= time( NULL ) ) {
@@ -254,7 +248,6 @@ cMessageFromDataGlove * cMessageDataGlove::readMessage(
 		}
 		shortSleep();
 	}
-	
 	
 #else //FEATURE_FAST_DATA_GLOVE_MESSAGE_READ
 	
@@ -368,6 +361,7 @@ bool cMessageDataGlove::writeMessage( const int iDataGloveFileDescriptor ) {
 	return true;
 }
 
+
 /**
  * Prints the given message.
  *
@@ -394,7 +388,6 @@ void cMessageDataGlove::printMessage( const unsigned char * szMessage,
 		printf( "%02X", uiConvertedNumber );
 	}
 	printf( "\"\n" );
-
 }
 
 
