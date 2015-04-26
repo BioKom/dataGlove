@@ -1,9 +1,13 @@
 Next steps:
+* cMapWString -> dosn't work
+** SPACE / ENTER
 * Mouse
-* Script to evaluate Mouse move mappings
-** grid for index and middle
-*** center hoole
-*** move finger one step -> mouse move = mouse move * factor
+** mouse keys
+*** left: pinky down
+*** rigth: pinky + 4 down
+*** double click: roll front
+*** special keys: ??? (roll back?)
+*** mouse wheel: ??? (roll back + index?)
 * create cThreadRepeater?
 * optimise load states
 * test virtual keybord
@@ -17,6 +21,13 @@ Next steps:
 
 
 
+=Data=
 
+==Time load Dataglove states==
+
+Do 16. Apr 20:29:03 CEST 2015
+load data glove states.
+The device "/dev/ttyUSB0" is not a valid data glove DGTech VHand.
+Do 16. Apr 20:29:35 CEST 2015
 
 

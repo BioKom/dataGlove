@@ -242,11 +242,13 @@ bool cThreadMessageHandler::run() {
 		
 		if ( pReadedMessage == NULL ) {
 			//wait a short while till try to read new messages
-			msleep( ulMilliSecondsToWait );
-			ulMilliSecondsToWait += 10;
-			if ( 100 < ulMilliSecondsToWait ) {
+			if ( 0 < ulMilliSecondsToWait ) {
+				msleep( ulMilliSecondsToWait );
+			}
+			ulMilliSecondsToWait += 1;
+			if ( 20 < ulMilliSecondsToWait ) {
 				//wait maximal 1/10 second
-				ulMilliSecondsToWait = 100;
+				ulMilliSecondsToWait = 20;
 			}
 			continue;
 		}  //else pReadedMessage != NULL

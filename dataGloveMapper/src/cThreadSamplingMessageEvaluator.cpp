@@ -225,10 +225,10 @@ bool cThreadSamplingMessageEvaluator::run() {
 	cMessageSamplingDataFromDataGlove * pMessageToEvaluate = NULL;
 	cDataGloveState * pDataGloveState = NULL;
 	int iModusForDataGloveState = 0;
+	unsigned long ulMilliSecondsToWait = 0;
 	
 	iCallFunction * pCallFunction;
 	while ( ! bStop ) {
-		msleep( 100 );
 		//read message
 #ifdef CPP_2011
 		mutexMembers.lock();
@@ -240,13 +240,25 @@ bool cThreadSamplingMessageEvaluator::run() {
 #endif  //CPP_2011
 		
 		if ( pMessageToEvaluate == NULL ) {
-			if ( pCallFunction != NULL ) {
-				//TODO if it is time to call the function again, do it
+			if ( pCallFunction == NULL ) {
+				//nothing to do
+				if ( 0 < ulMilliSecondsToWait ) {
+					msleep( ulMilliSecondsToWait );
+				}
+				ulMilliSecondsToWait += 1;
+				if ( 20 < ulMilliSecondsToWait ) {
+					//wait maximal 1/10 second
+					ulMilliSecondsToWait = 20;
+				}
+			} else {  //TODO if it is time to call the function again, do it
+				ulMilliSecondsToWait = 0;
+				
 				
 				
 			}
 			continue;  //no message nothing to evaluate
 		}  //else pReadedMessage != NULL
+		ulMilliSecondsToWait = 0;
 		//handle message
 		DEBUG_OUT_L3(<<"cThreadSamplingMessageEvaluator("<<this<<")::run() processing next message: "<<pMessageToEvaluate<<endl<<flush);
 		

@@ -78,6 +78,15 @@ History:
  */
 #define DEBUG_CHANGE_MODUS
 
+
+
+/**
+ * Prints messages for the call mouse functions.
+ * @see cCallMouseFunction
+ * @see iCallFunction
+ */
+#define DEBUG_CALL_MOUSE_FUNCTION
+
 /**
  * Prints messages for every prepared keyboard function.
  * @see cCallPrepareKeybordFunction
@@ -89,6 +98,12 @@ History:
  * @see cCallPrepareChangeModus
  */
 #define DEBUG_PREPARED_MODUS_FUNCTION
+
+/**
+ * Prints messages for every intervall correction.
+ * @see cIntervalCorrection
+ */
+#define DEBUG_INTERVAL_CORRECTION
 
 
 /**************************************

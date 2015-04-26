@@ -1,6 +1,3 @@
-
-//TODO check
-
 /**
  * @file cMessageSamplingDataFromDataGlove
  * file name: cMessageSamplingDataFromDataGlove.cpp
@@ -32,7 +29,8 @@
  *
  * This file implements the class for the DGTech VHand data glove
  * messages, which is the sampling data from the data glove.
- * If the get the get Id message is send, this message should be the answer.
+ * If the start sampling message is send, this message (or a lot of these
+ * messages) should be the answer.
  * See DG5 VHand 3.0 OEM Technical Datasheet.
  * @see www.dg-tech.it
  * @see www.dg-tech.it/vhand3/
@@ -57,6 +55,12 @@ using namespace nDataGlove::nModelDataGloveDGTechVHand;
 using namespace std;
 
 
+/**
+ * The types of the message bytes.
+ * For every byte in the message an entry with the type of the element for
+ * the byte is given.
+ * (For every message type there is an entry.)
+ */
 cMessageSamplingDataFromDataGlove::tTypeSamplingValue const
 	cMessageSamplingDataFromDataGlove::mapByteToElementType[ 6 ][ 64 ] = {
 		//sampling message type 0
@@ -125,8 +129,15 @@ cMessageSamplingDataFromDataGlove::tTypeSamplingValue const
 			STATUS, STATUS, CRC, END
 		}
 	};  //end mapByteToElementType
-	
-	
+
+
+/**
+ * This map indicates the beginning byte of the next elements at the given
+ * byte.
+ * Some message elements need more than one byte. If you want to evaluate,
+ * where the next message element begins, look at the byte in this map.
+ * (For every message type there is an entry.)
+ */
 int const cMessageSamplingDataFromDataGlove::mapByteToNextElementByte[ 6 ][ 64 ] =
 	{
 		//sampling message type 0

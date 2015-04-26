@@ -1,6 +1,3 @@
-
-//TODO check
-
 /**
  * @file cMessageSamplingDataFromDataGlove
  * file name: cMessageSamplingDataFromDataGlove.h
@@ -32,7 +29,8 @@
  *
  * This file specifies the class for the DGTech VHand data glove
  * messages, which is the sampling data from the data glove.
- * If the get the get Id message is send, this message should be the answer.
+ * If the start sampling message is send, this message (or a lot of these
+ * messages) should be the answer.
  * See DG5 VHand 3.0 OEM Technical Datasheet.
  * @see www.dg-tech.it
  * @see www.dg-tech.it/vhand3/
@@ -75,12 +73,16 @@ namespace nModelDataGloveDGTechVHand{
 		DIM_Y = 1,
 		DIM_Z = 2
 	};
-	
-	
+
+
 
 class cMessageSamplingDataFromDataGlove : public cMessageFromDataGlove {
 public:
 	
+	/**
+	 * The typ for the parts of the DGTech VHand data glove message.
+	 * (Not every part is available in every message type.)
+	 */
 	enum tTypeSamplingValue{
 		UNKNOWN  = 0,
 		BEGIN    = 1,
@@ -140,7 +142,7 @@ public:
 	 */
 	inline int getSamplingType() const {
 	
-		if ( ( szMessage == NULL ) || ( uiMessageSize <= 4 ) ) {
+		if ( ( szMessage == NULL ) || ( uiMessageSize < 4 ) ) {
 			return 0;
 		}
 		return static_cast<int>( szMessage[ 3 ] );
@@ -159,7 +161,7 @@ public:
 	 */
 	inline unsigned long getClock() const {
 		
-		return read4ByteULong( 7 );
+		return read4ByteULong( 6 );
 	}
 	
 	/**
@@ -386,12 +388,12 @@ public:
 	
 	/**
 	 * Returns the value representing the value of the quaternion data
-	 * (signed integer maximum 32768).
+	 * (signed integer, maximum 32768).
 	 *
 	 * @param uiNumber the number of the data value, for which to return
 	 * 	the quaternion data
 	 * @return value representing the value of the quaternion data
-	 * 	(signed integer maximum 32768)
+	 * 	(signed integer, maximum 32768)
 	 */
 	inline long getQuaternion( const unsigned int uiNumber ) const {
 		
@@ -424,14 +426,14 @@ public:
 	
 	/**
 	 * Returns the value representing the value of the first quaternion data
-	 * (signed integer maximum 32768).
+	 * (signed integer, maximum 32768).
 	 *
 	 * @return value representing the value of the first quaternion data
-	 * 	(signed integer maximum 32768)
+	 * 	(signed integer, maximum 32768)
 	 */
 	inline long getQuaternion1() const {
 		const unsigned int iType = getSamplingType();
-		switch ( iType ) {  //uiNumber * 2 = (uiNumber << 1)
+		switch ( iType ) {
 			case 1:
 			case 2: return read4ByteLong( 10 );
 		};
@@ -452,15 +454,15 @@ public:
 	
 	/**
 	 * Returns the value representing the value of the second quaternion data
-	 * (signed integer maximum 32768).
+	 * (signed integer, maximum 32768).
 	 *
 	 * @return value representing the value of the second quaternion data
-	 * 	(signed integer maximum 32768)
+	 * 	(signed integer, maximum 32768)
 	 */
 	inline long getQuaternion2() const {
 		
 		const unsigned int iType = getSamplingType();
-		switch ( iType ) {  //uiNumber * 2 = (uiNumber << 1)
+		switch ( iType ) {
 			case 1:
 			case 2: return read4ByteLong( 14 );
 		};
@@ -481,14 +483,14 @@ public:
 	
 	/**
 	 * Returns the value representing the value of the third quaternion data
-	 * (signed integer maximum 32768).
+	 * (signed integer, maximum 32768).
 	 *
 	 * @return value representing the value of the third quaternion data
-	 * 	(signed integer maximum 32768)
+	 * 	(signed integer, maximum 32768)
 	 */
 	inline long getQuaternion3() const {
 		const unsigned int iType = getSamplingType();
-		switch ( iType ) {  //uiNumber * 2 = (uiNumber << 1)
+		switch ( iType ) {
 			case 1:
 			case 2: return read4ByteLong( 18 );
 		};
@@ -509,20 +511,23 @@ public:
 	
 	/**
 	 * Returns the value representing the value of the fourth quaternion data
-	 * (signed integer maximum 32768).
+	 * (signed integer, maximum 32768).
 	 *
 	 * @return value representing the value of the fourth quaternion data
-	 * 	(signed integer maximum 32768)
+	 * 	(signed integer, maximum 32768)
 	 */
 	inline long getQuaternion4() const {
 		
 		const unsigned int iType = getSamplingType();
-		switch ( iType ) {  //uiNumber * 2 = (uiNumber << 1)
+		switch ( iType ) {
 			case 1:
 			case 2: return read4ByteLong( 22 );
 		};
 		return 0;
 	}
+
+//TODO check
+
 	
 	/**
 	 * Returns the fraction value representing the value of the fourth

@@ -54,6 +54,11 @@ History:
 
 #include "version.h"
 
+
+#ifdef DEBUG_INTERVAL_CORRECTION
+	#include <iostream>
+#endif  //DEBUG_INTERVAL_CORRECTION
+
 #include <string>
 
 
@@ -200,16 +205,37 @@ public:  //inline functions
 	 */
 	inline long correct( const long lValue ) const {
 		
-		if ( bHasLowerBorder && ( lValue < lLowerBorder ) ) {
+		const long lCorrectedValue = lValue + lCorrectionValue;
+		
+		if ( bHasLowerBorder && ( lCorrectedValue < lLowerBorder ) ) {
+			
+#ifdef DEBUG_INTERVAL_CORRECTION
+		std::cout<<"correct intervall lower border="<<lLowerBorder<<
+			"; value="<<lValue<<
+			"; new correction="<<(lLowerBorder - lValue)<<
+			" (old correction="<<lCorrectionValue<<
+			"; new value="<<(lValue + lCorrectionValue)<<" )"<<std::endl;
+#endif //DEBUG_INTERVAL_CORRECTION
 			
 			lCorrectionValue = lLowerBorder - lValue;
+			
+			return lValue + lCorrectionValue;
 		}
-		if ( bHasUpperBorder && ( lUpperBorder < lValue ) ) {
+		if ( bHasUpperBorder && ( lUpperBorder < lCorrectedValue ) ) {
+#ifdef DEBUG_INTERVAL_CORRECTION
+		std::cout<<"correct intervall upper border="<<lUpperBorder<<
+			"; value="<<lValue<<
+			"; new correction="<<(lUpperBorder - lValue)<<
+			" (old correction="<<lCorrectionValue<<
+			"; new value="<<(lValue + lCorrectionValue)<<" )"<<std::endl;
+#endif //DEBUG_INTERVAL_CORRECTION
 			
 			lCorrectionValue = lUpperBorder - lValue;
+			
+			return lValue + lCorrectionValue;
 		}
 		
-		return lValue + lCorrectionValue;
+		return lCorrectedValue;
 	}
 	
 	

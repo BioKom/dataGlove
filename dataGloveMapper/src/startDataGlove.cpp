@@ -53,7 +53,7 @@ History:
  * Count down till stop the application
  * @deprecated
  */
-#define FEATURE_APPLICATION_COUNT_DOWN
+#define FEATURE_APPLICATION_COUNT_DOWN 900
 
 #include "version.h"
 
@@ -134,7 +134,7 @@ int main(int argc, char* argv[]){
 		
 
 #ifdef FEATURE_APPLICATION_COUNT_DOWN
-		unsigned int uiNextPrint = 180;
+		unsigned int uiNextPrint = FEATURE_APPLICATION_COUNT_DOWN;
 		for ( unsigned int second = uiNextPrint; 0 < second; --second ) {
 			if ( callStopDataGlove.getFlag() ) {
 				break;  //stop this application

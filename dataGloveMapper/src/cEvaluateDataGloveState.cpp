@@ -49,11 +49,6 @@ History:
 */
 
 //for debugging
-#define DEBUG_CALL_FUNCTION
-
-//just simulate the call to the functions
-//TODO weg? #define SIMULATE_CALL_FUNCTION
-
 ///prints information about the created border states
 //#define DEBUG_BORDER_STATES
 
@@ -1461,7 +1456,7 @@ cBorderDataGloveState * cEvaluateDataGloveState::createGoodBorder(
 			
 			std::map< typeDataGloveSamplingData, cInterval * >::const_iterator
 				itrSamplingInterval = mapActualIntervalMap.begin();
-				
+			
 			//search for possible border values in the states
 			cBorderDataGloveState * pNewBorder = NULL;
 			for ( ; itrSamplingInterval != mapActualIntervalMap.end();
@@ -1519,6 +1514,9 @@ cBorderDataGloveState * cEvaluateDataGloveState::createGoodBorder(
 		//not enough states -> no border to create
 		return NULL;
 	}
+	//TODO? if two states just seperate them
+	
+	
 	//evalue all interval (sampling data) types
 	//a list with all states sorted for the number of calls (biggest first)
 	list< cDataGloveState * > liCallsSortedList;
@@ -1546,8 +1544,8 @@ cBorderDataGloveState * cEvaluateDataGloveState::createGoodBorder(
 	unsigned long ulPossibleCallsHigher;
 	//values of the best border to seperate the states
 	unsigned long ulBestCallsSumEachSide = 0;
-	unsigned long ulBestCallsLower  = 0;
-	unsigned long ulBestCallsHigher = 0;
+	unsigned long ulBestPossibleCallsLower  = 0;
+	unsigned long ulBestPossibleCallsHigher = 0;
 	pair< typeDataGloveSamplingData, long > paBestBorderValue(
 		typeDataGloveSamplingData::UNKNOWN, 0 );
 	
@@ -1617,20 +1615,24 @@ cBorderDataGloveState * cEvaluateDataGloveState::createGoodBorder(
 		
 		
 		if ( ( ulMaxNumberOfCalls <= ulBestCallsSumEachSide ) &&
-				( ulMaxNumberOfCalls <= ulBestCallsLower ) &&
-				( ulMaxNumberOfCalls <= ulBestCallsHigher ) ) {
+				( ulMaxNumberOfCalls <= ulBestPossibleCallsLower ) &&
+				( ulMaxNumberOfCalls <= ulBestPossibleCallsHigher ) ) {
 			//can't improve border with this sampling type
 			continue;  //skip sampling type
 		}
+		
 		
 		//Search for value, which has maximum number of calls sum and most
 		//similar sum of calls on both sides, for states just one one side of
 		//the border.
 		bool bHasLowerInterval  = false;
 		bool bHasHigherInterval = false;
-		bool bValueSeperatesIntervalsNotFound = true;
+		bool bValueSeperatesIntervalsFound = false;
 		bool bPartIntervalLower  = false;
 		bool bPartIntervalHigher = false;
+		bool bIsBetterBorder;
+		bool bStopSearchForBorder = false;
+		
 		for ( set< long >::const_iterator
 				itrPossibleValue = setPossibleBorderValues.begin();
 				itrPossibleValue != setPossibleBorderValues.end();
@@ -1666,45 +1668,64 @@ cBorderDataGloveState * cEvaluateDataGloveState::createGoodBorder(
 					ulPossibleCallsHigher -= ulCalls;
 					bHasLowerInterval = true;
 				}
-				if ( ( ulPossibleCallsLower <= ulBestCallsLower ) &&
-						( ulPossibleCallsHigher <= ulBestCallsHigher ) ) {
+				if ( ( bValueSeperatesIntervalsFound ) &&
+						( ulPossibleCallsLower <= ulBestPossibleCallsLower ) &&
+						( ulPossibleCallsHigher <= ulBestPossibleCallsHigher ) ) {
 					//can't improve border with this sampling type and value
 					break;  //skip sampling type and value
 				}
 			}  //end for all states with a interval for the sampling type
 			
-			if ( //just use borders with lower and higher intervals
-					bHasHigherInterval && bHasLowerInterval &&
-				//a value that seperates two intervalls is allways better than one that dos not
-					( bValueSeperatesIntervalsNotFound ||
-				//evalue how good / fit the border is
-					( 0 < ( ulPossibleCallsLower + ulPossibleCallsHigher -
-						ulBestCallsSumEachSide ) +
-					//the factor 256 is choosen, because it is much better to
-					//classify states than just having the border work on them
-					256 * ( abs( ulPossibleCallsLower - ulPossibleCallsHigher ) -
-						abs( ulBestCallsLower - ulBestCallsHigher ) ) ) ) ) {
-				//better than actual best border -> new best border
-				paBestBorderValue.first  = (*itrSamplingType);
-				paBestBorderValue.second = (*itrPossibleValue);
-				ulBestCallsSumEachSide = ulPossibleCallsLower + ulPossibleCallsHigher;
-				bValueSeperatesIntervalsNotFound = false;
-			} else if ( bValueSeperatesIntervalsNotFound &&
-					( ( bHasHigherInterval && bPartIntervalLower ) ||
-						( bHasLowerInterval && bPartIntervalHigher ) ) &&
-				//evalue how good / fit the border is
-					( 0 < ( ulPossibleCallsLower + ulPossibleCallsHigher -
-						ulBestCallsSumEachSide ) +
-					//the factor 256 is choosen, because it is much better to
-					//classify states than just having the border work on them
-					256 * ( abs( ulPossibleCallsLower - ulPossibleCallsHigher ) -
-						abs( ulBestCallsLower - ulBestCallsHigher ) ) ) ) {
+			if ( ( not bValueSeperatesIntervalsFound ) ||
+					( ( ulBestPossibleCallsLower < ulPossibleCallsLower ) ||
+						( ulBestPossibleCallsHigher < ulPossibleCallsHigher ) ) ) {
+				//use found border?
+				bIsBetterBorder = ( 0 < ( ulPossibleCallsLower + ulPossibleCallsHigher -
+							ulBestCallsSumEachSide ) +
+						//the factor 256 is choosen, because it is much better to
+						//classify states than just having the border work on them
+						256 * ( abs( ulPossibleCallsLower - ulPossibleCallsHigher ) -
+							abs( ulBestPossibleCallsLower - ulBestPossibleCallsHigher ) ) );
 				
-				paBestBorderValue.first  = (*itrSamplingType);
-				paBestBorderValue.second = (*itrPossibleValue);
-				ulBestCallsSumEachSide = ulPossibleCallsLower + ulPossibleCallsHigher;
+				if ( //just use borders with lower and higher intervals
+						bHasHigherInterval && bHasLowerInterval &&
+					//a value that seperates two intervalls is allways better than one that dos not
+						( ( not bValueSeperatesIntervalsFound ) ||
+					//evalue how good / fit the border is
+						bIsBetterBorder ) ) {
+					//better than actual best border -> new best border
+					paBestBorderValue.first  = (*itrSamplingType);
+					paBestBorderValue.second = (*itrPossibleValue);
+					ulBestCallsSumEachSide = ulPossibleCallsLower + ulPossibleCallsHigher;
+					ulBestPossibleCallsLower = ulPossibleCallsLower;
+					ulBestPossibleCallsHigher = ulPossibleCallsHigher;
+					
+					bValueSeperatesIntervalsFound = true;
+					
+					if ( setDataGloveStates.size() <= 2 ) {
+						//the two states are seperated -> done
+						bStopSearchForBorder = true;
+						break;
+					}
+					
+				} else if ( ( not bValueSeperatesIntervalsFound ) &&
+						( ( bHasHigherInterval && bPartIntervalLower ) ||
+							( bHasLowerInterval && bPartIntervalHigher ) ) &&
+					//evalue how good / fit the border is
+						bIsBetterBorder ) {
+					//take border even if it dos not seperate intervalls
+					paBestBorderValue.first  = (*itrSamplingType);
+					paBestBorderValue.second = (*itrPossibleValue);
+					ulBestCallsSumEachSide = ulPossibleCallsLower + ulPossibleCallsHigher;
+					ulBestPossibleCallsLower = ulPossibleCallsLower;
+					ulBestPossibleCallsHigher = ulPossibleCallsHigher;
+				}
 			}
 		};  //end for all possible values
+		
+		if ( bStopSearchForBorder ) {
+			break;
+		}
 	};  //end for each sampling type
 	
 	//Create the border with the best maximum number of calls sum and most
@@ -1992,19 +2013,7 @@ iCallFunction * cEvaluateDataGloveState::createCallFunction(
 iCallFunction * cEvaluateDataGloveState::createCallFunction( const string & szFunction,
 		const string & szFunctionParameter ) {
 #endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
-/*TODO weg?
-#ifdef SIMULATE_CALL_FUNCTION
-	if ( szFunction == "changeModusPrepare" ) {
-		return new cCallPrepareChangeModus( stringToLong( szFunctionParameter.c_str() ) );
-	} else if ( szFunction == "changeModus" ) {
-		return new cCallChangeModus( stringToLong( szFunctionParameter.c_str() ),
-			this );
-	}
-	
-	
-	return new cCallSimulation( szFunction, szFunctionParameter );
-#else //SIMULATE_CALL_FUNCTION
-*/
+
 #ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
 	if ( szFunction == L"changeModusPrepare" ) {
 		return new cCallPrepareChangeModus( stringToLong( szFunctionParameter ) );
@@ -2040,7 +2049,6 @@ iCallFunction * cEvaluateDataGloveState::createCallFunction( const string & szFu
 	
 	
 	return NULL;
-//TODO weg? #endif //SIMULATE_CALL_FUNCTION
 }
 
 

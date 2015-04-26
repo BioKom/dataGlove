@@ -198,9 +198,9 @@ public:  //inline
 		
 		if ( bIntervalCorrectionUsed ) {
 			//use correction object
-			const long lCorrectedvalue = pIntervalCorrection->correct( lInValue );
-			return ( lMinimum <= lCorrectedvalue ) &&
-				( lCorrectedvalue <= lMaximum );
+			const long lCorrectedValue = pIntervalCorrection->correct( lInValue );
+			return ( lMinimum <= lCorrectedValue ) &&
+				( lCorrectedValue <= lMaximum );
 		}
 		
 		return ( lMinimum <= lInValue ) && ( lInValue <= lMaximum );
@@ -217,9 +217,9 @@ public:  //inline
 		
 		if ( bIntervalCorrectionUsed ) {
 			//use correction object
-			const long lCorrectedvalue = pIntervalCorrection->correct( lInValue );
-			return ( lTarget < lCorrectedvalue ) ?
-			( lCorrectedvalue - lTarget ) : ( lTarget - lCorrectedvalue );
+			const long lCorrectedValue = pIntervalCorrection->correct( lInValue );
+			return ( lTarget < lCorrectedValue ) ?
+				( lCorrectedValue - lTarget ) : ( lTarget - lCorrectedValue );
 		}
 		return ( lTarget < lInValue ) ?
 			( lInValue - lTarget ) : ( lTarget - lInValue );

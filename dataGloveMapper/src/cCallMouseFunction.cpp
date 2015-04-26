@@ -47,9 +47,9 @@ History:
 
 
 
-#ifdef DEBUG_CALL_FUNCTION
+#ifdef DEBUG_CALL_MOUSE_FUNCTION
 	#include <iostream>
-#endif  //DEBUG_CALL_FUNCTION
+#endif  //DEBUG_CALL_MOUSE_FUNCTION
 
 #include "cCallPrepareMouseFunction.h"
 #include "cEvaluateDataGloveState.h"
@@ -102,10 +102,12 @@ namespace nCallMouseFunction{
 #endif  //FEATURE_READ_DATA_TEXT_WITH_REGEX
 #endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
 		{
+			setMapPair( "MOUSE_MOVE.*", MOUSE_MOVE_HORIZONTAL_VERTICAL );
+			setMapPair( "MOVE.*", MOUSE_MOVE_HORIZONTAL_VERTICAL );
 			setMapPair( "MOUSE_HORIZONTAL", MOUSE_HORIZONTAL );
-			setMapPair( "HOR*", MOUSE_HORIZONTAL );
+			setMapPair( "HOR.*", MOUSE_HORIZONTAL );
 			setMapPair( "MOUSE_VERTICAL", MOUSE_VERTICAL );
-			setMapPair( "VERT*", MOUSE_VERTICAL );
+			setMapPair( "VERT.*", MOUSE_VERTICAL );
 			
 			setMapPair( "MOUSE_WHEEL", MOUSE_WHEEL );
 			
@@ -127,10 +129,28 @@ namespace nCallMouseFunction{
 			setMapPair( "MOUSE_BTN_TASK_KLICK", MOUSE_BTN_TASK_KLICK );
 			setMapPair( "MOUSE_BTN_TASK_DOUBLE_KLICK", MOUSE_BTN_TASK_DOUBLE_KLICK );
 			
+			setMapPair( "MOUSE_BTN_LEFT_DOWN", MOUSE_BTN_LEFT_DOWN );
+			setMapPair( "MOUSE_BTN_LEFT_UP", MOUSE_BTN_LEFT_UP );
+			setMapPair( "MOUSE_BTN_RIGHT_DOWN", MOUSE_BTN_RIGHT_DOWN );
+			setMapPair( "MOUSE_BTN_RIGHT_UP", MOUSE_BTN_RIGHT_UP );
+			setMapPair( "MOUSE_BTN_MIDDLE_DOWN", MOUSE_BTN_MIDDLE_DOWN );
+			setMapPair( "MOUSE_BTN_MIDDLE_UP", MOUSE_BTN_MIDDLE_UP );
+			
+			setMapPair( "MOUSE_BTN_SIDE_DOWN", MOUSE_BTN_SIDE_DOWN );
+			setMapPair( "MOUSE_BTN_SIDE_UP", MOUSE_BTN_SIDE_UP );
+			setMapPair( "MOUSE_BTN_EXTRA_DOWN", MOUSE_BTN_EXTRA_DOWN );
+			setMapPair( "MOUSE_BTN_EXTRA_UP", MOUSE_BTN_EXTRA_UP );
+			setMapPair( "MOUSE_BTN_FORWARD_DOWN", MOUSE_BTN_FORWARD_DOWN );
+			setMapPair( "MOUSE_BTN_FORWARD_UP", MOUSE_BTN_FORWARD_UP );
+			setMapPair( "MOUSE_BTN_BACK_DOWN", MOUSE_BTN_BACK_DOWN );
+			setMapPair( "MOUSE_BTN_BACK_UP", MOUSE_BTN_BACK_UP );
+			setMapPair( "MOUSE_BTN_TASK_DOWN", MOUSE_BTN_TASK_DOWN );
+			setMapPair( "MOUSE_BTN_TASK_UP", MOUSE_BTN_TASK_UP );
+			
+			
 //TODO create const object for it ( template<return_type>FindType ? )
-//  search with tree (split search prases iterativ into groups)
-			
-			
+			//search with tree (split search prases iterativ into groups)
+			optimize();
 		}
 		
 		
@@ -162,6 +182,7 @@ namespace nCallMouseFunction{
 
 	
 };//end namespace nCallMouseFunction
+
 
 using namespace nDataGlove::nMapper::nCallMouseFunction;
 
@@ -285,10 +306,10 @@ bool cCallMouseFunction::operator()() {
 				IsPrepared( this ) ) ) ) {
 		//mouse function was not prepared, but should be
 		//call parent operator (unprepare)
-#ifdef DEBUG_CALL_FUNCTION
+#ifdef DEBUG_CALL_MOUSE_FUNCTION
 		cout<<"mouse function was not prepared: "<<mouseFunction<<
 			" ("<<mouseFunction<<"'; "<<iAmount<<")"<<endl;
-#endif  //DEBUG_CALL_FUNCTION
+#endif  //DEBUG_CALL_MOUSE_FUNCTION
 		iCallFunction::operator()();
 		return false;
 	}
@@ -319,7 +340,7 @@ bool cCallMouseFunction::operator()() {
 		}; break;
 		
 		case MOUSE_BTN_LEFT_KLICK : {
-			pUInputDevice->mouseLeftClick();
+			pUInputDevice->keyDown( BTN_LEFT );
 		}; break;
 		case MOUSE_BTN_LEFT_DOUBLE_KLICK : {
 			pUInputDevice->mouseLeftClick();
@@ -327,7 +348,7 @@ bool cCallMouseFunction::operator()() {
 		}; break;
 		
 		case MOUSE_BTN_RIGHT_KLICK : {
-			pUInputDevice->mouseRightClick();
+			pUInputDevice->keyDown( BTN_RIGHT );
 		}; break;
 		case MOUSE_BTN_RIGHT_DOUBLE_KLICK : {
 			pUInputDevice->mouseRightClick();
@@ -335,7 +356,7 @@ bool cCallMouseFunction::operator()() {
 		}; break;
 		
 		case MOUSE_BTN_MIDDLE_KLICK : {
-			pUInputDevice->mouseMiddleClick();
+			pUInputDevice->keyDown( BTN_MIDDLE );
 		}; break;
 		case MOUSE_BTN_MIDDLE_DOUBLE_KLICK : {
 			pUInputDevice->mouseMiddleClick();
@@ -343,7 +364,7 @@ bool cCallMouseFunction::operator()() {
 		}; break;
 		
 		case MOUSE_BTN_SIDE_KLICK : {
-			pUInputDevice->mouseSideClick();
+			pUInputDevice->keyDown( BTN_SIDE );
 		}; break;
 		case MOUSE_BTN_SIDE_DOUBLE_KLICK : {
 			pUInputDevice->mouseSideClick();
@@ -351,7 +372,7 @@ bool cCallMouseFunction::operator()() {
 		}; break;
 		
 		case MOUSE_BTN_EXTRA_KLICK : {
-			pUInputDevice->mouseExtraClick();
+			pUInputDevice->keyDown( BTN_EXTRA );
 		}; break;
 		case MOUSE_BTN_EXTRA_DOUBLE_KLICK : {
 			pUInputDevice->mouseExtraClick();
@@ -359,7 +380,7 @@ bool cCallMouseFunction::operator()() {
 		}; break;
 		
 		case MOUSE_BTN_FORWARD_KLICK : {
-			pUInputDevice->mouseForwardClick();
+			pUInputDevice->keyDown( BTN_FORWARD );
 		}; break;
 		case MOUSE_BTN_FORWARD_DOUBLE_KLICK : {
 			pUInputDevice->mouseForwardClick();
@@ -367,6 +388,7 @@ bool cCallMouseFunction::operator()() {
 		}; break;
 		
 		case MOUSE_BTN_BACK_KLICK : {
+			pUInputDevice->keyDown( BTN_BACK );
 			pUInputDevice->mouseBackwardClick();
 		}; break;
 		case MOUSE_BTN_BACK_DOUBLE_KLICK : {
@@ -375,20 +397,71 @@ bool cCallMouseFunction::operator()() {
 		}; break;
 		
 		case MOUSE_BTN_TASK_KLICK : {
-			pUInputDevice->mouseTaskClick();
+			pUInputDevice->keyDown( BTN_TASK );
 		}; break;
 		case MOUSE_BTN_TASK_DOUBLE_KLICK : {
 			pUInputDevice->mouseTaskClick();
 			pUInputDevice->mouseTaskClick();
 		}; break;
 		
+		
+		case MOUSE_BTN_LEFT_DOWN : {
+			pUInputDevice->keyDown( BTN_LEFT );
+		}; break;
+		case MOUSE_BTN_RIGHT_DOWN : {
+			pUInputDevice->keyDown( BTN_RIGHT );
+		}; break;
+		case MOUSE_BTN_MIDDLE_DOWN : {
+			pUInputDevice->keyDown( BTN_MIDDLE );
+		}; break;
+		case MOUSE_BTN_SIDE_DOWN : {
+			pUInputDevice->keyDown( BTN_SIDE );
+		}; break;
+		case MOUSE_BTN_EXTRA_DOWN : {
+			pUInputDevice->keyDown( BTN_EXTRA );
+		}; break;
+		case MOUSE_BTN_FORWARD_DOWN : {
+			pUInputDevice->keyDown( BTN_FORWARD );
+		}; break;
+		case MOUSE_BTN_BACK_DOWN : {
+			pUInputDevice->keyDown( BTN_BACK );
+		}; break;
+		case MOUSE_BTN_TASK_DOWN : {
+			pUInputDevice->keyDown( BTN_TASK );
+		}; break;
+		
+		case MOUSE_BTN_LEFT_UP : {
+			pUInputDevice->keyUp( BTN_LEFT );
+		}; break;
+		case MOUSE_BTN_RIGHT_UP : {
+			pUInputDevice->keyUp( BTN_RIGHT );
+		}; break;
+		case MOUSE_BTN_MIDDLE_UP : {
+			pUInputDevice->keyUp( BTN_MIDDLE );
+		}; break;
+		case MOUSE_BTN_SIDE_UP : {
+			pUInputDevice->keyUp( BTN_SIDE );
+		}; break;
+		case MOUSE_BTN_EXTRA_UP : {
+			pUInputDevice->keyUp( BTN_EXTRA );
+		}; break;
+		case MOUSE_BTN_FORWARD_UP : {
+			pUInputDevice->keyUp( BTN_FORWARD );
+		}; break;
+		case MOUSE_BTN_BACK_UP : {
+			pUInputDevice->keyUp( BTN_BACK );
+		}; break;
+		case MOUSE_BTN_TASK_UP : {
+			pUInputDevice->keyUp( BTN_TASK );
+		}; break;
+		
 		default: break;  //do nothing
 	};  //end switch mouseFunction
 	
-#ifdef DEBUG_CALL_FUNCTION
+#ifdef DEBUG_CALL_MOUSE_FUNCTION
 	cout<<"calling mouse function: "<<mouseFunction<<
-		" ("<<mouseFunction<<"'; "<<iAmount<<")"<<endl;
-#endif  //DEBUG_CALL_FUNCTION
+		" ("<<mouseFunction<<"'; "<<iAmount<<"; "<<iAmount2<<")"<<endl;
+#endif  //DEBUG_CALL_MOUSE_FUNCTION
 	return true;
 }
 
@@ -399,12 +472,56 @@ bool cCallMouseFunction::operator()() {
  */
 void cCallMouseFunction::end() {
 	
-	//TODO nothing to to ?
+	//open / create uinput device
+	cUInputDevice * pUInputDevice = cUInputDevice::getInstance();
 	
-#ifdef DEBUG_CALL_FUNCTION
+	if ( ! pUInputDevice->isDeviceOpen() ) {
+		return;  //Error: Device could not be opened
+	}
+	
+	//call mouse function
+	switch ( mouseFunction ) {
+		
+		case MOUSE_BTN_LEFT_KLICK : {
+			pUInputDevice->keyUp( BTN_LEFT );
+		}; break;
+		
+		case MOUSE_BTN_RIGHT_KLICK : {
+			pUInputDevice->keyUp( BTN_RIGHT );
+		}; break;
+		
+		case MOUSE_BTN_MIDDLE_KLICK : {
+			pUInputDevice->keyUp( BTN_MIDDLE );
+		}; break;
+		
+		case MOUSE_BTN_SIDE_KLICK : {
+			pUInputDevice->keyUp( BTN_SIDE );
+		}; break;
+		
+		case MOUSE_BTN_EXTRA_KLICK : {
+			pUInputDevice->keyUp( BTN_EXTRA );
+		}; break;
+		
+		case MOUSE_BTN_FORWARD_KLICK : {
+			pUInputDevice->keyUp( BTN_FORWARD );
+		}; break;
+		
+		case MOUSE_BTN_BACK_KLICK : {
+			pUInputDevice->keyUp( BTN_BACK );
+			pUInputDevice->mouseBackwardClick();
+		}; break;
+		
+		case MOUSE_BTN_TASK_KLICK : {
+			pUInputDevice->keyUp( BTN_TASK );
+		}; break;
+		
+		default: break;  //do nothing
+	};  //end switch mouseFunction
+	
+#ifdef DEBUG_CALL_MOUSE_FUNCTION
 	cout<<"end calling mouse function: "<<mouseFunction<<
-		" ("<<mouseFunction<<"'; "<<iAmount<<")"<<endl;
-#endif  //DEBUG_CALL_FUNCTION
+		" ("<<mouseFunction<<"'; "<<iAmount<<"; "<<iAmount2<<")"<<endl;
+#endif  //DEBUG_CALL_MOUSE_FUNCTION
 }
 
 
@@ -575,38 +692,62 @@ bool cCallMouseFunction::analyseAndSetParameters( const std::string & inSzParame
 		
 		//if MOUSE_HORIZONTAL, MOUSE_VERTICAL or MOUSE_WHEEL read iAmount
 		//(e.g "MOUSE_HORIZONTAL 3", "VERT_-24", "MOUSE_WHEEL:4"
-		if ( ( mouseFunction == MOUSE_HORIZONTAL ) or
+		if (  ( mouseFunction == MOUSE_HORIZONTAL ) or
 				( mouseFunction == MOUSE_VERTICAL ) or
 				( mouseFunction == MOUSE_WHEEL ) or
 				( mouseFunction == MOUSE_MOVE_HORIZONTAL_VERTICAL ) ) {
 			//search for first ' ', ',', '_' or ':' and read number after it
 #ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
-			const unsigned int iIndexForAmount =
+			unsigned int iIndexForNumber =
 				inSzParameters.find_first_of( L" ,_:" );
-#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
-			const unsigned int iIndexForAmount =
-				inSzParameters.find_first_of( " ,_:" );
-#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
-			if ( ( iIndexForAmount != string::npos ) ||
-					( iIndexForAmount < inSzParameters.size() ) ) {
-				//next ' ', ',', '_' or ':' found -> read iAmount
-				iAmount = stringToLong( inSzParameters.substr( iIndexForAmount + 1 ) );
+			if ( ( iIndexForNumber != string::npos ) &&
+					( iIndexForNumber < inSzParameters.size() ) ) {
 				
-				if ( mouseFunction == MOUSE_MOVE_HORIZONTAL_VERTICAL ) {
-#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
-					const unsigned int iIndexForAmount2 =
-						inSzParameters.find_first_of( L" ,_:", iIndexForAmount + 1 );
+				iIndexForNumber = inSzParameters.find_first_of(
+					L"-+0123456789.", iIndexForNumber );
 #else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
-					const unsigned int iIndexForAmount2 =
-						inSzParameters.find_first_of( " ,_:", iIndexForAmount + 1 );
+			iIndexForNumber =
+				inSzParameters.find_first_of( " ,_:", iIndexForNumber );
+			if ( ( iIndexForNumber != string::npos ) &&
+					( iIndexForNumber < inSzParameters.size() ) ) {
+				
+				iIndexForNumber = inSzParameters.find_first_of(
+					"-+0123456789.", iIndexForNumber );
 #endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
-					if ( ( iIndexForAmount2 != string::npos ) ||
-							( iIndexForAmount2 < inSzParameters.size() ) ) {
-						//next ' ', ',', '_' or ':' found -> read iAmount
-						iAmount2 = stringToLong( inSzParameters.substr( iIndexForAmount2 ) );
-					}
+				
+				if ( ( iIndexForNumber != string::npos ) &&
+						( iIndexForNumber < inSzParameters.size() ) ) {
+					
+					iAmount = stringToLong( inSzParameters.substr( iIndexForNumber ) );
+					
+					if ( mouseFunction == MOUSE_MOVE_HORIZONTAL_VERTICAL ) {
+#ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+						iIndexForNumber =
+							inSzParameters.find_first_of( L" ,_:", iIndexForNumber );
+						if ( ( iIndexForNumber != string::npos ) &&
+								( iIndexForNumber < inSzParameters.size() ) ) {
+							
+							iIndexForNumber = inSzParameters.find_first_of(
+								L"-+0123456789.", iIndexForNumber );
+#else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+						iIndexForNumber =
+							inSzParameters.find_first_of( " ,_:", iIndexForNumber );
+						if ( ( iIndexForNumber != string::npos ) &&
+								( iIndexForNumber < inSzParameters.size() ) ) {
+							
+							iIndexForNumber = inSzParameters.find_first_of(
+								"-+0123456789.", iIndexForNumber );
+#endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+							
+							if ( ( iIndexForNumber != string::npos ) &&
+									( iIndexForNumber < inSzParameters.size() ) ) {
+								
+								iAmount2 = stringToLong( inSzParameters.substr( iIndexForNumber ) );
+							}
+						}
+					}  //else mouseFunction != MOUSE_MOVE_HORIZONTAL_VERTICAL
 				}
-			}//else ' ', ',', '_' or ':' not found -> no iAmount given -> use default iAmount
+			}
 		}
 		
 		if ( inEvaluateIfPrepareNeeded ) {

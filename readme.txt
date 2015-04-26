@@ -10,6 +10,22 @@ It contains some modules:
 * the data glove manager: for handling a data glove
 
 
+==Compile==
+
+> make test
+or
+> make test > out_make.txt 2>&1; tail -n8 out_make.txt
+
+
+==Run==
+
+* run as Superuser (else the application can no connect to the data glove device)
+
+> su
+> nice -20 bin/test_startDataGlove
+
+
+
 ==Data glove communication layer==
 
 folder: dataGloveDGTechVHandCommunication

@@ -1,6 +1,3 @@
-
-//TODO check
-
 /**
  * @file cMessageGetIdToDataGlove
  * file name: cMessageGetIdToDataGlove.cpp

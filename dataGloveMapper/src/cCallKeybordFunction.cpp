@@ -197,11 +197,9 @@ namespace nCallKeybordFunction{
 			setMapPair( "DIACRITIC_OVERING", DIACRITIC_OVERING );
 			
 			
-			
 //TODO create const object for it ( template<return_type>FindType ? )
-//  search with tree (split search prases iterativ into groups)
-			
-			
+			//search with tree (split search prases iterativ into groups)
+			optimize();
 		}
 		
 		
@@ -491,7 +489,9 @@ namespace nCallKeybordFunction{
 			setMapPair( "KEY_RFKILL", KEY_RFKILL );
 			
 			setMapPair( "KEY_MICMUTE", KEY_MICMUTE );
-		
+			
+			//search with tree (split search prases iterativ into groups)
+			optimize( 4 );
 		}
 		
 		
@@ -1750,7 +1750,7 @@ eKeybordFunction cCallKeybordFunction::getKeyboardFunction(
 	
 #ifdef FEATURE_READ_DATA_TEXT_WITH_REGEX
 #ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
-	if ( regex_match( inSzParameters, wregex( L"KEY_*",
+	if ( regex_match( inSzParameters, wregex( L"KEY_.*",
 			regex_constants::icase | regex_constants::ECMAScript ) ) ) {
 #else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
 	if ( regex_match( inSzParameters, regex( szKeyPrefix,
@@ -1786,10 +1786,10 @@ unsigned int cCallKeybordFunction::readKeyCode(
 		return 0;
 	}
 #ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
-	if ( ! regex_match( inSzKeyCode, wregex( L"KEY_*",
+	if ( ! regex_match( inSzKeyCode, wregex( L"KEY_.*",
 			regex_constants::icase | regex_constants::ECMAScript ) ) ) {
 #else  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
-	if ( ! regex_match( inSzKeyCode, regex( "KEY_*",
+	if ( ! regex_match( inSzKeyCode, regex( "KEY_.*",
 			regex_constants::icase | regex_constants::ECMAScript ) ) ) {
 #endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
 		//all key codes begin with "KEY_" -> done (quick exit)
