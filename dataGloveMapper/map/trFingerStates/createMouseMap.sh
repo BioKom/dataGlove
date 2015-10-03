@@ -16,7 +16,7 @@ OUTPUT_FILE=mouseMoveStatesOut.txt
 
 MODUS=20
 
-REPEAT_DELAY="100"
+REPEAT_DELAY="128"
 
 #finger states
 #thumb prepare
@@ -79,7 +79,12 @@ MOVE_FACTOR=1.2
 
 
 COUNT_FINGER_STATES=15
-FINGER_INDEXES="0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32"
+FINGER_INDEXES=      " 0  1  2  3  4  5  6  7  8  9 10 11 12 13  14  15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32"
+
+#TODO
+#TODO if have commen divisor -> reduce repeat delay
+#TODO put in array MOUSE_MOVE_FOR[ INDEX ]
+MOUSE_MOVE_FOR_INDEX="28 24 21 18 15 12 10  8  6  5  4  3  2  1   0   1  2  3  4  5  6  8 10 12 14 18 21 24 28 32 36 40 44"
 
 FINGERE_2_CENTER=14
 FINGERE_3_CENTER=14
@@ -127,7 +132,7 @@ for Finger2Index in ${FINGER_INDEXES}; do
 		if [ ${MOVE_X} -ne 0 ] || [ ${MOVE_Y} -ne 0 ]
 		then
 			#write mous move map to file
-			echo "$MODUS;mouse;MOUSE_MOVE ${MOVE_X} ${MOVE_Y};${REPEAT_DELAY};${FINGER_1_S1};${FINGER_2[${Finger2Index}]};${FINGER_3[${Finger3Index}]};;;;;;;;;;;;;;;;;;;;;;;;;" >> ${OUTPUT_FILE}
+			echo "$MODUS;mouse;MOUSE_MOVE ${MOVE_X} ${MOVE_Y};${REPEAT_DELAY};${FINGER_1_S1};${FINGER_2[${Finger2Index}]};${FINGER_3[${Finger3Index}]};;700;1000;800;;;;;;;;;; 8000; 21999; 19000;;;;;;;;;" >> ${OUTPUT_FILE}
 		fi
 	done
 done

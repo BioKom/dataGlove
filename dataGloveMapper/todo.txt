@@ -1,7 +1,10 @@
 Next steps:
-* cMapWString -> dosn't work
-** SPACE / ENTER
+* check in?
+* test solution to problem: Why did the data glove key evaluation sputters after some time?
+* delay repeat mouse + keybard adapt, so that the operation is not unprepared, but the repeat delay is initialisised
+* display key/function deactivated
 * Mouse
+** Mouse rework (modus/roll for keys + Modus for movements?)
 ** mouse keys
 *** left: pinky down
 *** rigth: pinky + 4 down
@@ -10,7 +13,16 @@ Next steps:
 *** mouse wheel: ??? (roll back + index?)
 * create cThreadRepeater?
 * optimise load states
+** don't try all combinations (if after n iteration no big improvment -> stop)
 * test virtual keybord
+* create background process, which waits for dataglove
+* display / output distance to middel of state + neighbour states
+
+
+=Aufruf=
+
+* ionice -c1 -n1 nice -n-20 bin/test_startDataGlove
+** ionice -c1 -> IO-sheduler auf realtime setzen
 
 
 =Nice to have=

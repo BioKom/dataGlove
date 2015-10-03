@@ -50,6 +50,7 @@ History:
 #include "version.h"
 
 #include <string>
+#include <chrono>
 
 
 namespace nDataGlove{
@@ -59,6 +60,8 @@ namespace nMapper{
 class iCallFunction{
 public:
 
+	iCallFunction();
+	
 	virtual ~iCallFunction();
 	
 	/**
@@ -91,6 +94,7 @@ public:
 	 */
 	virtual bool setParameter( const std::string & szFunctionParameter );
 	
+	
 #ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
 	/**
 	 * This method sets the parameter for the operation.
@@ -102,6 +106,71 @@ public:
 	 */
 	virtual bool setParameter( const std::wstring & szFunctionParameter );
 #endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR
+	
+	/**
+	 * This method sets the repeat delays for the operation.
+	 * The repeat delays are readed from the given string.
+	 *
+	 * @param szFunctionRepeatDelay all repeat delays for this functor operation
+	 * 	as a string
+	 * @return true if the repeat delays could be set, else false
+	 */
+	virtual bool setRepeatDelay( const std::string & szFunctionRepeatDelay );
+	
+	
+	
+	/**
+	 * This method repeats this function if it should be repeated.
+	 *
+	 * @see arrayRepeatDelay
+	 * @return the number of times this function was repeated by the call
+	 */
+	virtual unsigned int checkAndRepeatCall();
+	
+protected:
+	
+	/**
+	 * This functor initialise the repeat delay, if existing.
+	 *
+	 * @return true if the repeat delay is initialised, else false
+	 */
+	bool initRepeatDelay();
+	
+	/**
+	 * Array with the delay times in milli seconds.
+	 * After the call function is called, wait arrayRepeatDelay[0] milli seconds
+	 * to call it again, then arrayRepeatDelay[ 1 ] milli seconds ... .
+	 * @see countDelays
+	 * @see indexNextDelay
+	 */
+	std::chrono::milliseconds * arrayRepeatDelay;
+	
+	/**
+	 * Number of elements in arrayRepeatDelay;
+	 * @see arrayRepeatDelay
+	 */
+	int countRepeatDelays;
+	
+	/**
+	 * The index of the next delay time in arrayRepeatDelay.
+	 * if -1 -> no next delay
+	 * @see arrayRepeatDelay
+	 */
+	int indexNextDelay;
+	
+	/**
+	 * If the last element in arrayRepeatDelay should be repeated infinitely.
+	 * @see arrayRepeatDelay
+	 */
+	bool bRepeatLastDelay;
+	
+	/**
+	 * The next time this function should be called.
+	 * @see arrayRepeatDelay
+	 */
+	std::chrono::system_clock::time_point timeNextCall;
+	
+	
 	
 };//end class iCallFunction
 

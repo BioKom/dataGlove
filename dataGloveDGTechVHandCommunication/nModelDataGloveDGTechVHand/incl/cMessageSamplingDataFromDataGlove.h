@@ -525,9 +525,6 @@ public:
 		};
 		return 0;
 	}
-
-//TODO check
-
 	
 	/**
 	 * Returns the fraction value representing the value of the fourth
@@ -609,6 +606,9 @@ public:
 		};
 		return 0;
 	}
+
+//TODO check
+
 	
 	/**
 	 * Returns the value representing the value of the gyroscope data in the

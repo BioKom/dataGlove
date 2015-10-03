@@ -151,7 +151,22 @@ protected:
 	 */
 	nModelDataGloveDGTechVHand::cMessageSamplingDataFromDataGlove *
 		pNewMessageSamplingDataFromDataGlove;
-
+	
+	/**
+	 * The pNewMessageSamplingDataFromDataGlove has changed after the last
+	 * run() call.
+	 * @see pNewMessageSamplingDataFromDataGlove
+	 * @see run()
+	 */
+	bool bNewMessageSamplingDataFromDataGloveChangedTillLastRunEval;
+	
+	/**
+	 * Messages wich are received (with setNewSamplingMessage) but not
+	 * evaluated (by run()).
+	 * @see setNewSamplingMessage()
+	 * @see run()
+	 */
+	unsigned long ulMessageInQueue;
 	
 	/**
 	 * The count of all messages set.
@@ -182,7 +197,7 @@ protected:
 	
 	
 	/**
-	 * The widget for the sampling data.
+	 * The object which evaluates the data glove data.
 	 */
 	cEvaluateDataGloveState * pEvaluateDataGloveState;
 

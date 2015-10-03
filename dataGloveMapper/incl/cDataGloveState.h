@@ -415,34 +415,6 @@ public:
 	
 	
 	/**
-	 * @return All this milli seconds the call function is called.
-	 * 	If 0 the call function will be repeated once.
-	 * @see iRepeatAllMilliSeconds
-	 * @see setRepeatAllMilliSeconds()
-	 * @see pCallFunction
-	 * @see callFunction()
-	 * @see pRepeaterThread
-	 */
-	inline unsigned int getRepeatAllMilliSeconds() const {
-		
-		return iRepeatAllMilliSeconds;
-	}
-	
-	
-	/**
-	 * @param uiNewRepeatAllMilliSeconds All this milli seconds the call
-	 * 	function is called.
-	 * 	If 0 the call function will be repeated once.
-	 * @see iRepeatAllMilliSeconds
-	 * @see getRepeatAllMilliSeconds()
-	 * @see pCallFunction
-	 * @see callFunction()
-	 * @see pRepeaterThread
-	 */
-	void setRepeatAllMilliSeconds(
-			const unsigned int uiNewRepeatAllMilliSeconds );
-	
-	/**
 	 * Orders all interval values.
 	 * @see cInterval:order()
 	 */

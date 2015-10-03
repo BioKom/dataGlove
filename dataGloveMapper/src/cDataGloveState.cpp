@@ -231,22 +231,6 @@ void cDataGloveState::setModus( const int iNewModus ) {
 }
 
 
-/**
- * @param uiNewRepeatAllMilliSeconds All this milli seconds the call
- * 	function is called.
- * 	If 0 the call function will be repeated once.
- * @see iRepeatAllMilliSeconds
- * @see getRepeatAllMilliSeconds()
- * @see pCallFunction
- * @see callFunction()
- * @see pRepeaterThread
- */
-void cDataGloveState::setRepeatAllMilliSeconds(
-		const unsigned int uiNewRepeatAllMilliSeconds ) {
-	
-	iRepeatAllMilliSeconds = uiNewRepeatAllMilliSeconds;
-}
-
 
 /**
  * Orders all interval values.

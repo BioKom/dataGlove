@@ -20,7 +20,7 @@ MODUS=10
 TEXT_PREP_FUN="${MODUS};prepareKey;"
 TEXT_KEY_FUN="${MODUS};key;"
 
-REPEAT_DELAY="100"
+REPEAT_DELAY="key"
 
 #finger states
 #thumb prepare

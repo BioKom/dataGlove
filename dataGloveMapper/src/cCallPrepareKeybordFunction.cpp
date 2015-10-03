@@ -229,12 +229,25 @@ void cCallPrepareKeybordFunction::unprepare() {
 	if ( pKeybordFunctionPrepared != NULL ) {
 		cout<<pKeybordFunctionPrepared<<
 		" ("<<pKeybordFunctionPrepared->keybordFunctionForOperator<<
-		"; '"<<pKeybordFunctionPrepared->getChar()<<"'; "<<
+		"; '"<<((char)(pKeybordFunctionPrepared->getChar()))<<"' (="<<
+		pKeybordFunctionPrepared->getChar()<<"; "<<
 		pKeybordFunctionPrepared->getKeyCode1()<<" "<<
 		pKeybordFunctionPrepared->getKeyCode2()<<")"<<endl;
 	} else {
 		cout<<"NULL"<<endl;
 	}
+#else  //DEBUG_CALL_FUNCTION
+#ifdef DEBUG_PREPARED_KEYBOARD_FUNCTION
+	if ( pKeybordFunctionPrepared != NULL ) {
+		cout<<"unpreparing keyboard function: "
+			<<pKeybordFunctionPrepared<<
+		" ("<<pKeybordFunctionPrepared->keybordFunctionForOperator<<
+		"; '"<<((char)(pKeybordFunctionPrepared->getChar()))<<"' (="<<
+		pKeybordFunctionPrepared->getChar()<<"; "<<
+		pKeybordFunctionPrepared->getKeyCode1()<<" "<<
+		pKeybordFunctionPrepared->getKeyCode2()<<")"<<endl;
+	}
+#endif  //DEBUG_PREPARED_KEYBOARD_FUNCTION
 #endif  //DEBUG_CALL_FUNCTION
 	pKeybordFunctionPrepared = NULL;
 }

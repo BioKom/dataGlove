@@ -22,7 +22,11 @@ or
 * run as Superuser (else the application can no connect to the data glove device)
 
 > su
-> nice -20 bin/test_startDataGlove
+> ionice -c1 -n1 nice -n-20 bin/test_startDataGlove
+
+or
+> su
+> nice -n-20 bin/test_startDataGlove
 
 
 

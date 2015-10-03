@@ -313,6 +313,7 @@ bool cCallMouseFunction::operator()() {
 		iCallFunction::operator()();
 		return false;
 	}
+	initRepeatDelay();
 	//call mouse function
 	
 	//open / create uinput device

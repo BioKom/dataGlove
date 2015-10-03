@@ -940,7 +940,8 @@ bool cEvaluateDataGloveState::loadDataGloveStates(
 	string szFunction = "";
 	string szFunctionParameter = "";
 #endif  //FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
-	
+	//string for the repeat delays of a function
+	string szRepeatDelay = "";
 	
 	bool bFunctionParameterRead = false;
 	cInterval * pInterval;
@@ -1013,8 +1014,7 @@ bool cEvaluateDataGloveState::loadDataGloveStates(
 							bFunctionParameterRead = true;
 						}; break;
 						case REPEAT_DELAY : {
-							pActualDataGloveState->setRepeatAllMilliSeconds(
-								stringToLong( readedString ) );
+							szRepeatDelay = readedString;
 						}; break;
 						case CALLS : {
 							pActualDataGloveState->setCalls( stringToLong( readedString ) );
@@ -1038,7 +1038,7 @@ if ( ( szFunctionParameter.compare( "3" ) == 0 ) ||
 }*/
 						
 						
-						
+						//try to get a existing call function
 						iCallFunction * pCallFunction =
 							getCallFunction( szFunction, szFunctionParameter );
 						if ( pCallFunction ) {
@@ -1050,6 +1050,7 @@ if ( ( szFunctionParameter.compare( "3" ) == 0 ) ||
 								pActualDataGloveState->setCallFunction( pCallFunction, true );
 							}
 						}
+						
 						szFunction.clear();
 						szFunctionParameter.clear();
 						bFunctionParameterRead = false;
@@ -1062,16 +1063,28 @@ if ( ( szFunctionParameter.compare( "3" ) == 0 ) ||
 		if ( readedEntry.second ) {
 			//new line read -> start columns with first column
 			itrColumnType = liTableColumnType.begin();
+			
+			if ( ( ! szRepeatDelay.empty() ) &&
+					( pActualDataGloveState != NULL ) &&
+					( pActualDataGloveState->getCallFunction() != NULL ) ) {
+				//set repeat parameters of call function
+				pActualDataGloveState->getCallFunction()->setRepeatDelay(
+					szRepeatDelay );
+			}
+			
 			pActualDataGloveState->orderIntervals();
 			if ( pActualDataGloveState->isValid() ) {
 				setAllStates.insert( pActualDataGloveState );
 			} else {  //not a valid state -> delete it
 				delete pActualDataGloveState;
 			}
+			
+			
 			//create new state
 			pActualDataGloveState = new cDataGloveState();
 			szFunction.clear();
 			szFunctionParameter.clear();
+			szRepeatDelay = "";
 		}
 	}
 	pActualDataGloveState->orderIntervals();

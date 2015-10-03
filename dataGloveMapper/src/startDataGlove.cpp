@@ -54,6 +54,8 @@ History:
  * @deprecated
  */
 #define FEATURE_APPLICATION_COUNT_DOWN 900
+//#define FEATURE_APPLICATION_COUNT_DOWN 10
+
 
 #include "version.h"
 
@@ -72,6 +74,7 @@ History:
 
 //timer
 #include <cmath>
+#include <ctime>
 
 
 using namespace std;
@@ -99,6 +102,9 @@ int main(int argc, char* argv[]){
 	if ( 1 < argc ){
 		szDataGlovePath = string( argv[1] );
 	}
+	time_t tStartTime;
+	time( &tStartTime );
+	
 	//load data glove states
 	cout<<"load data glove states."<<endl;
 	cEvaluateDataGloveState evaluateDataGloveState;
@@ -113,6 +119,7 @@ int main(int argc, char* argv[]){
 	const bool isValid =
 		cDataGloveDGTechVHand::isLiveDataGlove( szDataGlovePath.c_str() );
 	
+		
 	if ( isValid ) {
 		cout<<"Data glove device \""<<szDataGlovePath<<"\" is valid."<<endl;
 		if ( ! bStatesLoaded ) {
@@ -170,6 +177,12 @@ int main(int argc, char* argv[]){
 		cout<<"The device \""<<szDataGlovePath<<"\" is not a valid data glove DGTech VHand."<<endl;
 	}
 	
+	char strTimeBuffer[ 128 ];
+	struct tm * timeinfo = localtime( &tStartTime );
+	strftime( strTimeBuffer, sizeof( strTimeBuffer ), "%Y-%m-%d %T", timeinfo);
+	time_t tEndTime;
+	time( &tEndTime );
+	cout<<"Runtime: "<<difftime( tEndTime, tStartTime ) <<" seconds (start time: "<<strTimeBuffer<<")"<<endl;
 	
 	return 0;
 }

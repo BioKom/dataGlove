@@ -754,6 +754,9 @@ bool cCallKeybordFunction::operator()() {
 		iCallFunction::operator()();
 		return false;
 	}
+	iCallFunction::operator()();
+	//TODO initRepeatDelay() insead?
+	
 	//call keybord function
 	
 	//open / create uinput device

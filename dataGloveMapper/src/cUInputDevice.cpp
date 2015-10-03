@@ -42,7 +42,7 @@ History:
 
 /**
  * The time to wait after a button click.
- * Comment aut to disable the wait delay.
+ * Comment out to disable the wait delay.
  */
 #define BUTTON_WAIT_DELAY 10000
 

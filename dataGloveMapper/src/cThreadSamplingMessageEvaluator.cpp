@@ -77,13 +77,15 @@ using namespace nDataGlove;
 cThreadSamplingMessageEvaluator::cThreadSamplingMessageEvaluator() :
 		cThread(),
 		pNewMessageSamplingDataFromDataGlove( NULL ),
+		bNewMessageSamplingDataFromDataGloveChangedTillLastRunEval( false ),
+		ulMessageInQueue( 0 ),
 		ulMessageCounter( 0 ),
 		uiNumberOfMessagesInActualSecond( 0 ),
 		tActualSecond( time( NULL) ),
 		dMessagesPerSecond( 0 ),
 		pEvaluateDataGloveState( NULL ) {
-	
 }
+
 
 /**
  * destructor
@@ -91,6 +93,10 @@ cThreadSamplingMessageEvaluator::cThreadSamplingMessageEvaluator() :
 cThreadSamplingMessageEvaluator::~cThreadSamplingMessageEvaluator() {
 	
 	//delete old sampling messages
+	if ( bIsRunning ) {
+		//stop this thread
+		quit();
+	}
 #ifdef CPP_2011
 	mutexMembers.lock();
 #endif  //CPP_2011
@@ -98,7 +104,6 @@ cThreadSamplingMessageEvaluator::~cThreadSamplingMessageEvaluator() {
 		pToDeleteMessageSamplingDataFromDataGlove =
 			pNewMessageSamplingDataFromDataGlove;
 	pNewMessageSamplingDataFromDataGlove = NULL;
-
 #ifdef CPP_2011
 	mutexMembers.unlock();
 #endif  //CPP_2011
@@ -107,8 +112,7 @@ cThreadSamplingMessageEvaluator::~cThreadSamplingMessageEvaluator() {
 	}
 	
 	if ( bIsRunning ) {
-		//stop this thread and wait til it is no more running
-		quit();
+		//stop this thread and wait till it is no more running
 		while ( bIsRunning ) {
 			msleep ( 10 );
 		}
@@ -148,8 +152,11 @@ void cThreadSamplingMessageEvaluator::setNewSamplingMessage(
 	nModelDataGloveDGTechVHand::cMessageSamplingDataFromDataGlove *
 		pInNewMessageSamplingDataFromDataGlove ) {
 	
-		DEBUG_OUT_L3(<<"cThreadSamplingMessageEvaluator("<<this<<")::setNewSamplingMessage(new="<<pInNewMessageSamplingDataFromDataGlove<<")"<<endl<<flush);
+	DEBUG_OUT_L3(<<"cThreadSamplingMessageEvaluator("<<this<<")::setNewSamplingMessage(new="<<pInNewMessageSamplingDataFromDataGlove<<")"<<endl<<flush);
 	
+	if ( pInNewMessageSamplingDataFromDataGlove == NULL ) {
+		return;  //no new message
+	}
 #ifdef CPP_2011
 	mutexMembers.lock();
 #endif  //CPP_2011
@@ -157,6 +164,9 @@ void cThreadSamplingMessageEvaluator::setNewSamplingMessage(
 		pToDeleteMessageSamplingDataFromDataGlove =
 			pNewMessageSamplingDataFromDataGlove;
 	pNewMessageSamplingDataFromDataGlove = pInNewMessageSamplingDataFromDataGlove;
+	bNewMessageSamplingDataFromDataGloveChangedTillLastRunEval = true;
+	ulMessageInQueue++;
+	DEBUG_OUT_L4(<<"cThreadSamplingMessageEvaluator("<<this<<")::setNewSamplingMessage() bNewMessageSamplingDataFromDataGloveChangedTillLastRunEval set"<<endl<<flush);
 #ifdef CPP_2011
 	mutexMembers.unlock();
 #endif  //CPP_2011
@@ -225,40 +235,69 @@ bool cThreadSamplingMessageEvaluator::run() {
 	cMessageSamplingDataFromDataGlove * pMessageToEvaluate = NULL;
 	cDataGloveState * pDataGloveState = NULL;
 	int iModusForDataGloveState = 0;
-	unsigned long ulMilliSecondsToWait = 0;
 	
 	iCallFunction * pCallFunction;
+	
+	long lMilliSecondsToWait = -20;
+	bool bNothingHappend = false;
+	bool bSomethingMissed = false;
+	
 	while ( ! bStop ) {
-		//read message
-#ifdef CPP_2011
-		mutexMembers.lock();
-#endif  //CPP_2011
-		pMessageToEvaluate = pNewMessageSamplingDataFromDataGlove;
-		pNewMessageSamplingDataFromDataGlove = NULL;
-#ifdef CPP_2011
-		mutexMembers.unlock();
-#endif  //CPP_2011
+		DEBUG_OUT_L4(<<"cThreadSamplingMessageEvaluator("<<this<<")::run() if something happend"<<endl<<flush);
 		
-		if ( pMessageToEvaluate == NULL ) {
-			if ( pCallFunction == NULL ) {
-				//nothing to do
-				if ( 0 < ulMilliSecondsToWait ) {
-					msleep( ulMilliSecondsToWait );
-				}
-				ulMilliSecondsToWait += 1;
-				if ( 20 < ulMilliSecondsToWait ) {
-					//wait maximal 1/10 second
-					ulMilliSecondsToWait = 20;
-				}
-			} else {  //TODO if it is time to call the function again, do it
-				ulMilliSecondsToWait = 0;
-				
-				
-				
+		if ( bSomethingMissed ) {
+			//something was missed -> reevaluate the delay time
+			lMilliSecondsToWait = -20;
+			bSomethingMissed = false;
+			
+		} else if ( bNothingHappend ) {
+			//nothing happend
+			DEBUG_OUT_L4(<<"cThreadSamplingMessageEvaluator("<<this<<")::run() nothing happend"<<endl<<flush);
+			if ( 0 < lMilliSecondsToWait ) {
+				DEBUG_OUT_L4(<<"cThreadSamplingMessageEvaluator("<<this<<")::run() weit millisecounds"<<endl<<flush);
+				msleep( lMilliSecondsToWait );
 			}
-			continue;  //no message nothing to evaluate
-		}  //else pReadedMessage != NULL
-		ulMilliSecondsToWait = 0;
+			//nothing happend -> wait longer
+			lMilliSecondsToWait++;
+		} else {  //wait less
+			lMilliSecondsToWait--;
+		}
+		
+		bNothingHappend = true;
+		
+		if ( bNewMessageSamplingDataFromDataGloveChangedTillLastRunEval ) {
+			DEBUG_OUT_L4(<<"cThreadSamplingMessageEvaluator("<<this<<")::run() evaluate new message"<<endl<<flush);
+			//read message
+#ifdef CPP_2011
+			mutexMembers.lock();
+#endif  //CPP_2011
+			pMessageToEvaluate = pNewMessageSamplingDataFromDataGlove;
+			pNewMessageSamplingDataFromDataGlove = NULL;
+			bNewMessageSamplingDataFromDataGloveChangedTillLastRunEval = false;
+			
+			if ( 1 < ulMessageInQueue ) {
+				//one message missed
+				bSomethingMissed = true;
+			}
+			ulMessageInQueue = 0;
+			DEBUG_OUT_L4(<<"cThreadSamplingMessageEvaluator("<<this<<")::run() bNewMessageSamplingDataFromDataGloveChangedTillLastRunEval unset"<<endl<<flush);
+#ifdef CPP_2011
+			mutexMembers.unlock();
+#endif  //CPP_2011
+			if ( pMessageToEvaluate == NULL ) {
+				DEBUG_OUT_L4(<<"cThreadSamplingMessageEvaluator("<<this<<")::run() no new message"<<endl<<flush);
+				//go on for repeater of state
+			} else { //else pReadedMessage != NULL
+				//-> new message happend
+				DEBUG_OUT_L4(<<"cThreadSamplingMessageEvaluator("<<this<<")::run() new message"<<endl<<flush);
+				bNothingHappend = false;
+			}
+		} else {
+			//pMessageToEvaluate = NULL;
+			DEBUG_OUT_L4(<<"cThreadSamplingMessageEvaluator("<<this<<")::run() bNewMessageSamplingDataFromDataGloveChangedTillLastRunEval not set"<<endl<<flush);
+			//go on for repeater of state
+		}
+		
 		//handle message
 		DEBUG_OUT_L3(<<"cThreadSamplingMessageEvaluator("<<this<<")::run() processing next message: "<<pMessageToEvaluate<<endl<<flush);
 		
@@ -268,14 +307,30 @@ bool cThreadSamplingMessageEvaluator::run() {
 					( iModusForDataGloveState != pEvaluateDataGloveState->getActualModus() ) ) {
 				//modus changed -> old data glove state invalide
 				//pDataGloveState = NULL;
-			} else if ( pDataGloveState->isIn( pMessageToEvaluate ) ) {
+			} else if ( ( pMessageToEvaluate == NULL ) ||
+					( pDataGloveState->isIn( pMessageToEvaluate ) ) ) {
 				//state not changed
+				DEBUG_OUT_L3(<<"cThreadSamplingMessageEvaluator("<<this<<")::run() state not changed"<<endl<<flush);
 				if ( pCallFunction != NULL ) {
-					//TODO if it is time to call the function again, do it
-					
-					
+					//if it is time to call the function again, do it
+					const unsigned int uiNumberOfRepeats =
+						pCallFunction->checkAndRepeatCall();
+					DEBUG_OUT_L4(<<"cThreadSamplingMessageEvaluator("<<this<<")::run() function was called again "<<uiNumberOfRepeats<<" times"<<endl<<flush);
+					if ( 0 < uiNumberOfRepeats ) {
+						//function was repeated
+						bNothingHappend = false;
+						
+						if ( 1 < uiNumberOfRepeats ) {
+							//function was repeated more than once
+							//-> repeat call was missed
+							bSomethingMissed = true;
+						}
+					}
 				}
-				delete pMessageToEvaluate;
+				if ( pMessageToEvaluate != NULL ) {
+					delete pMessageToEvaluate;
+					pMessageToEvaluate = NULL;
+				}
 				continue;  //no message nothing to evaluate
 			}//else state changed -> evaluate new state
 			pDataGloveState = NULL;
@@ -284,27 +339,34 @@ bool cThreadSamplingMessageEvaluator::run() {
 				pCallFunction = NULL;
 			}
 		}
-		
-		if ( pEvaluateDataGloveState != NULL ) {
-			pDataGloveState = pEvaluateDataGloveState->
-				evalueDataGloveState( pMessageToEvaluate );
-			
-			if ( pDataGloveState != NULL ) {
-				pCallFunction = pDataGloveState->getCallFunction();
+		if  ( pMessageToEvaluate != NULL ) {
+			DEBUG_OUT_L3(<<"cThreadSamplingMessageEvaluator("<<this<<")::run() evaluate new state"<<endl<<flush);
+			if ( pEvaluateDataGloveState != NULL ) {
 				
-				if ( pCallFunction != NULL ) {
-					//call the function
-					(*pCallFunction)();
-					if ( pDataGloveState->getRepeatAllMilliSeconds() != 0 ) {
-						//TODO if repeat delay start repeat delay function
-						//handle in this method
-						
+				pDataGloveState = pEvaluateDataGloveState->
+					evalueDataGloveState( pMessageToEvaluate );
+				
+				if ( pDataGloveState != NULL ) {
+					pCallFunction = pDataGloveState->getCallFunction();
+					
+					if ( pCallFunction != NULL ) {
+						//call the function
+						(*pCallFunction)();
+					//TODO remove cDataGloveState->getRepeatAllMilliSeconds()
+					/*TODO weg:
+						if ( pDataGloveState->getRepeatAllMilliSeconds() != 0 ) {
+							//TODO if repeat delay start repeat delay function
+							//handle in this method
+							
+						}
+					*/
 					}
+					iModusForDataGloveState = pEvaluateDataGloveState->getActualModus();
 				}
-				iModusForDataGloveState = pEvaluateDataGloveState->getActualModus();
 			}
+			delete pMessageToEvaluate;
+			pMessageToEvaluate = NULL;
 		}
-		delete pMessageToEvaluate;
 	}  //while more messages to read
 	
 	bStop = false;
