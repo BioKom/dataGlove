@@ -555,6 +555,9 @@ protected:
 			tTypeSamplingValue, cIntervalCorrection >
 				mapCorrections;
 	
+	std::set< nModelDataGloveDGTechVHand::cMessageSamplingDataFromDataGlove::
+			tTypeSamplingValue> SetUsedHandSamplingValues;
+
 public:
 	
 	/**
@@ -621,6 +624,43 @@ public:
 		return true;
 	}
 	
+	
+	/**
+	 * This method checks if the given sampling value type is used for any state.
+	 * It returns true if there is a State with a intervall for the given
+	 * sampling value type.
+	 *
+	 * @see SetUsedHandSamplingValues
+	 * @param inTypeSamplingValue the data glove sampling massage value type,
+	 * 	for which to check, if it is relevant
+	 * @return true data glove sampling massage value type exists as an
+	 * 	interval for a state, else false
+	 */
+	inline bool isSamplingValueRelevant( const
+			nModelDataGloveDGTechVHand::cMessageSamplingDataFromDataGlove::
+				tTypeSamplingValue inTypeSamplingValue ) {
+		
+		return ( SetUsedHandSamplingValues.find( inTypeSamplingValue ) !=
+			SetUsedHandSamplingValues.end() );
+	}
+	
+	/**
+	 * @see mapCorrections
+	 * @return the value with which the given sampling type digit is corrected
+	 */
+	inline long getCorrectionValue(
+			const nModelDataGloveDGTechVHand::cMessageSamplingDataFromDataGlove::
+			tTypeSamplingValue & inTypeSamplingValue ) {
+		
+		const std::map< nModelDataGloveDGTechVHand::cMessageSamplingDataFromDataGlove::tTypeSamplingValue,
+			cIntervalCorrection >::const_iterator itrFoundCorrection =
+				mapCorrections.find( inTypeSamplingValue );
+		if ( itrFoundCorrection != mapCorrections.end() ) {
+			//return the correction value for the found correction intervall
+			return itrFoundCorrection->second.getCorrectionValue();
+		};  //else
+		return 0;
+	}
 	
 };//end class cEvaluateDataGloveState
 

@@ -42,6 +42,7 @@
 /*
 History:
 13.07.2014  Oesterholz  created
+04.02.2016  Oesterholz  copy constructor and clone() added
 */
 
 
@@ -68,11 +69,25 @@ public:
 	 */
 	explicit cMessageGetIdFromDataGlove();
 	
+	/**
+	 * The copy constructor for the DGTech VHand data glove message.
+	 *
+	 * @param inMessageDataGlove the message to copy
+	 */
+	cMessageGetIdFromDataGlove( const cMessageGetIdFromDataGlove & inMessageDataGlove );
+	
 	
 	/**
 	 * The destructor.
 	 */
 	virtual ~cMessageGetIdFromDataGlove();
+	
+	/**
+	 * Clones this object.
+	 *
+	 * @return the clone of this object
+	 */
+	virtual cMessageGetIdFromDataGlove * clone() const;
 	
 	
 	/**

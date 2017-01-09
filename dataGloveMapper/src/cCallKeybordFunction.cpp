@@ -832,6 +832,7 @@ void cCallKeybordFunction::end() {
  */
 bool cCallKeybordFunction::setParameter( const string & szFunctionParameter ) {
 	
+	Parameter = szFunctionParameter;
 	return analyseAndSetParameters( wstring(
 		szFunctionParameter.begin(), szFunctionParameter.end() ) );
 }
@@ -849,6 +850,8 @@ bool cCallKeybordFunction::setParameter( const string & szFunctionParameter ) {
  */
 bool cCallKeybordFunction::setParameter(
 		const wstring & szFunctionParameter ) {
+	
+	Parameter = string( szFunctionParameter.begin(), szFunctionParameter.end() );
 	
 	return analyseAndSetParameters( szFunctionParameter );
 }
@@ -1671,6 +1674,20 @@ void cCallKeybordFunction::keyboardFunctionToOperatorFunction(
 			keybordFunctionForOperator = INPUT_KEY_CODE_2;
 			keyCode1 = KEY_LEFTSHIFT;
 			keyCode2 = 51;
+		}; break;
+		case COMMA: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_1;
+			keyCode1 = KEY_COMMA;
+		}; break;
+		
+		
+		case SLASH: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_1;
+			keyCode1 = KEY_SLASH;
+		}; break;
+		case BACKSLASH: {
+			keybordFunctionForOperator = INPUT_KEY_CODE_1;
+			keyCode1 = KEY_BACKSLASH;
 		}; break;
 		
 		case SPECIAL_CHAR_DEU_AE: {

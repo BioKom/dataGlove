@@ -1,0 +1,49 @@
+
+=Notation=
+
+(time needed/brain needed/brain power recomended/priority[/depends on])
+brain -> 0=no brainer ... 10=be realy smart
+priority -> 0 -> non ... 10=very important
+
+=Next steps=
+
+* check Info window
+** activ status is never shown
+** Quaterion slides -> correct automaticly?
+
+
+
+* cDataGloveMapperInfoMainWindow
+** TODO rework
+*** (1h/2/3/6) chooseDevice()
+
+* cDataGloveMapperInfoMainWindow
+** (2h/4/7/3) test
+
+** cThreadReaderMessageGloveStates
+*** (8h/4/7/2) rework
+**** (3h/2/5/4) check comment for methods
+
+** cWidgetDisplayMessageGloveStatesMessageGloveDigit show nMessageGloveStates_cMessageGloveDigit
+*** shows one digit state
+*** needs cWidgetDisplayMessageGloveStatesDigitState
+
+** cWidgetDisplayMessageGloveStates show cMessageGloveStates
+**** ?use interface to set data glove state?
+**** (2h/2/5/4) check comment for methods
+
+
+** cWidgetDisplayMessageGloveStatesDigitState show nMessageGloveStates_cDigitState
+*** (1h/4/6/1) getDigitStateName(): better evaluation of the name
+
+
+
+
+=recuring steps=
+
+*** (1h/6/9/3) choose template
+*** (1h/6/8/2) design view
+*** (8h/4/7/2) rework
+**** (1h/6/8/2) define needed functionality
+**** (3h/2/5/4) write comment for methods
+**** (3h/4/6/2) implement methods

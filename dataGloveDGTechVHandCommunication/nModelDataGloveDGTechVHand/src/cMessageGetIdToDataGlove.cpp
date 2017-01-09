@@ -43,6 +43,7 @@
 /*
 History:
 11.07.2014  Oesterholz  created
+04.02.2016  Oesterholz  copy constructor and clone() added
 */
 
 
@@ -61,7 +62,8 @@ using namespace std;
  * 	this message will just contain an empty message
  */
 cMessageGetIdToDataGlove::cMessageGetIdToDataGlove(
-		const bool bCreateMessage ) {
+		const bool bCreateMessage ) :
+			cMessageToDataGlove() {
 	
 	type = GET_ID;
 	cCommand = DATA_GLOVE_D_G_TECH_V_HAND__CMD_GET_ID;
@@ -79,11 +81,34 @@ cMessageGetIdToDataGlove::cMessageGetIdToDataGlove(
 
 
 /**
+ * The copy constructor for the DGTech VHand data glove message.
+ *
+ * @param inMessageDataGlove the message to copy
+ */
+cMessageGetIdToDataGlove::cMessageGetIdToDataGlove(
+		const cMessageGetIdToDataGlove & inMessageDataGlove ) :
+			cMessageToDataGlove( inMessageDataGlove ) {
+	//nothing to do
+}
+
+
+/**
  * The destructor.
  */
 cMessageGetIdToDataGlove::~cMessageGetIdToDataGlove() {
 	
 	//nothing to do
+}
+
+
+/**
+ * Clones this object.
+ *
+ * @return the clone of this object
+ */
+cMessageGetIdToDataGlove * cMessageGetIdToDataGlove::clone() const {
+	
+	return new cMessageGetIdToDataGlove( *this );
 }
 
 

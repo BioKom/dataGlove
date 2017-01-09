@@ -68,7 +68,8 @@ cCallSimulation::cCallSimulation( const std::string & szInCalledFunction,
 		const std::string & szInCallParameter ) :
 			szCalledFunction( szInCalledFunction ),
 			szCallParameter( szInCallParameter ) {
-	//nothing to do
+	
+	Parameter = szInCalledFunction + " " + szInCallParameter;
 }
 
 

@@ -52,11 +52,13 @@ History:
 #include "version.h"
 
 #include <string>
+#include <list>
 
 #include <mutex>
 
 #include "cThread.h"
 #include "cMessageSamplingDataFromDataGlove.h"
+#include "iSetNewSamplingMessage.h"
 
 
 namespace nDataGlove{
@@ -150,6 +152,30 @@ public:
 	 */
 	virtual bool run();
 	
+	
+	/**
+	 * Registers a listeners for new data glove sampling messages.
+	 *
+	 * @see LiSamplingMessageListeners
+	 * @see unregisterSamplingMessageListener()
+	 * @param inPSetNewSamplingMessage a pointer to a listener for new data
+	 * 	glove sampling messages
+	 * @return true if the listener was registered, else false
+	 */
+	bool registerSamplingMessageListener( iSetNewSamplingMessage * inPSetNewSamplingMessage );
+	
+	/**
+	 * Unregisters a listeners for new data glove sampling messages.
+	 *
+	 * @see LiSamplingMessageListeners
+	 * @see registerSamplingMessageListener()
+	 * @param inPSetNewSamplingMessage a pointer to a listener for new data
+	 * 	glove sampling messages
+	 * @return true if the listener was unregistered, else false
+	 */
+	bool unregisterSamplingMessageListener( iSetNewSamplingMessage * inPSetNewSamplingMessage );
+	
+	
 protected:
 	
 	/**
@@ -179,10 +205,39 @@ protected:
 	/**
 	 * Mutex to lock access to the members of this class.
 	 * Lock the mutex if you use one of the following containers:
-	 * 	@see pDataGloveDevice
+	 * @see pDataGloveDevice
 	 */
 	mutable std::mutex mutexMembers;
 #endif  //CPP_2011
+	
+	
+//members to handel more listeners for new data glove sampling messages
+	/**
+	 * A list with more listeners for new data glove sampling messages.
+	 * @see registerSamplingMessageListener()
+	 * @see unregisterSamplingMessageListener()
+	 * @see mutexSamplingMessageListeners
+	 * @see BMoreSamplingMessageListenersExists
+	 */
+	std::list< iSetNewSamplingMessage * > LiSamplingMessageListeners;
+
+	/**
+	 * True if more listeners for new data glove sampling messages exists.
+	 * ( not LiSamplingMessageListeners.empty() )
+	 * @see LiSamplingMessageListeners
+	 */
+	bool BMoreSamplingMessageListenersExists;
+	
+	
+#ifdef CPP_2011
+	/**
+	 * Mutex to lock access to the list with more listeners for new data
+	 * glove sampling messages.
+	 * Lock the mutex if you use one of the following containers:
+	 * 	 @see LiSamplingMessageListeners
+	 */
+	mutable std::mutex mutexSamplingMessageListeners;
+#endif  //CPP_2011	
 	
 };//end class cThreadMessageHandler
 

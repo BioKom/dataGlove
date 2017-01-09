@@ -47,7 +47,6 @@ History:
 05.08.2014  Oesterholz  created
 */
 
-//TODO rework
 
 /**
  * Count down till stop the application
@@ -66,6 +65,8 @@ History:
 #include "cThread.h"
 #include "cThreadMessageHandler.h"
 #include "cCallSetBoolFlag.h"
+#include "cThreadSamplingMessageWriter.h"
+#include "cEvaluateMessageGloveStatesEach2Neighbors.h"
 
 
 #include <string>
@@ -116,6 +117,7 @@ int main(int argc, char* argv[]){
 	const bool bStatesLoaded = evaluateDataGloveState.loadDataGloveStates(
 		szDataGloveStatesPath );
 	
+	
 	const bool isValid =
 		cDataGloveDGTechVHand::isLiveDataGlove( szDataGlovePath.c_str() );
 	
@@ -133,12 +135,24 @@ int main(int argc, char* argv[]){
 		threadMessageHandler.setDataGloveDevice( &dataGloveDGTechVHand );
 		threadMessageHandler.setEvaluateDataGloveState( &evaluateDataGloveState );
 		
+		//create the message write
+		cEvaluateMessageGloveStatesEach2Neighbors evaluateMessageGloveStatesEach2Neighbors;
+		evaluateMessageGloveStatesEach2Neighbors.setEvaluateDataGloveState(
+			&evaluateDataGloveState );
+		cThreadSamplingMessageWriter threadSamplingMessageWriter(
+			std::string( "dataGloveSamplinOutput.dat" ),
+			&evaluateMessageGloveStatesEach2Neighbors );
+		threadMessageHandler.registerSamplingMessageListener(
+			&threadSamplingMessageWriter );
+		
+		
+		//start the sampling
 		dataGloveDGTechVHand.startSampling( 1 );
 		cout<<"Sampling started on device \""<<szDataGlovePath<<"\" ."<<endl;
 		
 		//start the data glove message handler thread
 		threadMessageHandler.start();
-		
+		threadSamplingMessageWriter.start();
 
 #ifdef FEATURE_APPLICATION_COUNT_DOWN
 		unsigned int uiNextPrint = FEATURE_APPLICATION_COUNT_DOWN;
@@ -165,6 +179,7 @@ int main(int argc, char* argv[]){
 		
 		dataGloveDGTechVHand.stopSampling();
 		
+		threadSamplingMessageWriter.quit();
 		threadMessageHandler.quit();
 		//TODO needed?: threadMessageHandler.join();
 		
@@ -172,6 +187,8 @@ int main(int argc, char* argv[]){
 			
 			cThread::shortSleep();
 		}
+		threadMessageHandler.unregisterSamplingMessageListener(
+			&threadSamplingMessageWriter );
 		
 	} else {
 		cout<<"The device \""<<szDataGlovePath<<"\" is not a valid data glove DGTech VHand."<<endl;
@@ -182,7 +199,8 @@ int main(int argc, char* argv[]){
 	strftime( strTimeBuffer, sizeof( strTimeBuffer ), "%Y-%m-%d %T", timeinfo);
 	time_t tEndTime;
 	time( &tEndTime );
-	cout<<"Runtime: "<<difftime( tEndTime, tStartTime ) <<" seconds (start time: "<<strTimeBuffer<<")"<<endl;
+	cout<<"Runtime: "<<difftime( tEndTime, tStartTime ) <<" seconds (or "<<
+		(difftime( tEndTime, tStartTime ) / 60)<<" minutes ;start time: "<<strTimeBuffer<<")"<<endl;
 	
 	return 0;
 }

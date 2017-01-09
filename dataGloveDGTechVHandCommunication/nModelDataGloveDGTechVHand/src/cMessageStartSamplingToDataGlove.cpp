@@ -47,6 +47,7 @@
 /*
 History:
 19.07.2014  Oesterholz  created
+04.02.2016  Oesterholz  copy constructor and clone() added
 */
 
 
@@ -65,7 +66,8 @@ using namespace std;
  * 	this message will just contain an empty message
  */
 cMessageStartSamplingToDataGlove::cMessageStartSamplingToDataGlove(
-		const bool bCreateMessage ) {
+		const bool bCreateMessage ) :
+			cMessageToDataGlove() {
 	
 	type = START_SAMPLINT;
 	cCommand = DATA_GLOVE_D_G_TECH_V_HAND__CMD_GET_ID;
@@ -96,7 +98,8 @@ cMessageStartSamplingToDataGlove::cMessageStartSamplingToDataGlove(
  * 		5: send only finger data
  */
 cMessageStartSamplingToDataGlove::cMessageStartSamplingToDataGlove(
-		const int iSamplingType ) {
+		const int iSamplingType ) :
+			cMessageToDataGlove()  {
 
 	type = START_SAMPLINT;
 	cCommand = DATA_GLOVE_D_G_TECH_V_HAND__CMD_START_SAMPLING;
@@ -133,11 +136,33 @@ cMessageStartSamplingToDataGlove::cMessageStartSamplingToDataGlove(
 
 
 /**
+ * The copy constructor for the DGTech VHand data glove message.
+ *
+ * @param inMessageDataGlove the message to copy
+ */
+cMessageStartSamplingToDataGlove::cMessageStartSamplingToDataGlove(
+		const cMessageStartSamplingToDataGlove & inMessageDataGlove ) :
+			cMessageToDataGlove( inMessageDataGlove ) {
+	//nothing to do
+}
+
+/**
  * The destructor.
  */
 cMessageStartSamplingToDataGlove::~cMessageStartSamplingToDataGlove() {
 	
 	//nothing to do
+}
+
+
+/**
+ * Clones this object.
+ *
+ * @return the clone of this object
+ */
+cMessageStartSamplingToDataGlove * cMessageStartSamplingToDataGlove::clone() const {
+	
+	return new cMessageStartSamplingToDataGlove( *this );
 }
 
 

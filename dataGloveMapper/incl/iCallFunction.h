@@ -85,9 +85,19 @@ public:
 	
 	
 	/**
+	 * This method returns the parameter for the operation.
+	 *
+	 * @see Parameter
+	 * @return all parameters for this functor operation as a string
+	 */
+	virtual std::string getParameter() const;
+	
+	
+	/**
 	 * This method sets the parameter for the operation.
 	 * The parameter are readed from the given string.
 	 *
+	 * @see Parameter
 	 * @param szFunctionParameter all parameters for this functor operation
 	 * 	as a string
 	 * @return true if the parameter could be set, else false
@@ -100,6 +110,7 @@ public:
 	 * This method sets the parameter for the operation.
 	 * The parameter are readed from the given string.
 	 *
+	 * @see Parameter
 	 * @param szFunctionParameter all parameters for this functor operation
 	 * 	as a string
 	 * @return true if the parameter could be set, else false
@@ -169,6 +180,11 @@ protected:
 	 * @see arrayRepeatDelay
 	 */
 	std::chrono::system_clock::time_point timeNextCall;
+	
+	/**
+	 * The parameters for this functor operation as a string.
+	 */
+	std::string Parameter;
 	
 	
 	

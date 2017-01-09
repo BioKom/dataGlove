@@ -169,6 +169,7 @@ void cCallPrepareChangeModus::unprepare() {
  */
 bool cCallPrepareChangeModus::setParameter( const string & szModus ) {
 	//set modus  parameter
+	Parameter = szModus;
 	iModus = atoi( szModus.c_str() );
 	return true;
 }

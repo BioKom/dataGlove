@@ -97,16 +97,15 @@ cThreadSamplingMessageEvaluator::~cThreadSamplingMessageEvaluator() {
 		//stop this thread
 		quit();
 	}
-#ifdef CPP_2011
 	mutexMembers.lock();
-#endif  //CPP_2011
+	
 	nModelDataGloveDGTechVHand::cMessageSamplingDataFromDataGlove *
 		pToDeleteMessageSamplingDataFromDataGlove =
 			pNewMessageSamplingDataFromDataGlove;
 	pNewMessageSamplingDataFromDataGlove = NULL;
-#ifdef CPP_2011
+	
 	mutexMembers.unlock();
-#endif  //CPP_2011
+	
 	if ( pToDeleteMessageSamplingDataFromDataGlove != NULL ) {
 		delete pToDeleteMessageSamplingDataFromDataGlove;
 	}
@@ -157,9 +156,8 @@ void cThreadSamplingMessageEvaluator::setNewSamplingMessage(
 	if ( pInNewMessageSamplingDataFromDataGlove == NULL ) {
 		return;  //no new message
 	}
-#ifdef CPP_2011
 	mutexMembers.lock();
-#endif  //CPP_2011
+	
 	nModelDataGloveDGTechVHand::cMessageSamplingDataFromDataGlove *
 		pToDeleteMessageSamplingDataFromDataGlove =
 			pNewMessageSamplingDataFromDataGlove;
@@ -167,9 +165,9 @@ void cThreadSamplingMessageEvaluator::setNewSamplingMessage(
 	bNewMessageSamplingDataFromDataGloveChangedTillLastRunEval = true;
 	ulMessageInQueue++;
 	DEBUG_OUT_L4(<<"cThreadSamplingMessageEvaluator("<<this<<")::setNewSamplingMessage() bNewMessageSamplingDataFromDataGloveChangedTillLastRunEval set"<<endl<<flush);
-#ifdef CPP_2011
+	
 	mutexMembers.unlock();
-#endif  //CPP_2011
+	
 	if ( pToDeleteMessageSamplingDataFromDataGlove != NULL ) {
 		delete pToDeleteMessageSamplingDataFromDataGlove;
 	}
@@ -210,13 +208,13 @@ cEvaluateDataGloveState * cThreadSamplingMessageEvaluator::getEvaluateDataGloveS
 void cThreadSamplingMessageEvaluator::setEvaluateDataGloveState(
 		cEvaluateDataGloveState * pInEvaluateDataGloveState ) {
 	
-#ifdef CPP_2011
+	
 	mutexMembers.lock();
-#endif  //CPP_2011
+	
 	pEvaluateDataGloveState = pInEvaluateDataGloveState;
-#ifdef CPP_2011
+	
 	mutexMembers.unlock();
-#endif  //CPP_2011
+	
 }
 
 
@@ -254,7 +252,7 @@ bool cThreadSamplingMessageEvaluator::run() {
 			//nothing happend
 			DEBUG_OUT_L4(<<"cThreadSamplingMessageEvaluator("<<this<<")::run() nothing happend"<<endl<<flush);
 			if ( 0 < lMilliSecondsToWait ) {
-				DEBUG_OUT_L4(<<"cThreadSamplingMessageEvaluator("<<this<<")::run() weit millisecounds"<<endl<<flush);
+				DEBUG_OUT_L4(<<"cThreadSamplingMessageEvaluator("<<this<<")::run() wait millisecounds"<<endl<<flush);
 				msleep( lMilliSecondsToWait );
 			}
 			//nothing happend -> wait longer
@@ -268,9 +266,9 @@ bool cThreadSamplingMessageEvaluator::run() {
 		if ( bNewMessageSamplingDataFromDataGloveChangedTillLastRunEval ) {
 			DEBUG_OUT_L4(<<"cThreadSamplingMessageEvaluator("<<this<<")::run() evaluate new message"<<endl<<flush);
 			//read message
-#ifdef CPP_2011
+			
 			mutexMembers.lock();
-#endif  //CPP_2011
+			
 			pMessageToEvaluate = pNewMessageSamplingDataFromDataGlove;
 			pNewMessageSamplingDataFromDataGlove = NULL;
 			bNewMessageSamplingDataFromDataGloveChangedTillLastRunEval = false;
@@ -281,9 +279,9 @@ bool cThreadSamplingMessageEvaluator::run() {
 			}
 			ulMessageInQueue = 0;
 			DEBUG_OUT_L4(<<"cThreadSamplingMessageEvaluator("<<this<<")::run() bNewMessageSamplingDataFromDataGloveChangedTillLastRunEval unset"<<endl<<flush);
-#ifdef CPP_2011
+			
 			mutexMembers.unlock();
-#endif  //CPP_2011
+			
 			if ( pMessageToEvaluate == NULL ) {
 				DEBUG_OUT_L4(<<"cThreadSamplingMessageEvaluator("<<this<<")::run() no new message"<<endl<<flush);
 				//go on for repeater of state
@@ -330,6 +328,9 @@ bool cThreadSamplingMessageEvaluator::run() {
 				if ( pMessageToEvaluate != NULL ) {
 					delete pMessageToEvaluate;
 					pMessageToEvaluate = NULL;
+					
+					//send message to all Listeners
+					sendMessageToAllListeners( pMessageToEvaluate );
 				}
 				continue;  //no message nothing to evaluate
 			}//else state changed -> evaluate new state
@@ -364,6 +365,9 @@ bool cThreadSamplingMessageEvaluator::run() {
 					iModusForDataGloveState = pEvaluateDataGloveState->getActualModus();
 				}
 			}
+			//send message to all Listeners
+			sendMessageToAllListeners( pMessageToEvaluate );
+			
 			delete pMessageToEvaluate;
 			pMessageToEvaluate = NULL;
 		}
@@ -376,6 +380,94 @@ bool cThreadSamplingMessageEvaluator::run() {
 }
 
 
+/**
+ * With this function you can register a listeners for new data glove
+ * sampling data message.
+ *
+ * @see unregisterSetNewSamplingMessageListener()
+ * @see sendMessageToAllListeners()
+ * @param pSetNewSamplingMessage a pointer to the listener for new messages
+ * @return true if the listener was registered, else false
+ */
+bool cThreadSamplingMessageEvaluator::registerSetNewSamplingMessageListener(
+		iSetNewSamplingMessage * pSetNewSamplingMessage ) {
+	
+	if ( pSetNewSamplingMessage == NULL ) {
+		return false;
+	}
+	mutexSetListenersSetNewSamplingMessage.lock();
+	if ( SetListenersSetNewSamplingMessage.find( pSetNewSamplingMessage ) ==
+			SetListenersSetNewSamplingMessage.end() ) {
+		//listener not contained in set -> add it
+		SetListenersSetNewSamplingMessage.insert( pSetNewSamplingMessage );
+		mutexSetListenersSetNewSamplingMessage.unlock();
+		return true;
+	}  //else listener allready contained in set -> nothing to do
+	mutexSetListenersSetNewSamplingMessage.unlock();
+	return false;
+}
+
+
+/**
+ * With this function you can unregister a listeners for new data glove
+ * sampling data message.
+ *
+ * @see registerSetNewSamplingMessageListener()
+ * @see sendMessageToAllListeners()
+ * @param pSetNewSamplingMessage a pointer to the listener new messages
+ * @return true if the listener was unregistered, else false
+ */
+bool cThreadSamplingMessageEvaluator::unregisterSetNewSamplingMessageListener(
+		iSetNewSamplingMessage * pSetNewSamplingMessage ) {
+	
+	mutexSetListenersSetNewSamplingMessage.lock();
+	const bool bValueRemoved =
+		(0 < SetListenersSetNewSamplingMessage.erase( pSetNewSamplingMessage ) );
+	mutexSetListenersSetNewSamplingMessage.unlock();
+	return bValueRemoved;
+}
+
+
+/**
+ * This method sends the given message to all listeners for new data
+ * glove sampling data messages.
+ *
+ * @param pInEvaluateDataGloveState a pointer to the data glove sampling
+ * 	data messages to send
+ */
+void cThreadSamplingMessageEvaluator::sendMessageToAllListeners(
+		cMessageSamplingDataFromDataGlove * inMessageToEvaluate ) {
+	
+	mutexSetListenersSetNewSamplingMessage.lock();
+	if ( inMessageToEvaluate != NULL ) {
+		for ( std::set< iSetNewSamplingMessage * >::iterator itrListener =
+				SetListenersSetNewSamplingMessage.begin();
+				itrListener != SetListenersSetNewSamplingMessage.end();
+				++itrListener ) {
+			
+			if ( (*itrListener) != NULL ) {
+				//send copy of the message
+				(*itrListener)->setNewSamplingMessage(
+					inMessageToEvaluate->clone() );
+			}
+		}
+	}else{  //send NULL
+		for ( std::set< iSetNewSamplingMessage * >::iterator itrListener =
+				SetListenersSetNewSamplingMessage.begin();
+				itrListener != SetListenersSetNewSamplingMessage.end();
+				++itrListener ) {
+			
+			if ( (*itrListener) != NULL ) {
+				//send NULL
+				(*itrListener)->setNewSamplingMessage( NULL);
+			}
+		}
+	}
+	
+	//setNewSamplingMessage( pMessageToEvaluate )
+	mutexSetListenersSetNewSamplingMessage.unlock();
+	
+}
 
 
 

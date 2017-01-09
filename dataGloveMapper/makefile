@@ -43,6 +43,7 @@
 # History:
 # 05.08.2014   Oesterholz   created
 # 14.09.2014   Oesterholz   rules for tests added
+# 01.02.2016   Oesterholz   -lboost_serialization added
 
 
 ##########################################################################
@@ -94,7 +95,7 @@ DIR_DG_COMMUNICATION_LIB:=$(DIR_DG_COMMUNICATION)/lib/
 ##########################################################################
 
 SHELL:=/bin/sh
-CC:=gcc
+CC:=g++
 #debugg flags
 #CFLAG:=-g -Wall
 #optimize compile flags
@@ -105,14 +106,15 @@ CFLAG:=-O -O2 -std=c++11
 CFLAG_TEST:=-g -pg -Wall -DTEST -std=c++11
 INCL:=-I$(BASE_DIR) -I$(DIR_INCL) -I$(DIR_DG_COMMUNICATION_INCL)\
 	-I$(DIR_DG_COMMUNICATION_MSG_INCL)
-LIBS:=-lstdc++ -lm -pthread \
-	-L$(DIR_DG_COMMUNICATION_LIB) -lDataGloveCom
+LIBS:=-lstdc++ -lm -pthread\
+	-L$(DIR_DG_COMMUNICATION_LIB) -lDataGloveCom -lboost_serialization
 # -lm -lpthread -lboost_locale
-LIBS_TEST:=-lstdc++ -lm -pthread \
-	 -L$(DIR_DG_COMMUNICATION_LIB) -lDataGloveCom_test
-LIBS_WIN:=-static -lstdc++ -lm -pthread -L$(DIR_DG_COMMUNICATION_LIB) -lDataGloveCom
+LIBS_TEST:=-lstdc++ -lm -pthread\
+	 -L$(DIR_DG_COMMUNICATION_LIB) -lDataGloveCom_test -lboost_serialization
+LIBS_WIN:=-static -lstdc++ -lm -pthread\
+	-L$(DIR_DG_COMMUNICATION_LIB) -lDataGloveCom -lboost_serialization
 LIBS_WIN_TEST:=-static -lstdc++ -lm -pthread\
-	-L$(DIR_DG_COMMUNICATION_LIB) -lDataGloveCom_test
+	-L$(DIR_DG_COMMUNICATION_LIB) -lDataGloveCom_test -lboost_serialization
 
 
 ##########################################################################
@@ -223,10 +225,10 @@ OBJ_TEST_DATA_GLOVE := $(filter-out $(addprefix %, $(addsuffix .o, $(EXE_FILES) 
 MAKEFILE_FLAG:=
 
 
-all:create_dirs dependencies.dep $(DIR_LIB)libDataGloveCom.a\
+all:create_dirs dependencies.dep $(DIR_LIB)libDataGloveMapper.a\
 	$(addprefix $(DIR_BIN), $(EXE_FILES) )
 
-test: create_dirs dependencies.dep $(DIR_LIB)libDataGloveCom_test.a\
+test: create_dirs dependencies.dep $(DIR_LIB)libDataGloveMapper_test.a\
 	$(addprefix $(DIR_BIN)test_, $(EXE_FILES) ) $(TEST_BIN)
 
 test: CFLAG:=$(CFLAG_TEST)
@@ -262,9 +264,9 @@ win_test: LIBS_TEST:=$(LIBS_WIN_TEST)
 #
 define generat_test_rules
 $(1)/$(DIR_TESTCASE)%: $(1)/$(DIR_OBJ_TEST)%.o $(TEST_TOOLS) \
-	$(DIR_LIB)libDataGloveCom_test.a
+	$(DIR_LIB)libDataGloveMapper_test.a
 	$(CC) $$(CFLAG_TEST) $$(LDFLAGS) -o $$@ $$^ $$(LIBS_TEST) \
-		$(DIR_LIB)libDataGloveCom_test.a
+		$(DIR_LIB)libDataGloveMapper_test.a
 endef
 
 $(foreach SUBFOLDER, $(NAMESPACES), $(eval $(call generat_test_rules,$(SUBFOLDER)) ) )
@@ -305,7 +307,7 @@ $(foreach TESTPROGRAM, $(EXE_FILES), $(eval $(call generat_test_bins,$(TESTPROGR
 #
 ##########################################################################
 
-$(DIR_LIB)libDataGloveCom.a: $(OBJ_DATA_GLOVE)
+$(DIR_LIB)libDataGloveMapper.a: $(OBJ_DATA_GLOVE)
 	$(AR) $(ARFLAGS) $@ $?
 
 
@@ -315,7 +317,7 @@ $(DIR_LIB)libDataGloveCom.a: $(OBJ_DATA_GLOVE)
 #
 ##########################################################################
 
-$(DIR_LIB)libDataGloveCom_test.a: $(OBJ_TEST_DATA_GLOVE)
+$(DIR_LIB)libDataGloveMapper_test.a: $(OBJ_TEST_DATA_GLOVE)
 	$(AR) $(ARFLAGS) $@ $?
 
 

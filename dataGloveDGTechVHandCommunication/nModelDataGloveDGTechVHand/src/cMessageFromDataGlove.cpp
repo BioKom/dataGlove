@@ -42,6 +42,7 @@
 /*
 History:
 11.07.2014  Oesterholz  created
+04.02.2016  Oesterholz  copy constructor and clone() added
 */
 
 
@@ -55,8 +56,20 @@ using namespace std;
 /**
  * The standard constructor for the DGTech VHand data glove message.
  */
-cMessageFromDataGlove::cMessageFromDataGlove() {
-	
+cMessageFromDataGlove::cMessageFromDataGlove() :
+		cMessageDataGlove() {
+	//nothing to do
+}
+
+
+/**
+ * The copy constructor for the DGTech VHand data glove message.
+ *
+ * @param inMessageDataGlove the message to copy
+ */
+cMessageFromDataGlove::cMessageFromDataGlove(
+		const cMessageFromDataGlove & inMessageDataGlove ) :
+			cMessageDataGlove( inMessageDataGlove ) {
 	//nothing to do
 }
 
@@ -67,6 +80,17 @@ cMessageFromDataGlove::cMessageFromDataGlove() {
 cMessageFromDataGlove::~cMessageFromDataGlove() {
 	
 	//nothing to do
+}
+
+
+/**
+ * Clones this object.
+ *
+ * @return the clone of this object
+ */
+cMessageFromDataGlove * cMessageFromDataGlove::clone() const {
+	
+	return new cMessageFromDataGlove( *this );
 }
 
 

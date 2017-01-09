@@ -66,8 +66,8 @@ int main(int argc, char* argv[]){
 //	unsigned long ulTestphase = 0;//actual phase of the test 
 	int iReturn = 0;//return value of the test; the number of occured Errors
 	
-	cout<<endl<<"Running Test for cUInputDevice"<<endl;
-	cout<<      "=============================="<<endl;
+	cout<<endl<<"Running Test for cMapString and cMapWString"<<endl;
+	cout<<      "==========================================="<<endl;
 	
 	iReturn += testMapping();
 	

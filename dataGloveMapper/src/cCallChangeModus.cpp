@@ -178,6 +178,7 @@ int cCallChangeModus::getModus() const {
  */
 bool cCallChangeModus::setParameter( const string & szModus ) {
 	//set modus  parameter
+	Parameter = szModus;
 	iModus = atoi( szModus.c_str() );
 	return true;
 }

@@ -44,6 +44,7 @@
 /*
 History:
 13.07.2014  Oesterholz  created
+04.02.2016  Oesterholz  copy constructor and clone() added
 */
 
 
@@ -119,7 +120,7 @@ cMessageSamplingDataFromDataGlove::tTypeSamplingValue const
 			ACCELEROMETER_Z, ACCELEROMETER_Z,
 			STATUS, STATUS, CRC, END
 		},
-		//sampling message type 4
+		//sampling message type 5
 		{ BEGIN, TYPE_MSG, LENGTH, TYPE, ID, ID, CLOCK, CLOCK, CLOCK, CLOCK,
 			FINGER_1, FINGER_1,
 			FINGER_2, FINGER_2,
@@ -217,12 +218,36 @@ cMessageSamplingDataFromDataGlove::cMessageSamplingDataFromDataGlove() {
 }
 
 
+
+/**
+ * The copy constructor for the DGTech VHand data glove message.
+ *
+ * @param inMessageDataGlove the message to copy
+ */
+cMessageSamplingDataFromDataGlove::cMessageSamplingDataFromDataGlove(
+		const cMessageSamplingDataFromDataGlove & inMessageDataGlove ) :
+			cMessageFromDataGlove( inMessageDataGlove ) {
+	//nothing to do
+}
+
+
 /**
  * The destructor.
  */
 cMessageSamplingDataFromDataGlove::~cMessageSamplingDataFromDataGlove() {
 	
 	//nothing to do
+}
+
+
+/**
+ * Clones this object.
+ *
+ * @return the clone of this object
+ */
+cMessageSamplingDataFromDataGlove * cMessageSamplingDataFromDataGlove::clone() const {
+	
+	return new cMessageSamplingDataFromDataGlove( *this );
 }
 
 
@@ -235,6 +260,100 @@ std::string cMessageSamplingDataFromDataGlove::getName() const {
 }
 
 
+/**
+ * Returns a list with the hand sampling value types for the given
+ * message type.
+ * Hand sampling value types are hand related, e.g. FINGER_1,
+ * MAGNETOMETER_X (but not BEGIN, CLOCK, STATUS, ...).
+ *
+ * @param inSamplingTyp The type of the mesage, for which to return the
+ * 	hand sampling value types
+ * @return a list of the hand sampling value types for the given
+ * 	message types
+ */
+list< cMessageSamplingDataFromDataGlove::tTypeSamplingValue >
+		cMessageSamplingDataFromDataGlove::
+			getHandSamplingValuesTypesForMessageType( const int inSamplingTyp ) {
+	
+	list< tTypeSamplingValue > liHandSamplingValuesTypes;
+	
+	switch ( inSamplingTyp ) {
+		case 1: //sampling message type 1
+		{
+			liHandSamplingValuesTypes.push_back( QUATERNION_1 );
+			liHandSamplingValuesTypes.push_back( QUATERNION_2 );
+			liHandSamplingValuesTypes.push_back( QUATERNION_3 );
+			liHandSamplingValuesTypes.push_back( QUATERNION_4 );
+			liHandSamplingValuesTypes.push_back( FINGER_1 );
+			liHandSamplingValuesTypes.push_back( FINGER_2 );
+			liHandSamplingValuesTypes.push_back( FINGER_3 );
+			liHandSamplingValuesTypes.push_back( FINGER_4 );
+			liHandSamplingValuesTypes.push_back( FINGER_5 );
+		}; break;
+		case 2: //sampling message type 2
+		{ 
+			liHandSamplingValuesTypes.push_back( QUATERNION_1 );
+			liHandSamplingValuesTypes.push_back( QUATERNION_2 );
+			liHandSamplingValuesTypes.push_back( QUATERNION_3 );
+			liHandSamplingValuesTypes.push_back( QUATERNION_4 );
+		}; break;
+		case 3: //sampling message type 3
+		{
+			liHandSamplingValuesTypes.push_back( GYROSCOPE_X );
+			liHandSamplingValuesTypes.push_back( GYROSCOPE_Y );
+			liHandSamplingValuesTypes.push_back( GYROSCOPE_Z );
+			liHandSamplingValuesTypes.push_back( MAGNETOMETER_X );
+			liHandSamplingValuesTypes.push_back( MAGNETOMETER_Y );
+			liHandSamplingValuesTypes.push_back( MAGNETOMETER_Z );
+			liHandSamplingValuesTypes.push_back( ACCELEROMETER_X );
+			liHandSamplingValuesTypes.push_back( ACCELEROMETER_Y );
+			liHandSamplingValuesTypes.push_back( ACCELEROMETER_Z );
+			liHandSamplingValuesTypes.push_back( FINGER_1 );
+			liHandSamplingValuesTypes.push_back( FINGER_2 );
+			liHandSamplingValuesTypes.push_back( FINGER_3 );
+			liHandSamplingValuesTypes.push_back( FINGER_4 );
+			liHandSamplingValuesTypes.push_back( FINGER_5 );
+		}; break;
+		case 4: //sampling message type 4
+		{
+			liHandSamplingValuesTypes.push_back( GYROSCOPE_X );
+			liHandSamplingValuesTypes.push_back( GYROSCOPE_Y );
+			liHandSamplingValuesTypes.push_back( GYROSCOPE_Z );
+			liHandSamplingValuesTypes.push_back( MAGNETOMETER_X );
+			liHandSamplingValuesTypes.push_back( MAGNETOMETER_Y );
+			liHandSamplingValuesTypes.push_back( MAGNETOMETER_Z );
+			liHandSamplingValuesTypes.push_back( ACCELEROMETER_X );
+			liHandSamplingValuesTypes.push_back( ACCELEROMETER_Y );
+			liHandSamplingValuesTypes.push_back( ACCELEROMETER_Z );
+		}; break;
+		case 5: //sampling message type 5
+		{
+			liHandSamplingValuesTypes.push_back( FINGER_1 );
+			liHandSamplingValuesTypes.push_back( FINGER_2 );
+			liHandSamplingValuesTypes.push_back( FINGER_3 );
+			liHandSamplingValuesTypes.push_back( FINGER_4 );
+			liHandSamplingValuesTypes.push_back( FINGER_5 );
+		}; break;
+	};  //end switch type
+	
+	return liHandSamplingValuesTypes;
+}
+
+
+/**
+ * Returns a list with the hand sampling value types for the actual
+ * message type.
+ * Hand sampling value types are hand related, e.g. FINGER_1,
+ * MAGNETOMETER_X (but not BEGIN, CLOCK, STATUS, ...).
+ *
+ * @return a list of the hand sampling value types for the given
+ * 	message types
+ */
+list< cMessageSamplingDataFromDataGlove::tTypeSamplingValue >
+	cMessageSamplingDataFromDataGlove::getHandSamplingValuesTypesForMessage() {
+	
+	return getHandSamplingValuesTypesForMessageType( getSamplingType() );
+}
 
 
 

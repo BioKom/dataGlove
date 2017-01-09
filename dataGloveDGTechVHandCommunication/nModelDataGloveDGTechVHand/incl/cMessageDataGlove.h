@@ -40,6 +40,7 @@
 /*
 History:
 11.07.2014  Oesterholz  created
+04.02.2016  Oesterholz  copy constructor and clone() added
 */
 
 
@@ -135,19 +136,32 @@ public:
 	/**
 	 * The standard constructor for the DGTech VHand data glove message.
 	 */
-	cMessageDataGlove();
+	explicit cMessageDataGlove();
 	
+	/**
+	 * The copy constructor for the DGTech VHand data glove message.
+	 *
+	 * @param inMessageDataGlove the message to copy
+	 */
+	cMessageDataGlove( const cMessageDataGlove & inMessageDataGlove );
+
 	/**
 	 * The destructor.
 	 */
 	virtual ~cMessageDataGlove();
+	
+	/**
+	 * Clones this object.
+	 *
+	 * @return the clone of this object
+	 */
+	virtual cMessageDataGlove * clone() const;
 	
 	
 	/**
 	 * @return the name of this class "cMessageDataGlove"
 	 */
 	virtual std::string getName() const;
-	
 	
 	/**
 	 * This method reads a message from the file/port with the given data
@@ -202,7 +216,7 @@ public:
 	 * 	or NULL if non exists.
 	 * 	@see szMessage
 	 */
-	inline unsigned char  * getMessage() {
+	inline unsigned char * getMessage() {
 		
 		return szMessage;
 	}
@@ -212,7 +226,7 @@ public:
 	 * 	or NULL if non exists.
 	 * 	@see szMessage
 	 */
-	inline const unsigned char  * getMessage() const {
+	inline const unsigned char * getMessage() const {
 		
 		return szMessage;
 	}
@@ -376,6 +390,108 @@ public:
 	
 	
 	/**
+	 * Writes a 2 byte signed integer number to the szMessage at the given offset.
+	 *
+	 * @see szMessage
+	 * @param uiOffset the offset, where the number should begin in the
+	 * 	szMessage data (counting starts with 0)
+	 * @param iNumber the number to write
+	 * @return true if the number was written, else false
+	 */
+	inline bool write2ByteInt( const unsigned int uiOffset, const int iNumber ) const {
+		
+		if ( ( szMessage == NULL ) || ( uiMessageSize < uiOffset + 2 ) ) {
+			return false;
+		}
+		const unsigned char * pNumber = ((const unsigned char *)(&iNumber));
+		szMessage[ uiOffset ] = pNumber[ 1 ];
+		szMessage[ uiOffset + 1 ] = pNumber[ 0 ];
+		if ( 0 <= iNumber ) {
+			//positiv number -> set the highest bit to 0
+			szMessage[ uiOffset ] &= 0x7F;
+		} else {  //negativ number -> set the highest bit to 1
+			szMessage[ uiOffset ] |= 0x80;
+		}
+		return true;
+	}
+
+	/**
+	 * Writes a unsigned 2 byte integer number to the szMessage at the
+	 * given offset.
+	 *
+	 * @see szMessage
+	 * @param uiOffset the offset, where the number should begin in the szMessage
+	 * 	data (counting starts with 0)
+	 * @param uiNumber the number to write
+	 * @return true if the number was written, else false
+	 */
+	inline int write2ByteUInt( const unsigned int uiOffset,
+			const unsigned int uiNumber ) const {
+		
+		if ( ( szMessage == NULL ) || ( uiMessageSize < uiOffset + 2 ) ) {
+			return false;
+		}
+		const unsigned char * pNumber = ((const unsigned char *)(&uiNumber));
+		szMessage[ uiOffset ] = pNumber[ 1 ];
+		szMessage[ uiOffset + 1 ] = pNumber[ 0 ];
+		return true;
+	}
+	
+	
+	/**
+	 * Writes a long number to the szMessage at the given offset.
+	 *
+	 * @see szMessage
+	 * @param uiOffset the offset, where the number begins in the szMessage
+	 * 	data (counting starts with 0)
+	 * @param lNumber the number to write
+	 * @return true if the number was written, else false
+	 */
+	inline long write4ByteLong( const unsigned int uiOffset, const long lNumber ) const {
+		
+		if ( ( szMessage == NULL ) || ( uiMessageSize < uiOffset + 4 ) ) {
+			return false;
+		}
+		const unsigned char * pNumber = ((const unsigned char *)(&lNumber));
+		szMessage[ uiOffset ] = pNumber[ 3 ];
+		szMessage[ uiOffset + 1 ] = pNumber[ 2 ];
+		szMessage[ uiOffset + 2 ] = pNumber[ 1 ];
+		szMessage[ uiOffset + 3 ] = pNumber[ 0 ];
+		if ( 0 <= lNumber ) {
+			//positiv number -> set the highest bit to 0
+			szMessage[ uiOffset ] &= 0x7F;
+		} else {  //negativ number -> set the highest bit to 1
+			szMessage[ uiOffset ] |= 0x80;
+		}
+		return true;
+	}
+
+	/**
+	 * Writes a unsigned long number to the szMessage at the given offset.
+	 *
+	 * @see szMessage
+	 * @param uiOffset the offset, where the number should begin in the szMessage
+	 * 	data (counting starts with 0)
+	 * @param ulNumber the number to write
+	 * @return the readed number
+	 */
+	inline unsigned long write4ByteULong( const unsigned int uiOffset,
+			const unsigned long ulNumber ) const {
+		
+		if ( ( szMessage == NULL ) || ( uiMessageSize < uiOffset + 4 ) ) {
+			return false;
+		}
+		const unsigned char * pNumber = ((const unsigned char *)(&ulNumber));
+		szMessage[ uiOffset ] = pNumber[ 3 ];
+		szMessage[ uiOffset + 1 ] = pNumber[ 2 ];
+		szMessage[ uiOffset + 2 ] = pNumber[ 1 ];
+		szMessage[ uiOffset + 3 ] = pNumber[ 0 ];
+		return true;
+	}
+	
+	
+	
+	/**
 	 * Prints the given message.
 	 *
 	 * @param szMessage a pointer to the message to print
@@ -444,6 +560,19 @@ protected:
 	 * @see szMessage
 	 */
 	unsigned int uiMessageSize;
+	
+	
+	/**
+	 * The copies the data of the DGTech VHand data glove message into this
+	 * message.
+	 *
+	 * @see type
+	 * @see cCommand
+	 * @see szMessage
+	 * @see uiMessageSize
+	 * @param inMessageDataGlove the message from which to copy the data
+	 */
+	void copyData( const cMessageDataGlove & inMessageDataGlove  );
 	
 };//end class cMessageDataGlove
 

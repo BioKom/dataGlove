@@ -45,6 +45,7 @@
 /*
 History:
 19.07.2014  Oesterholz  created
+04.02.2016  Oesterholz  copy constructor and clone() added
 */
 
 
@@ -75,6 +76,14 @@ public:
 	explicit cMessageStartSamplingToDataGlove( const bool bCreateMessage );
 	
 	/**
+	 * The copy constructor for the DGTech VHand data glove message.
+	 *
+	 * @param inMessageDataGlove the message to copy
+	 */
+	cMessageStartSamplingToDataGlove( const cMessageStartSamplingToDataGlove & inMessageDataGlove );
+	
+	
+	/**
 	 * The standard constructor for the DGTech VHand data glove message.
 	 *
 	 * @param iSamplingType a number for the Sampling package format
@@ -93,6 +102,13 @@ public:
 	 * The destructor.
 	 */
 	virtual ~cMessageStartSamplingToDataGlove();
+	
+	/**
+	 * Clones this object.
+	 *
+	 * @return the clone of this object
+	 */
+	virtual cMessageStartSamplingToDataGlove * clone() const;
 	
 	
 	/**

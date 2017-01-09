@@ -57,7 +57,7 @@ History:
 using namespace nDataGlove::nMapper;
 
 iCallFunction::iCallFunction() : arrayRepeatDelay( NULL ), countRepeatDelays( 0 ),
-		indexNextDelay( -1 ), bRepeatLastDelay( false ) {
+		indexNextDelay( -1 ), bRepeatLastDelay( false ), Parameter("") {
 	
 }
 
@@ -91,6 +91,17 @@ bool iCallFunction::operator()() {
 	initRepeatDelay();
 	
 	return true;
+}
+
+/**
+ * This method returns the parameter for the operation.
+ *
+ * @see Parameter
+ * @return all parameters for this functor operation as a string
+ */
+std::string iCallFunction::getParameter() const {
+	
+	return Parameter;
 }
 
 

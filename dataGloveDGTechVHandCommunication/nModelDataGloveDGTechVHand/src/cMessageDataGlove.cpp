@@ -40,6 +40,7 @@
 /*
 History:
 11.07.2014  Oesterholz  created
+04.02.2016  Oesterholz  copy constructor and clone() added
 */
 
 
@@ -80,6 +81,20 @@ cMessageDataGlove::cMessageDataGlove():
 
 
 /**
+ * The copy constructor for the DGTech VHand data glove message.
+ *
+ * @param inMessageDataGlove the message to copy
+ */
+cMessageDataGlove::cMessageDataGlove( const cMessageDataGlove & inMessageDataGlove ):
+		type( UNKNOWN ), cCommand( DATA_GLOVE_D_G_TECH_V_HAND__UNKNOWN ),
+		szMessage( NULL ),
+		uiMessageSize( 0 ) {
+	
+	copyData( inMessageDataGlove );
+}
+
+
+/**
  * The destructor.
  */
 cMessageDataGlove::~cMessageDataGlove() {
@@ -87,6 +102,17 @@ cMessageDataGlove::~cMessageDataGlove() {
 	if ( szMessage != NULL ) {
 		delete [] szMessage;
 	}
+}
+
+
+/**
+ * Clones this object.
+ *
+ * @return the clone of this object
+ */
+cMessageDataGlove * cMessageDataGlove::clone() const {
+	
+	return new cMessageDataGlove( *this );
 }
 
 
@@ -391,5 +417,23 @@ void cMessageDataGlove::printMessage( const unsigned char * szMessage,
 }
 
 
+/**
+ * The copies the data of the DGTech VHand data glove message into this
+ * message.
+ *
+ * @see type
+ * @see cCommand
+ * @see szMessage
+ * @see uiMessageSize
+ * @param inMessageDataGlove the message from which to copy the data
+ */
+void cMessageDataGlove::copyData( const cMessageDataGlove & inMessageDataGlove  ) {
+	
+	type = inMessageDataGlove.type;
+	cCommand = inMessageDataGlove.cCommand;
+	uiMessageSize = inMessageDataGlove.uiMessageSize;
+	szMessage = new unsigned char[ uiMessageSize + 2 ];
+	memcpy( szMessage, inMessageDataGlove.szMessage, uiMessageSize + 1 );
+}
 
 

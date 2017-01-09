@@ -1,5 +1,28 @@
-Next steps:
-* check in?
+
+=Notation=
+
+(time needed/brain needed/brain power recomended/priority[/depends on])
+brain -> 0=no brainer ... 10=be realy smart
+priority -> 0 -> non ... 10=very important
+
+
+=Next steps=
+
+* display actual state
+** send over connector class
+** update all 1/10 s
+** display / output distance to middel of state + neighbour states
+** message: state: what; dataglove values (as dataglove message)
+*** state: what (keyboard a ...),  actual (actual state, ideal state, neighbour state, neighbour ideal state)
+**** neighbour = actual interval ende + actual intervall size / 4
+**** 1 x actual state + 1 x ideal state + 11 x neighbour ideal state = 13 states
+** alt:
+*** send what to show in row and columb
+**** Basis element: type 1B, Length 1B (4B?) in Byte, (?Number of subelements 1B), Value
+
+** one Element for basis and Neigbours ' 120 (N) <- 300 -> 600 (S)'
+*** show all elements with min one neighbour
+*** parameter for horizontal or vertikal
 * test solution to problem: Why did the data glove key evaluation sputters after some time?
 * delay repeat mouse + keybard adapt, so that the operation is not unprepared, but the repeat delay is initialisised
 * display key/function deactivated
@@ -16,10 +39,9 @@ Next steps:
 ** don't try all combinations (if after n iteration no big improvment -> stop)
 * test virtual keybord
 * create background process, which waits for dataglove
-* display / output distance to middel of state + neighbour states
 
 
-=Aufruf=
+=Call=
 
 * ionice -c1 -n1 nice -n-20 bin/test_startDataGlove
 ** ionice -c1 -> IO-sheduler auf realtime setzen

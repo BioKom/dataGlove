@@ -218,8 +218,9 @@ bool cThreadMessageHandler::run() {
 	bStop = false;
 	cMessageFromDataGlove * pReadedMessage = NULL;
 	unsigned long ulMilliSecondsToWait = 0;
-//TODO
-//	pThreadSamplingMessageEvaluator->start( cThread::LowestPriority );
+	nModelDataGloveDGTechVHand::cMessageSamplingDataFromDataGlove *
+		pMessageSamplingDataFromDataGlove;
+	
 	pThreadSamplingMessageEvaluator->start();
 	
 	
@@ -253,12 +254,57 @@ bool cThreadMessageHandler::run() {
 			continue;
 		}  //else pReadedMessage != NULL
 		ulMilliSecondsToWait = 0;
-		//handle message
+		//handle/send message
+		
+		
+		
 		if ( pReadedMessage->getType() == cMessageDataGlove::SAMPLING_DATA ) {
+			if ( BMoreSamplingMessageListenersExists ) {
+				pMessageSamplingDataFromDataGlove =
+					static_cast<nModelDataGloveDGTechVHand::cMessageSamplingDataFromDataGlove *>(
+						pReadedMessage )->clone();
+			} else {
+				pMessageSamplingDataFromDataGlove = NULL;
+			}
+			
 			//sampling data read -> evaluate it
 			pThreadSamplingMessageEvaluator->setNewSamplingMessage(
 				static_cast<nModelDataGloveDGTechVHand::cMessageSamplingDataFromDataGlove *>(
 					pReadedMessage ) );
+			
+			if ( pMessageSamplingDataFromDataGlove != NULL ) {
+#ifdef CPP_2011
+				mutexSamplingMessageListeners.lock();
+#endif  //CPP_2011
+				if ( not LiSamplingMessageListeners.empty() ) {
+					DEBUG_OUT_L4(<<"cThreadMessageHandler("<<this<<")::run() sending message to more listeners"<<endl<<flush);
+					//set pMessageSamplingDataFromDataGlove for the first listener
+					//(copy (and delete) as less as possible)
+					if ( 1 < LiSamplingMessageListeners.size() ) {
+						std::list< iSetNewSamplingMessage * >::iterator itrSetNewSamplingMessage =
+								LiSamplingMessageListeners.begin();
+						++itrSetNewSamplingMessage;
+						//set a clone of pMessageSamplingDataFromDataGlove for
+						//every listener after the first listener
+						for ( ; itrSetNewSamplingMessage != LiSamplingMessageListeners.end();
+								++itrSetNewSamplingMessage ) {
+							
+							(*itrSetNewSamplingMessage)->setNewSamplingMessage(
+								pMessageSamplingDataFromDataGlove->clone() );
+						}
+					}
+					//set pMessageSamplingDataFromDataGlove for the first listener
+					(*(LiSamplingMessageListeners.begin()))->setNewSamplingMessage(
+						pMessageSamplingDataFromDataGlove );
+				} else {  //Error: no listeners exists
+					BMoreSamplingMessageListenersExists = false;
+					delete pMessageSamplingDataFromDataGlove;
+				}
+#ifdef CPP_2011
+				mutexSamplingMessageListeners.unlock();
+#endif  //CPP_2011
+			}
+			
 		} else {  //not sampling data
 			//TODO
 			//cThreadMessageEvaluator
@@ -274,6 +320,60 @@ bool cThreadMessageHandler::run() {
 }
 
 
+/**
+ * Registers a listeners for new data glove sampling messages.
+ *
+ * @see LiSamplingMessageListeners
+ * @see unregisterSamplingMessageListener()
+ * @param inPSetNewSamplingMessage a pointer to a listener for new data
+ * 	glove sampling messages
+ * @return true if the listener was registered, else false
+ */
+bool cThreadMessageHandler::registerSamplingMessageListener(
+		iSetNewSamplingMessage * inPSetNewSamplingMessage ) {
+	
+	if ( inPSetNewSamplingMessage == NULL ) {
+		return false;
+	}
+#ifdef CPP_2011
+	mutexSamplingMessageListeners.lock();
+#endif  //CPP_2011
+	DEBUG_OUT_L2(<<"cThreadMessageHandler("<<this<<")::registerSamplingMessageListener("<<inPSetNewSamplingMessage<<")"<<endl<<flush);
+	LiSamplingMessageListeners.push_back( inPSetNewSamplingMessage );
+	
+	BMoreSamplingMessageListenersExists =
+		not LiSamplingMessageListeners.empty();
+#ifdef CPP_2011
+	mutexSamplingMessageListeners.unlock();
+#endif  //CPP_2011
+	return true;
+}
+
+/**
+ * Unregisters a listeners for new data glove sampling messages.
+ *
+ * @see LiSamplingMessageListeners
+ * @see registerSamplingMessageListener()
+ * @param inPSetNewSamplingMessage a pointer to a listener for new data
+ * 	glove sampling messages
+ * @return true if the listener was unregistered, else false
+ */
+bool cThreadMessageHandler::unregisterSamplingMessageListener(
+		iSetNewSamplingMessage * inPSetNewSamplingMessage ) {
+	
+#ifdef CPP_2011
+	mutexSamplingMessageListeners.lock();
+#endif  //CPP_2011
+	DEBUG_OUT_L2(<<"cThreadMessageHandler("<<this<<")::unregisterSamplingMessageListener("<<inPSetNewSamplingMessage<<")"<<endl<<flush);
+	LiSamplingMessageListeners.remove( inPSetNewSamplingMessage );
+	
+	BMoreSamplingMessageListenersExists =
+		not LiSamplingMessageListeners.empty();
+#ifdef CPP_2011
+	mutexSamplingMessageListeners.unlock();
+#endif  //CPP_2011
+	return true;
+}
 
 
 

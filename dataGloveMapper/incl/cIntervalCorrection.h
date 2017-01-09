@@ -218,8 +218,12 @@ public:  //inline functions
 #endif //DEBUG_INTERVAL_CORRECTION
 			
 			lCorrectionValue = lLowerBorder - lValue;
+			if ( ( lCorrectionValue < -1000000 ) || ( 1000000 < lCorrectionValue ) ) {
+				//Error: the correction is to small or to big
+				lCorrectionValue = 0;
+			}
 			
-			return lValue + lCorrectionValue;
+			return lLowerBorder;
 		}
 		if ( bHasUpperBorder && ( lUpperBorder < lCorrectedValue ) ) {
 #ifdef DEBUG_INTERVAL_CORRECTION
@@ -232,10 +236,26 @@ public:  //inline functions
 			
 			lCorrectionValue = lUpperBorder - lValue;
 			
-			return lValue + lCorrectionValue;
+			if ( ( lCorrectionValue < -1000000 ) || ( 1000000 < lCorrectionValue ) ) {
+				//Error: the correction is to small or to big
+				lCorrectionValue = 0;
+			}
+			
+			return lUpperBorder;
 		}
 		
 		return lCorrectedValue;
+	}
+	
+	/**
+	 * @return The correction value.
+	 * 	Every given value will be corrected with the correction value.
+	 *
+	 * @see lCorrectionValue
+	 */
+	inline long getCorrectionValue() const {
+		
+		return lCorrectionValue;
 	}
 	
 	

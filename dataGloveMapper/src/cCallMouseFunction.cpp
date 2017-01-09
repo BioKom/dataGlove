@@ -536,6 +536,7 @@ void cCallMouseFunction::end() {
  */
 bool cCallMouseFunction::setParameter( const std::string & szFunctionParameter ) {
 	
+	Parameter = szFunctionParameter;
 	return analyseAndSetParameters( wstring(
 		szFunctionParameter.begin(), szFunctionParameter.end() ) );
 }

@@ -1,4 +1,6 @@
 
+
+
 //TODO check
 
 /**
@@ -39,7 +41,6 @@
  * @see cThread
  * @see cMessageDataGlove
  * @see cDataGloveDGTechVHand
- * @see iWidgetSamplingValue
  * @see cEvaluateDataGloveState
  * @see cMessageSamplingDataFromDataGlove
  */
@@ -57,11 +58,13 @@ History:
 
 #include <string>
 #include <ctime>
+#include <set>
 #include <mutex>
 
 #include "cMessageSamplingDataFromDataGlove.h"
 
 #include "cThread.h"
+#include "iSetNewSamplingMessage.h"
 
 
 namespace nDataGlove{
@@ -71,7 +74,7 @@ namespace nMapper{
 class cEvaluateDataGloveState;
 
 
-class cThreadSamplingMessageEvaluator: public cThread{
+class cThreadSamplingMessageEvaluator: public cThread, public iSetNewSamplingMessage{
 public:
 	
 	
@@ -135,16 +138,34 @@ public:
 	 */
 	virtual bool run();
 	
+	/**
+	 * With this function you can register a listeners for new data glove
+	 * sampling data message.
+	 *
+	 * @see unregisterSetNewSamplingMessageListener()
+	 * @see sendMessageToAllListeners()
+	 * @see SetListenersSetNewSamplingMessage
+	 * @param pSetNewSamplingMessage a pointer to the listener for new messages
+	 * @return true if the listener was registered, else false
+	 */
+	bool registerSetNewSamplingMessageListener( iSetNewSamplingMessage * pSetNewSamplingMessage );
+	
+	/**
+	 * With this function you can unregister a listeners for new data glove
+	 * sampling data message.
+	 *
+	 * @see registerSetNewSamplingMessageListener()
+	 * @see sendMessageToAllListeners()
+	 * @see SetListenersSetNewSamplingMessage
+	 * @param pSetNewSamplingMessage a pointer to the listener new messages
+	 * @return true if the listener was unregistered, else false
+	 */
+	bool unregisterSetNewSamplingMessageListener( iSetNewSamplingMessage * pSetNewSamplingMessage );
+	
+	
 	
 protected:
 	
-	/**
-	 * A pointer to the last received sampling data from the data glove or
-	 * NULL if non was received.
-	 */
-//TODO weg: 	nModelDataGloveDGTechVHand::cMessageSamplingDataFromDataGlove *
-//		pLastMessageSamplingDataFromDataGlove;
-
 	/**
 	 * A pointer to the new received sampling data from the data glove or
 	 * NULL if non was received.
@@ -200,8 +221,6 @@ protected:
 	 * The object which evaluates the data glove data.
 	 */
 	cEvaluateDataGloveState * pEvaluateDataGloveState;
-
-#ifdef CPP_2011
 	
 	/**
 	 * Mutex to lock access to the members of this class.
@@ -210,7 +229,35 @@ protected:
 	 */
 	mutable std::mutex mutexMembers;
 	
-#endif  //CPP_2011
+	/**
+	 * Mutex to lock access to SetListenersSetNewSamplingMessage.
+	 * @see SetListenersSetNewSamplingMessage
+	 */
+	mutable std::mutex mutexSetListenersSetNewSamplingMessage;
+	
+	
+	/**
+	 * Set with the listeners for new data glove sampling messages.
+	 *
+	 * @see SetListenersSetNewSamplingMessage
+	 * @see registerSetNewSamplingMessageListener()
+	 * @see unregisterSetNewSamplingMessageListener()
+	 */
+	std::set< iSetNewSamplingMessage * > SetListenersSetNewSamplingMessage;
+	
+	/**
+	 * This method sends the given message to all listeners for new data
+	 * glove sampling data messages.
+	 *
+	 * @see SetListenersSetNewSamplingMessage
+	 * @see registerSetNewSamplingMessageListener()
+	 * @see unregisterSetNewSamplingMessageListener()
+	 * @param pInEvaluateDataGloveState a pointer to the data glove sampling
+	 * 	data messages to send
+	 */
+	void sendMessageToAllListeners(
+			nModelDataGloveDGTechVHand::cMessageSamplingDataFromDataGlove *
+			inMessageToEvaluate );
 	
 };//end class cThreadSamplingMessageEvaluator
 

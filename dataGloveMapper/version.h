@@ -34,6 +34,7 @@
 History:
 17.08.2014  Oesterholz  created
 17.01.2015  Oesterholz  FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR added
+09.01.2017  Oesterholz  DEBUG_EVALUATE_MESSAGE_GLOVE_STATES_EACH_2_NEIGHBORS added
 */
 
 
@@ -103,7 +104,14 @@ History:
  * Prints messages for every intervall correction.
  * @see cIntervalCorrection
  */
-#define DEBUG_INTERVAL_CORRECTION
+//#define DEBUG_INTERVAL_CORRECTION
+
+
+/**
+ * Prints messages for every for the generated glove state messages.
+ * @see cEvaluateMessageGloveStatesEach2Neighbors
+ */
+#define DEBUG_EVALUATE_MESSAGE_GLOVE_STATES_EACH_2_NEIGHBORS
 
 
 /**************************************

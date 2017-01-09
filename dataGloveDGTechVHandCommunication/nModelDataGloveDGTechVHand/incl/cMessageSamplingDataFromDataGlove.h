@@ -44,6 +44,7 @@
 /*
 History:
 13.07.2014  Oesterholz  created
+04.02.2016  Oesterholz  copy constructor and clone() added
 */
 
 
@@ -57,6 +58,7 @@ History:
 #include "version.h"
 
 #include <string>
+#include <list>
 #include <map>
 #include <cstring>
 #include <utility>  //pair
@@ -119,17 +121,59 @@ public:
 	 */
 	explicit cMessageSamplingDataFromDataGlove();
 	
+	/**
+	 * The copy constructor for the DGTech VHand data glove message.
+	 *
+	 * @param inMessageDataGlove the message to copy
+	 */
+	cMessageSamplingDataFromDataGlove( const cMessageSamplingDataFromDataGlove & inMessageDataGlove );
 	
 	/**
 	 * The destructor.
 	 */
 	virtual ~cMessageSamplingDataFromDataGlove();
 	
+	/**
+	 * Clones this object.
+	 *
+	 * @return the clone of this object
+	 */
+	virtual cMessageSamplingDataFromDataGlove * clone() const;
+	
 	
 	/**
 	 * @return the name of this class "cMessageSamplingDataFromDataGlove"
 	 */
 	virtual std::string getName() const;
+	
+	
+	
+	
+	/**
+	 * Returns a list with the hand sampling value types for the given
+	 * message type.
+	 * Hand sampling value types are hand related, e.g. FINGER_1,
+	 * MAGNETOMETER_X (but not BEGIN, CLOCK, STATUS, ...).
+	 *
+	 * @param inSamplingTyp The type of the mesage, for which to return the
+	 * 	hand sampling value types
+	 * @return a list of the hand sampling value types for the given
+	 * 	message types
+	 */
+	static std::list< tTypeSamplingValue > getHandSamplingValuesTypesForMessageType(
+		const int inSamplingTyp );
+	
+	/**
+	 * Returns a list with the hand sampling value types for the actual
+	 * message type.
+	 * Hand sampling value types are hand related, e.g. FINGER_1,
+	 * MAGNETOMETER_X (but not BEGIN, CLOCK, STATUS, ...).
+	 *
+	 * @return a list of the hand sampling value types for the given
+	 * 	message types
+	 */
+	std::list< tTypeSamplingValue > getHandSamplingValuesTypesForMessage();
+	
 	
 	/**
 	 * @return a number for the device type:
@@ -857,25 +901,6 @@ public:
 	
 	
 	/**
-	 * This function checks if the message has changed.
-	 * This message is compared with the given old message.
-	 *
-	 * @see szMessage
-	 * @see uiMessageSize
-	 * @param pOldMessageSamplingDataFromDataGlove a pointer to the old
-	 * 	message
-	 * @return true if the message has changed, else false
-	 */
-	inline bool hasChanged( const cMessageSamplingDataFromDataGlove *
-			pOldMessageSamplingData ) const {
-		
-		return ( ( uiMessageSize != pOldMessageSamplingData->uiMessageSize ) ||
-			( memcmp( szMessage,
-				pOldMessageSamplingData->szMessage, uiMessageSize ) != 0 ) );
-	}
-	
-	
-	/**
 	 * Returns the value of the message element of the given type.
 	 *
 	 * @see tTypeSamplingValue
@@ -918,6 +943,761 @@ public:
 	}
 	
 	
+//seter methods
+	
+	/**
+	 * @param iId the micro controller identifier/ID
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setId( const int iId ) {
+		
+		return write2ByteUInt( 4, iId );
+	}
+	
+	/**
+	 * @param ulClock the data glove clock (CLK; so the messages can be ordered)
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setClock( unsigned long ulClock ) {
+		
+		return write4ByteULong( 6, ulClock );
+	}
+	
+	/**
+	 * @param iStatus the status of the data glove
+	 * 	TODO???
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setStatus( const int iStatus ) {
+		
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {
+			case 0: return write2ByteUInt( 10, iStatus );
+			case 1: return write2ByteUInt( 36, iStatus );
+			case 2: return write2ByteUInt( 26, iStatus );
+			case 3: return write2ByteUInt( 38, iStatus );
+			case 4: return write2ByteUInt( 28, iStatus );
+			case 5: return write2ByteUInt( 20, iStatus );
+		};
+		return false;
+	}
+	
+	/**
+	 * Returns the percentage of flexion in thousandths of percentage of
+	 * the uiNumber'th finger/digit.
+	 *
+	 * @param uiNumber the number of the finger/digit, for which to return
+	 * 	the flexion
+	 * @param iFinger the percentage of flexion in thousandths of percentage
+	 * 	(0 = no flexion, 1000 = maximum flexion)
+	 * @return true if the data could be set, else false
+	 */
+	inline int setFinger( const unsigned int uiNumber, const int iFinger ) {
+		
+		if ( ( uiNumber < 1 ) || ( 5 < uiNumber ) ) {
+			return false;
+		}
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {  //uiNumber * 2 = (uiNumber << 1)
+			case 1: return write2ByteUInt( 24 + (uiNumber << 1), iFinger );
+			case 3: return write2ByteUInt( 26 + (uiNumber << 1), iFinger );
+			case 5: return write2ByteUInt( 8 + (uiNumber << 1), iFinger );
+		};
+		return false;
+	}
+	
+	
+	/**
+	 * Returns the fraction of flexion of the uiNumber'th finger/digit.
+	 *
+	 * @param uiNumber the number of the finger/digit, for which to return
+	 * 	the flexion
+	 * @param dFinger the fraction of flexion (0 = no flexion, 1.0 = maximum flexion)
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setFingerDouble( const double uiNumber, const double dFinger ) {
+		
+		return setFinger( uiNumber, (int)( dFinger * 1000.0 ) );
+	}
+	
+	/**
+	 * Returns the percentage of flexion in thousandths of percentage of
+	 * the first finger/digit.
+	 *
+	 * @param iFinger1 the percentage of flexion in thousandths of percentage
+	 * 	(0 = no flexion, 1000 = maximum flexion) of the first finger/digit
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setFinger1( const int iFinger1 ) {
+		
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {
+			case 1: return write2ByteUInt( 26, iFinger1 );
+			case 3: return write2ByteUInt( 28, iFinger1 );
+			case 5: return write2ByteUInt( 10, iFinger1 );
+		};
+		return 0;
+	}
+	
+	/**
+	 * Returns the fraction of flexion of the first finger/digit.
+	 *
+	 * @param dFinger1 the fraction of flexion (0 = no flexion, 1.0 = maximum flexion)
+	 *   of the first finger/digit
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setFinger1Double( const double dFinger1 ) {
+		
+		return setFinger1( (int)( dFinger1 * 1000.0 ));
+	}
+	
+	/**
+	 * Returns the percentage of flexion in thousandths of percentage of
+	 * the second finger/digit.
+	 *
+	 * @param iFinger2 the percentage of flexion in thousandths of percentage
+	 * 	(0 = no flexion, 1000 = maximum flexion) of the second finger/digit
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setFinger2( const int iFinger2 ) {
+		
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {
+			case 1: return write2ByteUInt( 28, iFinger2 );
+			case 3: return write2ByteUInt( 30, iFinger2 );
+			case 5: return write2ByteUInt( 12, iFinger2 );
+		};
+		return 0;
+	}
+	
+	/**
+	 * Returns the fraction of flexion of the second finger/digit.
+	 *
+	 * @param dFinger2 the fraction of flexion (0 = no flexion, 1.0 = maximum flexion)
+	 *   of the second finger/digit
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setFinger2Double( const double dFinger2 ) {
+		
+		return setFinger2( (int)( dFinger2 * 1000.0 ));
+	}
+	
+	/**
+	 * Returns the percentage of flexion in thousandths of percentage of
+	 * the third finger/digit.
+	 *
+	 * @param iFinger3 the percentage of flexion in thousandths of percentage
+	 * 	(0 = no flexion, 1000 = maximum flexion) of the third finger/digit
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setFinger3( const int iFinger3 ) {
+		
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {
+			case 1: return write2ByteUInt( 30, iFinger3 );
+			case 3: return write2ByteUInt( 32, iFinger3 );
+			case 5: return write2ByteUInt( 14, iFinger3 );
+		};
+		return 0;
+	}
+	
+	/**
+	 * Returns the fraction of flexion of the third finger/digit.
+	 *
+	 * @param dFinger3 the fraction of flexion (0 = no flexion, 1.0 = maximum flexion)
+	 *   of the third finger/digit
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setFinger3Double( const double dFinger3 ) {
+		
+		return setFinger3( (int)( dFinger3 * 1000.0 ));
+	}
+	
+	/**
+	 * Returns the percentage of flexion in thousandths of percentage of
+	 * the fourth finger/digit.
+	 *
+	 * @param iFinger4 the percentage of flexion in thousandths of percentage
+	 * 	(0 = no flexion, 1000 = maximum flexion) of the fourth finger/digit
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setFinger4( const int iFinger4 ) {
+		
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {
+			case 1: return write2ByteUInt( 32, iFinger4 );
+			case 3: return write2ByteUInt( 34, iFinger4 );
+			case 5: return write2ByteUInt( 16, iFinger4 );
+		};
+		return 0;
+	}
+	
+	/**
+	 * Returns the fraction of flexion of the fourth finger/digit.
+	 *
+	 * @param dFinger4 the fraction of flexion (0 = no flexion, 1.0 = maximum flexion)
+	 *   of the fourth finger/digit
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setFinger4Double( const double dFinger4 ) {
+		
+		return setFinger4( (int)( dFinger4 * 1000.0 ));
+	}
+	
+	/**
+	 * Returns the percentage of flexion in thousandths of percentage of
+	 * the fifth finger/digit.
+	 *
+	 * @param iFinger5 the percentage of flexion in thousandths of percentage
+	 * 	(0 = no flexion, 1000 = maximum flexion) of the fifth finger/digit
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setFinger5( const int iFinger5 ) {
+		
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {
+			case 1: return write2ByteUInt( 34, iFinger5 );
+			case 3: return write2ByteUInt( 36, iFinger5 );
+			case 5: return write2ByteUInt( 18, iFinger5 );
+		};
+		return 0;
+	}
+	
+	/**
+	 * Returns the fraction of flexion of the fifth finger/digit.
+	 *
+	 * @param dFinger5 the fraction of flexion (0 = no flexion, 1.0 = maximum flexion)
+	 *   of the fifth finger/digit
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setFinger5Double( const double dFinger5 ) {
+		
+		return setFinger5( (int)( dFinger5 * 1000.0 ));
+	}
+	
+	
+	
+	/**
+	 * Returns the value representing the value of the quaternion data
+	 * (signed integer, maximum 32768).
+	 *
+	 * @param uiNumber the number of the data value, for which to return
+	 * 	the quaternion data
+	 * @param value representing the value of the quaternion data
+	 * 	(signed integer, maximum 32768)
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setQuaternion( const unsigned int uiNumber, const long lQuaternion ) {
+		
+		if ( ( uiNumber < 1 ) || ( 4 < uiNumber ) ) {
+			return false;
+		}
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {  //uiNumber * 4 = (uiNumber << 2)
+			case 1:
+			case 2: return write4ByteLong( 6 + (uiNumber << 2), lQuaternion );
+		};
+		return false;
+	}
+	
+	
+	/**
+	 * Returns the fraction value representing the value of the quaternion
+	 * data (betwean -1.0 and 1.0).
+	 *
+	 * @param uiNumber the number of the data value, for which to return
+	 * 	the quaternion data
+	 * @param the fraction value representing the value of the quaternion
+	 * 	data (betwean -1.0 and 1.0)
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setQuaternionDouble( const unsigned int uiNumber, const double dQuaternion ) {
+		
+		return setQuaternion( uiNumber, (long)( dQuaternion * 32768.0 ) );
+	}
+
+	
+	/**
+	 * Returns the value representing the value of the first quaternion data
+	 * (signed integer, maximum 32768).
+	 *
+	 * @param lQuaternion1 value representing the value of the first quaternion data
+	 * 	(signed integer, maximum 32768)
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setQuaternion1( const long lQuaternion1 ) {
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {
+			case 1:
+			case 2: return write4ByteLong( 10, lQuaternion1 );
+		};
+		return false;
+	}
+	
+	/**
+	 * Returns the fraction value representing the value of the first
+	 * quaternion data (betwean -1.0 and 1.0).
+	 *
+	 * @param dQuaternion1 the fraction value representing the value of the first
+	 * 	quaternion data (betwean -1.0 and 1.0)
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setQuaternion1Double( const double dQuaternion1 ) {
+		
+		return setQuaternion1( (long)( dQuaternion1 * 32768.0 ) );
+	}
+	
+	/**
+	 * Returns the value representing the value of the second quaternion data
+	 * (signed integer, maximum 32768).
+	 *
+	 * @param lQuaternion2 value representing the value of the second quaternion data
+	 * 	(signed integer, maximum 32768)
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setQuaternion2( const long lQuaternion2 ) {
+		
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {
+			case 1:
+			case 2: return write4ByteLong( 14, lQuaternion2 );
+		};
+		return false;
+	}
+	
+	/**
+	 * Returns the fraction value representing the value of the second
+	 * quaternion data (betwean -1.0 and 1.0).
+	 *
+	 * @param dQuaternion2 the fraction value representing the value of the second
+	 * 	quaternion data (betwean -1.0 and 1.0)
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setQuaternion2Double( const double dQuaternion2 ) {
+		
+		return setQuaternion2( (long)( dQuaternion2 * 32768.0 ) );
+	}
+	
+	/**
+	 * Returns the value representing the value of the third quaternion data
+	 * (signed integer, maximum 32768).
+	 *
+	 * @param lQuaternion3 value representing the value of the third quaternion data
+	 * 	(signed integer, maximum 32768)
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setQuaternion3( const long lQuaternion3 ) {
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {
+			case 1:
+			case 2: return write4ByteLong( 18, lQuaternion3 );
+		};
+		return false;
+	}
+	
+	/**
+	 * Returns the fraction value representing the value of the third
+	 * quaternion data (betwean -1.0 and 1.0).
+	 *
+	 * @param dQuaternion3 the fraction value representing the value of the third
+	 * 	quaternion data (betwean -1.0 and 1.0)
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setQuaternion3Double( const double dQuaternion3 ) {
+		
+		return setQuaternion3( (long)( dQuaternion3 * 32768.0 ) );
+	}
+	
+	/**
+	 * Returns the value representing the value of the fourth quaternion data
+	 * (signed integer, maximum 32768).
+	 *
+	 * @param lQuaternion4 value representing the value of the fourth quaternion data
+	 * 	(signed integer, maximum 32768)
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setQuaternion4( const long lQuaternion4 ) {
+		
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {
+			case 1:
+			case 2: return write4ByteLong( 22, lQuaternion4 );
+		};
+		return false;
+	}
+	
+	/**
+	 * Returns the fraction value representing the value of the fourth
+	 * quaternion data (betwean -1.0 and 1.0).
+	 *
+	 * @param dQuaternion4 the fraction value representing the value of the fourth
+	 * 	quaternion data (betwean -1.0 and 1.0)
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setQuaternion4Double( const double dQuaternion4 ) {
+		
+		return setQuaternion4( (long)( dQuaternion4 * 32768.0 ) );
+	}
+	
+	
+	/**
+	 * Returns the value representing the value of the gyroscope data in the
+	 * given direction (instantaneous rotation of the hand in cents of
+	 * degrees per second).
+	 *
+	 * @param direction the direction of the gyroscope data value, for which
+	 * 	to return the gyroscope data
+	 * @param iGyroscope value representing the value of the gyroscope data in the
+	 * 	given direction (instantaneous rotation of the hand in cents of
+	 * 	degrees per second)
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setGyroscope( const tDirection direction, const int iGyroscope ) {
+		
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {  //direction * 2 = (direction << 1)
+			case 3:
+			case 4: return write2ByteInt( 10 + (direction << 1), iGyroscope );
+		};
+		return false;
+	}
+	
+	
+	/**
+	 * Returns the value representing the value of the gyroscope data in the
+	 * given direction (instantaneous rotation of the hand in radian per
+	 * second; setGyroscope( direction ) * Pi / 180  ).
+	 *
+	 * @param direction the direction of the gyroscope data value, for which
+	 * 	to return the gyroscope data
+	 * @param value representing the value of the gyroscope data in the
+	 * 	given direction (instantaneous rotation of the hand in radian per
+	 * 	second)
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setGyroscopeDouble( const tDirection direction, const double dGyroscope ) {
+		
+		return setGyroscope( direction, (int)( dGyroscope * PI_D_18 ) );
+	}
+	
+	/**
+	 * Returns the value representing the value of the gyroscope data in the
+	 * X direction (instantaneous rotation of the hand in cents of degrees
+	 * per second).
+	 *
+	 * @param iGyroscopeX value representing the value of the gyroscope data in the
+	 * 	X direction (instantaneous rotation of the hand in cents of
+	 * 	degrees per second)
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setGyroscopeX( const int iGyroscopeX ) {
+		
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {
+			case 3:
+			case 4: return write2ByteInt( 10, iGyroscopeX );
+		};
+		return false;
+	}
+	
+	/**
+	 * Returns the value representing the value of the gyroscope data in the
+	 * X direction (instantaneous rotation of the hand in radian per second;
+	 * setGyroscope( direction ) * Pi / 180  ).
+	 *
+	 * @param dGyroscopeX value representing the value of the gyroscope data in the
+	 * 	X direction (instantaneous rotation of the hand in radian per
+	 * 	second)
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setGyroscopeDoubleX( const double dGyroscopeX ) {
+		
+		return setGyroscopeX( (int)( dGyroscopeX * PI_D_18 ) );
+	}
+	
+	/**
+	 * Returns the value representing the value of the gyroscope data in the
+	 * Y direction (instantaneous rotation of the hand in cents of degrees
+	 * per second).
+	 *
+	 * @param iGyroscopeY value representing the value of the gyroscope data in the
+	 * 	Y direction (instantaneous rotation of the hand in cents of
+	 * 	degrees per second)
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setGyroscopeY( const int iGyroscopeY ) {
+		
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {
+			case 3:
+			case 4: return write2ByteInt( 12, iGyroscopeY );
+		};
+		return false;
+	}
+	
+	/**
+	 * Returns the value representing the value of the gyroscope data in the
+	 * Y direction (instantaneous rotation of the hand in radian per second;
+	 * setGyroscope( direction ) * Pi / 180  ).
+	 *
+	 * @param dGyroscopeY value representing the value of the gyroscope data in the
+	 * 	Y direction (instantaneous rotation of the hand in radian per
+	 * 	second)
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setGyroscopeDoubleY( const double dGyroscopeY ) {
+		
+		return setGyroscopeY( (int)( dGyroscopeY * PI_D_18 ) );
+	}
+	
+	/**
+	 * Returns the value representing the value of the gyroscope data in the
+	 * Z direction (instantaneous rotation of the hand in cents of degrees
+	 * per second).
+	 *
+	 * @param iGyroscopeZ value representing the value of the gyroscope data in the
+	 * 	Z direction (instantaneous rotation of the hand in cents of
+	 * 	degrees per second)
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setGyroscopeZ( const int iGyroscopeZ ) {
+		
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {
+			case 3:
+			case 4: return write2ByteInt( 14, iGyroscopeZ );
+		};
+		return false;
+	}
+	
+	/**
+	 * Returns the value representing the value of the gyroscope data in the
+	 * Z direction (instantaneous rotation of the hand in radian per second;
+	 * setGyroscope( direction ) * Pi / 180  ).
+	 *
+	 * @param dGyroscopeZ value representing the value of the gyroscope data in the
+	 * 	Z direction (instantaneous rotation of the hand in radian per
+	 * 	second)
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setGyroscopeDoubleZ( const double dGyroscopeZ ) {
+		
+		return setGyroscopeZ( (int)( dGyroscopeZ * PI_D_18 ) );
+	}
+
+	
+	/**
+	 * Returns the value representing the value of the magnetometer data in
+	 * the given direction.
+	 *
+	 * @param direction the direction of the magnetometer data value, for
+	 * 	which to return the magnetometer data
+	 * @param iMagnetometer value representing the value of the magnetometer
+	 * 	data in the given direction
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setMagnetometer( const tDirection direction, const int iMagnetometer ) {
+		
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {  //direction * 2 = (direction << 1)
+			case 3:
+			case 4: return write2ByteInt( 16 + (direction << 1), iMagnetometer );
+		};
+		return false;
+	}
+	
+	/**
+	 * Returns the value representing the value of the magnetometer data in
+	 * the X direction.
+	 *
+	 * @param iMagnetometerX value representing the value of the 
+	 * 	magnetometer data in the X direction
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setMagnetometerX( const int iMagnetometerX ) {
+		
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {
+			case 3:
+			case 4: return write2ByteInt( 16, iMagnetometerX );
+		};
+		return false;
+	}
+	
+	/**
+	 * Returns the value representing the value of the magnetometer data in
+	 * the Y direction.
+	 *
+	 * @param iMagnetometerY value representing the value of the
+	 * 	magnetometer data in the Y direction
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setMagnetometerY( const int iMagnetometerY ) {
+		
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {
+			case 3:
+			case 4: return write2ByteInt( 18, iMagnetometerY );
+		};
+		return false;
+	}
+	
+	/**
+	 * Returns the value representing the value of the magnetometer data in
+	 * the Z direction.
+	 *
+	 * @param iMagnetometerZ value representing the value of the
+	 * 	magnetometer data in the Z direction
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setMagnetometerZ( const int iMagnetometerZ ) {
+		
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {
+			case 3:
+			case 4: return write2ByteInt( 20, iMagnetometerZ );
+		};
+		return false;
+	}
+	
+	/**
+	 * Returns the value representing the value of the accelerometer data in
+	 * the given direction.
+	 *
+	 * @param direction the direction of the accelerometer data value, for
+	 * 	which to return the accelerometer data
+	 * @param iAccelerometer value representing the value of the
+	 * 	accelerometer data in the given direction
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setAccelerometer( const tDirection direction, const int iAccelerometer ) {
+		
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {  //direction * 2 = (direction << 1)
+			case 3:
+			case 4: return write2ByteInt( 22 + (direction << 1), iAccelerometer );
+		};
+		return false;
+	}
+	
+	/**
+	 * Returns the value representing the value of the accelerometer data in
+	 * the X direction.
+	 *
+	 * @param iAccelerometerX value representing the value of the
+	 * 	accelerometer data in the X direction
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setAccelerometerX( const int iAccelerometerX ) {
+		
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {
+			case 3:
+			case 4: return write2ByteInt( 22, iAccelerometerX );
+		};
+		return false;
+	}
+	
+	/**
+	 * Returns the value representing the value of the accelerometer data in
+	 * the Y direction.
+	 *
+	 * @param iAccelerometerY value representing the value of the
+	 * 	accelerometer data in the Y direction
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setAccelerometerY( const int iAccelerometerY ) {
+		
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {
+			case 3:
+			case 4: return write2ByteInt( 24, iAccelerometerY );
+		};
+		return false;
+	}
+	
+	/**
+	 * Returns the value representing the value of the accelerometer data in
+	 * the Z direction.
+	 *
+	 * @param iAccelerometerZ value representing the value of the
+	 * 	accelerometer data in the Z direction
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setAccelerometerZ( const int iAccelerometerZ ) {
+		
+		const unsigned int iType = getSamplingType();
+		switch ( iType ) {
+			case 3:
+			case 4: return write2ByteInt( 26, iAccelerometerZ );
+		};
+		return false;
+	}
+	
+	
+	/**
+	 * Returns the value of the message element of the given type.
+	 *
+	 * @see tTypeSamplingValue
+	 * @param typeSamplingValue the type of the message value to return
+	 * @param lValue the message value of the mesage element of the given type
+	 * @return true if the data could be set, else false
+	 */
+	inline bool setValue( const tTypeSamplingValue typeSamplingValue,
+			const long lValue ) {
+		
+		switch ( typeSamplingValue ) {
+			case BEGIN :
+			case TYPE_MSG :
+			case LENGTH :
+			case TYPE  : return false; //can't set
+			case ID    : return setId( lValue );
+			case CLOCK : return setClock( lValue );
+			case STATUS   : return setStatus( lValue );
+			case FINGER_1 : return setFinger1( lValue );
+			case FINGER_2 : return setFinger2( lValue );
+			case FINGER_3 : return setFinger3( lValue );
+			case FINGER_4 : return setFinger4( lValue );
+			case FINGER_5 : return setFinger5( lValue );
+			case QUATERNION_1 : return setQuaternion1( lValue );
+			case QUATERNION_2 : return setQuaternion2( lValue );
+			case QUATERNION_3 : return setQuaternion3( lValue );
+			case QUATERNION_4 : return setQuaternion4( lValue );
+			case GYROSCOPE_X  : return setGyroscopeX( lValue );
+			case GYROSCOPE_Y  : return setGyroscopeY( lValue );
+			case GYROSCOPE_Z  : return setGyroscopeZ( lValue );
+			case MAGNETOMETER_X  : return setMagnetometerX( lValue );
+			case MAGNETOMETER_Y  : return setMagnetometerY( lValue );
+			case MAGNETOMETER_Z  : return setMagnetometerZ( lValue );
+			case ACCELEROMETER_X : return setAccelerometerX( lValue );
+			case ACCELEROMETER_Y : return setAccelerometerY( lValue );
+			case ACCELEROMETER_Z : return setAccelerometerZ( lValue );
+			case END : return false; //can't set
+			case CRC : //TODO?
+			case UNKNOWN : return false;
+		};  //end switch typeSamplingValue
+		return false;
+	}
+	
+	
+	
+	/**
+	 * This function checks if the message has changed.
+	 * This message is compared with the given old message.
+	 *
+	 * @see szMessage
+	 * @see uiMessageSize
+	 * @param pOldMessageSamplingDataFromDataGlove a pointer to the old
+	 * 	message
+	 * @return true if the message has changed, else false
+	 */
+	inline bool hasChanged( const cMessageSamplingDataFromDataGlove *
+			pOldMessageSamplingData ) const {
+		
+		return ( ( uiMessageSize != pOldMessageSamplingData->uiMessageSize ) ||
+			( memcmp( szMessage,
+				pOldMessageSamplingData->szMessage, uiMessageSize ) != 0 ) );
+	}
 	
 	
 	

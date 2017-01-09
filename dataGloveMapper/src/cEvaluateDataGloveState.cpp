@@ -932,6 +932,8 @@ bool cEvaluateDataGloveState::loadDataGloveStates(
 	//read remaining lines
 	list< tTableHead >::const_iterator itrColumnType = liTableColumnType.begin();
 	cDataGloveState * pActualDataGloveState = new cDataGloveState();
+	//remember used data glove samplin value types
+	SetUsedHandSamplingValues.clear();
 	
 #ifdef FEATURE_READ_DATA_GLOVE_STATES_WIDE_CHAR_IN_EVALUATE_DATA_GLOVE_STATE
 	wstring szFunction;
@@ -980,6 +982,14 @@ bool cEvaluateDataGloveState::loadDataGloveStates(
 						
 						pActualDataGloveState->setInterval(
 							itrColumnType->typeSamplingData.first, pInterval );
+						//remember used data glove samplin value type
+						if ( SetUsedHandSamplingValues.find(
+									itrColumnType->typeSamplingData.first ) ==
+								SetUsedHandSamplingValues.end() ) {
+							//data glove samplin value type not stored yet -> store it
+							SetUsedHandSamplingValues.insert(
+								itrColumnType->typeSamplingData.first );
+						}
 					}
 					
 					//set the new interval value
